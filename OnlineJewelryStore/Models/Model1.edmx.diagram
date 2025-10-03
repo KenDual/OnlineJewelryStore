@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="0c177e4350924bf3a920e38a67f077f4" Name="Diagram1">
+        <EntityTypeShape EntityType="OnlineJewelryStoreModel.Address" Width="1.5" PointX="1.5" PointY="20.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="OnlineJewelryStoreModel.Analytic" Width="1.5" PointX="3.75" PointY="17" IsExpanded="true" />
+        <EntityTypeShape EntityType="OnlineJewelryStoreModel.CartItem" Width="1.5" PointX="3" PointY="7" IsExpanded="true" />
+        <EntityTypeShape EntityType="OnlineJewelryStoreModel.Cart" Width="1.5" PointX="0.75" PointY="13.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="OnlineJewelryStoreModel.Category" Width="1.5" PointX="1.5" PointY="17" IsExpanded="true" />
+        <EntityTypeShape EntityType="OnlineJewelryStoreModel.Certification" Width="1.5" PointX="3" PointY="10.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="OnlineJewelryStoreModel.Coupon" Width="1.5" PointX="1.5" PointY="24.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="OnlineJewelryStoreModel.Gemstone" Width="1.5" PointX="3" PointY="13.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="OnlineJewelryStoreModel.Invoice" Width="1.5" PointX="6" PointY="20.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="OnlineJewelryStoreModel.OrderItem" Width="1.5" PointX="6" PointY="8.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="OnlineJewelryStoreModel.Order" Width="1.5" PointX="3.75" PointY="20.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="OnlineJewelryStoreModel.Payment" Width="1.5" PointX="6" PointY="23" IsExpanded="true" />
+        <EntityTypeShape EntityType="OnlineJewelryStoreModel.ProductMedia" Width="1.5" PointX="3.75" PointY="27" IsExpanded="true" />
+        <EntityTypeShape EntityType="OnlineJewelryStoreModel.Product" Width="1.5" PointX="1.5" PointY="2.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="OnlineJewelryStoreModel.ProductVariant" Width="1.5" PointX="0.75" PointY="8.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="OnlineJewelryStoreModel.Review" Width="1.5" PointX="6" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="OnlineJewelryStoreModel.User" Width="1.5" PointX="3.75" PointY="2.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="OnlineJewelryStoreModel.Wishlist" Width="1.5" PointX="6" PointY="5" IsExpanded="true" />
+        <AssociationConnector Association="OnlineJewelryStoreModel.FK_Addresses_Users" ManuallyRouted="false" />
+        <AssociationConnector Association="OnlineJewelryStoreModel.FK_Orders_Addresses" ManuallyRouted="false" />
+        <AssociationConnector Association="OnlineJewelryStoreModel.FK_Analytics_Bestseller" ManuallyRouted="false" />
+        <AssociationConnector Association="OnlineJewelryStoreModel.FK_CartItems_Carts" ManuallyRouted="false" />
+        <AssociationConnector Association="OnlineJewelryStoreModel.FK_CartItems_Variants" ManuallyRouted="false" />
+        <AssociationConnector Association="OnlineJewelryStoreModel.FK_Carts_Users" ManuallyRouted="false" />
+        <AssociationConnector Association="OnlineJewelryStoreModel.FK_Categories_Parent" ManuallyRouted="false" />
+        <AssociationConnector Association="OnlineJewelryStoreModel.FK_Products_Categories" ManuallyRouted="false" />
+        <AssociationConnector Association="OnlineJewelryStoreModel.FK_Certifications_Variants" ManuallyRouted="false" />
+        <AssociationConnector Association="OnlineJewelryStoreModel.FK_Orders_Coupons" ManuallyRouted="false" />
+        <AssociationConnector Association="OnlineJewelryStoreModel.FK_Gemstones_Variants" ManuallyRouted="false" />
+        <AssociationConnector Association="OnlineJewelryStoreModel.FK_Invoices_Orders" ManuallyRouted="false" />
+        <AssociationConnector Association="OnlineJewelryStoreModel.FK_OrderItems_Orders" ManuallyRouted="false" />
+        <AssociationConnector Association="OnlineJewelryStoreModel.FK_OrderItems_Variants" ManuallyRouted="false" />
+        <AssociationConnector Association="OnlineJewelryStoreModel.FK_Orders_Users" ManuallyRouted="false" />
+        <AssociationConnector Association="OnlineJewelryStoreModel.FK_Payments_Orders" ManuallyRouted="false" />
+        <AssociationConnector Association="OnlineJewelryStoreModel.FK_ProductMedia_Products" ManuallyRouted="false" />
+        <AssociationConnector Association="OnlineJewelryStoreModel.FK_ProductVariants_Products" ManuallyRouted="false" />
+        <AssociationConnector Association="OnlineJewelryStoreModel.FK_Reviews_Products" ManuallyRouted="false" />
+        <AssociationConnector Association="OnlineJewelryStoreModel.FK_Wishlist_Variants" ManuallyRouted="false" />
+        <AssociationConnector Association="OnlineJewelryStoreModel.FK_Reviews_Users" ManuallyRouted="false" />
+        <AssociationConnector Association="OnlineJewelryStoreModel.FK_Wishlist_Users" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>
