@@ -274,6 +274,7 @@
     <Content Include="Views\AdminUsers\Details.cshtml" />
     <Content Include="Views\AdminUsers\Edit.cshtml" />
     <Content Include="Views\AdminUsers\Index.cshtml" />
+    <Content Include="Views\SharedAdmin\_LayoutAdmin.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
