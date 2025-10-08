@@ -280,7 +280,6 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Views\Resources\User\" />
-    <Folder Include="Views\SharedAdmin\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />
