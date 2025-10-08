@@ -17,7 +17,7 @@ namespace OnlineJewelryStore.Areas.Admin
             context.MapRoute(
                 name: "Admin_default",
                 url: "Admin/{controller}/{action}/{id}",
-                defaults: new { controller = "Dashboard", action = "Index", id = UrlParameter.Optional },
+                defaults: new { controller = "Users", action = "Index", id = UrlParameter.Optional },
                 namespaces: new[] { "OnlineJewelryStore.Areas.Admin.Controllers" }
             );
         }

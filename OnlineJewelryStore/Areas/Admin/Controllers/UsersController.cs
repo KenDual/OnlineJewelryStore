@@ -1,4 +1,6 @@
-﻿using System;
+﻿using OnlineJewelryStore.Filters;
+using OnlineJewelryStore.Models;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
@@ -6,10 +8,10 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
-using OnlineJewelryStore.Models;
 
 namespace OnlineJewelryStore.Areas.Admin.Controllers
 {
+    [AdminAuthorize]
     public class UsersController : Controller
     {
         private OnlineJewelryStoreEntities db = new OnlineJewelryStoreEntities();
@@ -19,6 +21,37 @@ namespace OnlineJewelryStore.Areas.Admin.Controllers
         {
             ViewBag.ActiveMenu = "Users";
             return View(db.Users.ToList());
+        }
+
+        // GET: AdminUsers/Create
+        public ActionResult Create()
+        {
+            return View();
+        }
+
+        // POST: AdminUsers/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Create([Bind(Include = "UserID,FirstName,LastName,Email,Phone,PasswordHash,Role")] User user)
+        {
+            if (ModelState.IsValid)
+            {
+                if (db.Users.Any(u => u.Email == user.Email))
+                {
+                    // Kiểm tra email tồn tại chưa
+                    ViewBag.Error = "Email này đã tồn tại.";
+                    return View(user);
+                }
+                user.RegistrationDate = DateTime.Now;
+                user.LastLogin = null;
+                user.SocialLoginProvider = null;
+
+                db.Users.Add(user);
+                db.SaveChanges();
+                return RedirectToAction("Index");
+            }
+
+            return View(user);
         }
 
         // GET: AdminUsers/Details/5
@@ -36,26 +69,7 @@ namespace OnlineJewelryStore.Areas.Admin.Controllers
             return View(user);
         }
 
-        // GET: AdminUsers/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: AdminUsers/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "UserID,FirstName,LastName,Email,Phone,PasswordHash,Role,RegistrationDate,LastLogin,SocialLoginProvider")] User user)
-        {
-            if (ModelState.IsValid)
-            {
-                db.Users.Add(user);
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-
-            return View(user);
-        }
+        
 
         // GET: AdminUsers/Edit/5
         public ActionResult Edit(int? id)

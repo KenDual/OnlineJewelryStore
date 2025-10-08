@@ -1,0 +1,217 @@
+﻿@model OnlineJewelryStore.Models.User
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Online Jewelry Store</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Source Sans Pro', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            width: 100%;
+            background-image: url('/images/bg.jpg');
+            background-position: center;
+            background-size: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 0;
+        }
+
+        .form-container {
+            width: 450px;
+            padding: 40px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.5);
+            margin: 20px;
+        }
+
+        .form-container h1 {
+            margin-bottom: 25px;
+            color: white;
+            text-align: center;
+            text-transform: capitalize;
+            padding-bottom: 15px;
+            font-size: 32px;
+        }
+
+        .alert {
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .alert-danger {
+            background-color: rgba(220, 53, 69, 0.9);
+            color: white;
+        }
+
+        .input-box {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .input-box label {
+            display: block;
+            letter-spacing: 1px;
+            font-size: 16px;
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .input-box input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            color: #03a9f4;
+            letter-spacing: 1px;
+            border: none;
+            border-bottom: 2px solid white;
+            background: transparent;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .input-box input:focus {
+            border-bottom-color: #03a9f4;
+        }
+
+        .row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .row .input-box {
+            flex: 1;
+        }
+
+        .btn {
+            width: 100%;
+            background: #3498db;
+            background-image: linear-gradient(to bottom, #3498db, #2980b9);
+            border-radius: 17px;
+            color: #ffffff;
+            font-size: 18px;
+            padding: 12px 20px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background: #3cb0fd;
+            background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .footer-text {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .footer-text p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+
+        .footer-text a {
+            color: #03a9f4;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer-text a:hover {
+            text-decoration: underline;
+        }
+
+        .text-danger {
+            color: #ff6b6b;
+            font-size: 12px;
+            margin-top: 5px;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="form-container">
+        <h1>Register</h1>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger">
+                @ViewBag.Error
+            </div>
+        }
+
+        @using (Html.BeginForm("Register", "Account", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="row">
+                <div class="input-box">
+                    <label for="FirstName">First Name</label>
+                    @Html.TextBoxFor(m => m.FirstName, new { autocomplete = "off", required = "required" })
+                    @Html.ValidationMessageFor(m => m.FirstName, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="input-box">
+                    <label for="LastName">Last Name</label>
+                    @Html.TextBoxFor(m => m.LastName, new { autocomplete = "off", required = "required" })
+                    @Html.ValidationMessageFor(m => m.LastName, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="input-box">
+                <label for="Email">Email</label>
+                @Html.TextBoxFor(m => m.Email, new { type = "email", autocomplete = "off", required = "required" })
+                @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="input-box">
+                <label for="Phone">Phone (Optional)</label>
+                @Html.TextBoxFor(m => m.Phone, new { autocomplete = "off" })
+                @Html.ValidationMessageFor(m => m.Phone, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="input-box">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" autocomplete="off" required />
+            </div>
+
+            <div class="input-box">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" autocomplete="off" required />
+            </div>
+
+            <button class="btn" type="submit">Register</button>
+        }
+
+        <div class="footer-text">
+            <p>Already have an account? @Html.ActionLink("Login here", "Login", null, new { })</p>
+        </div>
+    </div>
+</body>
+</html>

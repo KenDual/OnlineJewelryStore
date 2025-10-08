@@ -1,0 +1,184 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Online Jewelry Store</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Source Sans Pro', sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            width: 100%;
+            background-image: url('/images/bg.jpg');
+            background-position: center;
+            background-size: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .form-container {
+            width: 400px;
+            padding: 50px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .form-container h1 {
+            margin-bottom: 30px;
+            color: white;
+            text-align: center;
+            text-transform: capitalize;
+            padding-bottom: 15px;
+            font-size: 32px;
+        }
+
+        .alert {
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background-color: rgba(40, 167, 69, 0.9);
+            color: white;
+        }
+
+        .alert-danger {
+            background-color: rgba(220, 53, 69, 0.9);
+            color: white;
+        }
+
+        .input-box {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .input-box label {
+            display: block;
+            letter-spacing: 1px;
+            font-size: 16px;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .input-box input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            color: #03a9f4;
+            letter-spacing: 1px;
+            border: none;
+            border-bottom: 2px solid white;
+            background: transparent;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .input-box input:focus {
+            border-bottom-color: #03a9f4;
+        }
+
+        .btn {
+            width: 100%;
+            background: #3498db;
+            background-image: linear-gradient(to bottom, #3498db, #2980b9);
+            border-radius: 17px;
+            color: #ffffff;
+            font-size: 18px;
+            padding: 12px 20px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background: #3cb0fd;
+            background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .footer-text {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .footer-text p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+
+        .footer-text a {
+            color: #03a9f4;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer-text a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="form-container">
+        <h1>Login</h1>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger">
+                @ViewBag.Error
+            </div>
+        }
+
+        @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="input-box">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" autocomplete="off" required />
+            </div>
+
+            <div class="input-box">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" autocomplete="off" required />
+            </div>
+
+            <button class="btn" type="submit">Login</button>
+        }
+
+        <div class="footer-text">
+            <p>Don't have an account? @Html.ActionLink("Register here", "Register", null, new { })</p>
+        </div>
+    </div>
+</body>
+</html>

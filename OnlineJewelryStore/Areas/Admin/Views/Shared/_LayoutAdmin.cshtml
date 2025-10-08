@@ -158,30 +158,26 @@
             <div class="user-menu">
                 <div class="dropdown">
                     <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                        <span class="ms-2">Admin</span>
+                        <span class="ms-2">@Session["UserName"]</span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li>
-                            <a class="dropdown-item" href="/Admin/Profile">
-                                <i class="bi bi-person"></i> Thông Tin Cá
-                                Nhân
+                            <a class="dropdown-item" href="@Url.Action("Profile", "Account", new { area = "" })">
+                                <i class="bi bi-person"></i> Thông Tin Cá Nhân
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item" href="/Admin/ChangePassword">
-                                <i class="bi bi-key"></i> Đổi Mật
-                                Khẩu
+                            <a class="dropdown-item" href="@Url.Action("ChangePassword", "Account", new { area = "" })">
+                                <i class="bi bi-key"></i> Đổi Mật Khẩu
                             </a>
                         </li>
                         <li>
                             <hr class="dropdown-divider">
                         </li>
                         <li>
-                            <form asp-action="Logout" asp-controller="Account" method="post">
-                                <button type="submit" class="dropdown-item text-danger">
-                                    <i class="bi bi-box-arrow-right"></i> Đăng Xuất
-                                </button>
-                            </form>
+                            <a class="dropdown-item text-danger" href="@Url.Action("Logout", "Account", new { area = "" })">
+                                <i class="bi bi-box-arrow-right"></i> Đăng Xuất
+                            </a>
                         </li>
                     </ul>
                 </div>
