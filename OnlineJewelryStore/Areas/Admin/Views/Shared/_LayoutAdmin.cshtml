@@ -114,42 +114,42 @@
         </div>
 
         <nav class="nav flex-column">
-            <a class="nav-link active" href="/Admin/Dashboard">
+            <a class="nav-link @(ViewBag.ActiveMenu == "Dashboard" ? "active" : "")" href="/Admin/Dashboard">
                 <i class="bi bi-speedometer2"></i>
                 <span>Dashboard</span>
             </a>
 
-            <a class="nav-link" href="/Admin/Users">
+            <a class="nav-link @(ViewBag.ActiveMenu == "Users" ? "active" : "")" href="/Admin/Users">
                 <i class="bi bi-people"></i>
                 <span>Quản Lý Người Dùng</span>
             </a>
 
-            <a class="nav-link" href="/Admin/Products">
+            <a class="nav-link @(ViewBag.ActiveMenu == "Products" ? "active" : "")" href="/Admin/Products">
                 <i class="bi bi-box-seam"></i>
                 <span>Quản Lý Sản Phẩm</span>
             </a>
 
-            <a class="nav-link" href="/Admin/Categories">
+            <a class="nav-link @(ViewBag.ActiveMenu == "Categories" ? "active" : "")" href="/Admin/Categories">
                 <i class="bi bi-grid"></i>
                 <span>Quản Lý Danh Mục</span>
             </a>
 
-            <a class="nav-link" href="/Admin/Orders">
+            <a class="nav-link @(ViewBag.ActiveMenu == "Orders" ? "active" : "")" href="/Admin/Orders">
                 <i class="bi bi-cart-check"></i>
                 <span>Quản Lý Đơn Hàng</span>
             </a>
 
-            <a class="nav-link" href="/Admin/Payments">
+            <a class="nav-link @(ViewBag.ActiveMenu == "Payments" ? "active" : "")" href="/Admin/Payments">
                 <i class="bi bi-credit-card"></i>
                 <span>Quản Lý Thanh Toán</span>
             </a>
 
-            <a class="nav-link" href="/Admin/Reports">
+            <a class="nav-link @(ViewBag.ActiveMenu == "Analytics" ? "active" : "")" href="/Admin/Reports">
                 <i class="bi bi-bar-chart"></i>
                 <span>Báo Cáo & Thống Kê</span>
             </a>
 
-            <a class="nav-link" href="/Admin/Settings">
+            <a class="nav-link @(ViewBag.ActiveMenu == "Settings" ? "active" : "")" href="/Admin/Settings">
                 <i class="bi bi-gear"></i>
                 <span>Cài Đặt Hệ Thống</span>
             </a>

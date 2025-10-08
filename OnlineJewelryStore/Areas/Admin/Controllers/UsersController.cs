@@ -8,15 +8,16 @@ using System.Web;
 using System.Web.Mvc;
 using OnlineJewelryStore.Models;
 
-namespace OnlineJewelryStore.Controllers
+namespace OnlineJewelryStore.Areas.Admin.Controllers
 {
-    public class AdminUsersController : Controller
+    public class UsersController : Controller
     {
         private OnlineJewelryStoreEntities db = new OnlineJewelryStoreEntities();
 
         // GET: AdminUsers
         public ActionResult Index()
         {
+            ViewBag.ActiveMenu = "Users";
             return View(db.Users.ToList());
         }
 
