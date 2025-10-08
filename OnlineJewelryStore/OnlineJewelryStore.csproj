@@ -258,7 +258,7 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
-    <Content Include="Views\Resources\Admin\styles.css" />
+    <Content Include="Views\Resources\Admin\admin-layout.css" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -275,11 +275,12 @@
     <Content Include="Views\AdminUsers\Details.cshtml" />
     <Content Include="Views\AdminUsers\Edit.cshtml" />
     <Content Include="Views\AdminUsers\Index.cshtml" />
-    <Content Include="Views\SharedAdmin\_LayoutAdmin.cshtml" />
+    <Content Include="Views\Shared\_LayoutAdmin.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Views\Resources\User\" />
+    <Folder Include="Views\SharedAdmin\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />
