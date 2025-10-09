@@ -1,67 +1,349 @@
 ﻿@model OnlineJewelryStore.Models.Product
 
 @{
-    ViewBag.Title = "Details";
+    ViewBag.Title = "Product Details";
     Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+    ViewBag.ActiveMenu = "Products";
+    var mainImage = Model.ProductMedias?.FirstOrDefault(m => m.IsMain == true && m.MediaType == "Image");
+    var imageUrl = mainImage != null ? mainImage.URL : "/Content/images/no-image.jpg";
+    var totalStock = Model.ProductVariants?.Sum(v => v.StockQuantity) ?? 0;
 }
 
-<h2>Details</h2>
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="bi bi-gem"></i> @Model.ProductName
+                    </h2>
+                    <p class="text-muted">Product ID: #@Model.ProductID | Created: @Model.CreationDate.ToString("dd/MM/yyyy")</p>
+                </div>
+                <div>
+                    @Html.ActionLink("Edit Product", "Edit", new { id = Model.ProductID }, new { @class = "btn btn-warning" })
+                    @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-secondary" })
+                </div>
+            </div>
+        </div>
+    </div>
 
-<div>
-    <h4>Product</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.ProductName)
-        </dt>
+    <div class="row">
+        <!-- Left Column: Product Info -->
+        <div class="col-lg-8">
+            <!-- Basic Information Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-info-circle"></i> Basic Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-3">
+                            <img src="@imageUrl" alt="@Model.ProductName" class="img-fluid rounded" style="max-height: 250px; object-fit: cover;" />
+                            @if (Model.ProductMedias == null || !Model.ProductMedias.Any())
+                            {
+                                <p class="text-muted mt-2"><small>No images uploaded yet</small></p>
+                            }
+                        </div>
+                        <div class="col-md-8">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="fw-bold" style="width: 150px;">Product Name:</td>
+                                    <td>@Model.ProductName</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Category:</td>
+                                    <td>
+                                        <span class="badge bg-info text-dark">@Model.Category.CategoryName</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Base Price:</td>
+                                    <td><strong class="text-success">@Model.BasePrice.ToString("N0") VNĐ</strong></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Status:</td>
+                                    <td>
+                                        @if (Model.IsActive)
+                                        {
+                                            <span class="badge bg-success"><i class="bi bi-check-circle"></i> Active</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary"><i class="bi bi-x-circle"></i> Inactive</span>
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Total Stock:</td>
+                                    <td>
+                                        @if (totalStock > 0)
+                                        {
+                                            <span class="badge bg-success">@totalStock units</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">Out of Stock</span>
+                                        }
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
 
-        <dd>
-            @Html.DisplayFor(model => model.ProductName)
-        </dd>
+                    @if (!string.IsNullOrEmpty(Model.Description))
+                    {
+                        <hr />
+                        <h6 class="fw-bold">Description:</h6>
+                        <p class="text-muted">@Model.Description</p>
+                    }
+                </div>
+            </div>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
+            <!-- Product Variants Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-box-seam"></i> Product Variants</h5>
+                    @Html.ActionLink("Manage Variants", "Index", "ProductVariants", new { productId = Model.ProductID }, new { @class = "btn btn-outline-primary" })
+                </div>
+                <div class="card-body">
+                    @if (Model.ProductVariants != null && Model.ProductVariants.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>SKU</th>
+                                        <th>Metal Type</th>
+                                        <th>Purity</th>
+                                        <th>Size</th>
+                                        <th class="text-end">Additional Price</th>
+                                        <th class="text-center">Stock</th>
+                                        <th class="text-center">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var variant in Model.ProductVariants)
+                                    {
+                                        <tr>
+                                            <td><code>@variant.SKU</code></td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(variant.MetalType))
+                                                {
+                                                    <span class="badge bg-warning text-dark">@variant.MetalType</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">-</span>
+                                                }
+                                            </td>
+                                            <td>@(variant.Purity ?? "-")</td>
+                                            <td>@(variant.RingSize ?? variant.ChainLength ?? "-")</td>
+                                            <td class="text-end">@variant.AdditionalPrice.ToString("N0") VNĐ</td>
+                                            <td class="text-center">
+                                                @if (variant.StockQuantity > 0)
+                                                {
+                                                    <span class="badge bg-success">@variant.StockQuantity</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger">0</span>
+                                                }
+                                            </td>
+                                            <td class="text-center">
+                                                <button class="btn btn-sm btn-warning" disabled title="Feature coming soon">Edit</button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <strong>No variants yet!</strong> This product needs at least one variant to be sold. Variants include SKU, metal type, sizes, and stock quantity.
+                        </div>
+                    }
+                </div>
+            </div>
 
-        <dd>
-            @Html.DisplayFor(model => model.Description)
-        </dd>
+            <!-- Product Media Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-images"></i> Product Media</h5>
+                    @Html.ActionLink("Manage Media", "Index", "ProductMedias", new { productId = Model.ProductID }, new { @class = "btn btn-outline-primary" })
+                </div>
+                <div class="card-body">
+                    @if (Model.ProductMedias != null && Model.ProductMedias.Any())
+                    {
+                        <div class="row g-3">
+                            @foreach (var media in Model.ProductMedias.OrderByDescending(m => m.IsMain))
+                            {
+                                <div class="col-md-3">
+                                    <div class="card">
+                                        @if (media.MediaType == "Image")
+                                        {
+                                            <img src="@media.URL" class="card-img-top" alt="Product Image" style="height: 150px; object-fit: cover;" />
+                                        }
+                                        else if (media.MediaType == "Video")
+                                        {
+                                            <div class="card-img-top bg-dark text-white d-flex align-items-center justify-content-center" style="height: 150px;">
+                                                <i class="bi bi-play-circle fs-1"></i>
+                                            </div>
+                                        }
+                                        else if (media.MediaType == "360View")
+                                        {
+                                            <div class="card-img-top bg-info text-white d-flex align-items-center justify-content-center" style="height: 150px;">
+                                                <i class="bi bi-arrow-repeat fs-1"></i>
+                                            </div>
+                                        }
+                                        <div class="card-body p-2 text-center">
+                                            <small class="badge bg-secondary">@media.MediaType</small>
+                                            @if (media.IsMain)
+                                            {
+                                                <small class="badge bg-primary">Main</small>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <strong>No media uploaded!</strong> Upload product images, 360° views, or videos to showcase this product.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.BasePrice)
-        </dt>
+        <!-- Right Column: Additional Info -->
+        <div class="col-lg-4">
+            <!-- Quick Stats Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-graph-up"></i> Quick Stats</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Total Variants</small>
+                        <h4 class="mb-0">@(Model.ProductVariants?.Count() ?? 0)</h4>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Total Stock</small>
+                        <h4 class="mb-0">@totalStock units</h4>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Images</small>
+                        <h4 class="mb-0">@(Model.ProductMedias?.Count(m => m.MediaType == "Image") ?? 0)</h4>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block">Reviews</small>
+                        <h4 class="mb-0">
+                            @(Model.Reviews?.Count() ?? 0)
+                            @if (Model.Reviews != null && Model.Reviews.Any())
+                            {
+                                var avgRating = Model.Reviews.Average(r => r.Rating);
+                                <small class="text-warning">(@avgRating.ToString("0.0") ⭐)</small>
+                            }
+                        </h4>
+                    </div>
+                </div>
+            </div>
 
-        <dd>
-            @Html.DisplayFor(model => model.BasePrice)
-        </dd>
+            <!-- Gemstones Info Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-gem"></i> Gemstones</h5>
+                </div>
+                <div class="card-body">
+                    @{
+                        var gemstones = Model.ProductVariants?.SelectMany(v => v.Gemstones).ToList();
+                    }
+                    @if (gemstones != null && gemstones.Any())
+                    {
+                        foreach (var gem in gemstones.Take(3))
+                        {
+                            <div class="mb-2 pb-2 border-bottom">
+                                <small class="text-muted">Cut: @(gem.Cut ?? "N/A")</small><br />
+                                <small class="text-muted">Carat: @(gem.Carat?.ToString() ?? "N/A")</small><br />
+                                <small class="text-muted">Color: @(gem.Color ?? "N/A")</small>
+                            </div>
+                        }
+                        if (gemstones.Count > 3)
+                        {
+                            <small class="text-muted">... and @(gemstones.Count - 3) more</small>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">No gemstone information available</p>
+                    }
+                </div>
+            </div>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.CreationDate)
-        </dt>
+            <!-- Certifications Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-patch-check"></i> Certifications</h5>
+                </div>
+                <div class="card-body">
+                    @{
+                        var certifications = Model.ProductVariants?.SelectMany(v => v.Certifications).ToList();
+                    }
+                    @if (certifications != null && certifications.Any())
+                    {
+                        foreach (var cert in certifications)
+                        {
+                            <div class="mb-2 pb-2 border-bottom">
+                                <span class="badge bg-success">@cert.Certifier</span><br />
+                                <small class="text-muted">Cert #: @cert.CertificateNumber</small>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">No certifications available</p>
+                    }
+                </div>
+            </div>
 
-        <dd>
-            @Html.DisplayFor(model => model.CreationDate)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.IsActive)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.IsActive)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Category.CategoryName)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Category.CategoryName)
-        </dd>
-
-    </dl>
+            <!-- Actions Card -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-lightning"></i> Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        @Html.ActionLink("Add Variants", "Index", "ProductVariants", new { productId = Model.ProductID }, new { @class = "btn btn-outline-primary w-100" })
+                        @Html.ActionLink(" Upload Media", "Index", "ProductMedias", new { productId = Model.ProductID }, new { @class = "btn btn-outline-primary w-100 bi bi-upload" })
+                        <button class="btn btn-outline-primary" disabled title="Feature coming soon">
+                            <i class="bi bi-gem"></i> Add Gemstone Info
+                        </button>
+                        <button class="btn btn-outline-primary" disabled title="Feature coming soon">
+                            <i class="bi bi-patch-check"></i> Add Certification
+                        </button>
+                        <hr />
+                        @Html.ActionLink("Edit Product", "Edit", new { id = Model.ProductID }, new { @class = "btn btn-warning w-100" })
+                        @Html.ActionLink("Delete Product", "Delete", new { id = Model.ProductID }, new { @class = "btn btn-danger w-100" })
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-<p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.ProductID }) |
-    @Html.ActionLink("Back to List", "Index")
-</p>
+
+<style>
+    .table-borderless td {
+        padding: 0.5rem 0;
+    }
+
+    .card {
+        border: none;
+    }
+</style>

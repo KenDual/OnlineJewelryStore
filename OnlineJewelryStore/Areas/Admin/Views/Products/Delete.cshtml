@@ -1,73 +1,221 @@
 ﻿@model OnlineJewelryStore.Models.Product
 
 @{
-    ViewBag.Title = "Delete";
+    ViewBag.Title = "Delete Product";
     Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+    ViewBag.ActiveMenu = "Products";
+
+    var orderItems = Model.ProductVariants?.SelectMany(v => v.OrderItems).ToList();
+    var cartItems = Model.ProductVariants?.SelectMany(v => v.CartItems).ToList();
+    var wishlists = Model.ProductVariants?.SelectMany(v => v.Wishlists).ToList();
+
+    var hasOrders = orderItems != null && orderItems.Any();
+    var hasReviews = Model.Reviews != null && Model.Reviews.Any();
+    var hasCartItems = cartItems != null && cartItems.Any();
+    var hasWishlists = wishlists != null && wishlists.Any();
+    var canDelete = !hasOrders && !hasReviews;
 }
 
-<h2>Delete</h2>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            <div class="card shadow-sm border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0"><i class="bi bi-trash"></i> Delete Product</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-danger">
+                        <h5 class="alert-heading">
+                            <i class="bi bi-exclamation-triangle-fill"></i> Are you sure you want to delete this product?
+                        </h5>
+                        <p class="mb-0">This action cannot be undone!</p>
+                    </div>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>Product</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.ProductName)
-        </dt>
+                    <hr />
 
-        <dd>
-            @Html.DisplayFor(model => model.ProductName)
-        </dd>
+                    <h5 class="mb-3">Product Information:</h5>
+                    <table class="table table-bordered">
+                        <tr>
+                            <td class="fw-bold" style="width: 200px;">Product Name:</td>
+                            <td>@Model.ProductName</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">Category:</td>
+                            <td>@Model.Category.CategoryName</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">Base Price:</td>
+                            <td>@Model.BasePrice.ToString("N0") VNĐ</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">Created Date:</td>
+                            <td>@Model.CreationDate.ToString("dd/MM/yyyy HH:mm")</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">Status:</td>
+                            <td>
+                                @if (Model.IsActive)
+                                {
+                                    <span class="badge bg-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Inactive</span>
+                                }
+                            </td>
+                        </tr>
+                    </table>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
+                    <hr />
 
-        <dd>
-            @Html.DisplayFor(model => model.Description)
-        </dd>
+                    <h5 class="mb-3">Related Data:</h5>
+                    <table class="table table-sm">
+                        <tr>
+                            <td class="fw-bold">Variants:</td>
+                            <td>
+                                @if (Model.ProductVariants != null && Model.ProductVariants.Any())
+                                {
+                                    <span class="badge bg-warning text-dark">@Model.ProductVariants.Count() variants</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No variants</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">Images:</td>
+                            <td>
+                                @if (Model.ProductMedias != null && Model.ProductMedias.Any())
+                                {
+                                    <span class="badge bg-info text-dark">@Model.ProductMedias.Count() images/videos</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No media</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">Orders:</td>
+                            <td>
+                                @if (hasOrders)
+                                {
+                                    <span class="badge bg-danger">@orderItems.Count() order(s)</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">No orders</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">Reviews:</td>
+                            <td>
+                                @if (hasReviews)
+                                {
+                                    <span class="badge bg-danger">@Model.Reviews.Count() review(s)</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">No reviews</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">In Carts:</td>
+                            <td>
+                                @if (hasCartItems)
+                                {
+                                    <span class="badge bg-warning text-dark">@cartItems.Count() cart(s)</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Not in any cart</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">In Wishlists:</td>
+                            <td>
+                                @if (hasWishlists)
+                                {
+                                    <span class="badge bg-warning text-dark">@wishlists.Count() wishlist(s)</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Not in any wishlist</span>
+                                }
+                            </td>
+                        </tr>
+                    </table>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.BasePrice)
-        </dt>
+                    <hr />
 
-        <dd>
-            @Html.DisplayFor(model => model.BasePrice)
-        </dd>
+                    @if (!canDelete)
+                    {
+                        <div class="alert alert-danger">
+                            <i class="bi bi-x-circle-fill"></i>
+                            <strong>Cannot Delete!</strong> This product cannot be deleted because:
+                            <ul class="mb-0 mt-2">
+                                @if (hasOrders)
+                                {
+                                    <li>It has <strong>@orderItems.Count()</strong> order(s)</li>
+                                }
+                                @if (hasReviews)
+                                {
+                                    <li>It has <strong>@Model.Reviews.Count()</strong> review(s)</li>
+                                }
+                            </ul>
+                            <p class="mt-2 mb-0">
+                                <strong>Suggestion:</strong> Instead of deleting, you can set the product to "Inactive" status to hide it from customers.
+                            </p>
+                        </div>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.CreationDate)
-        </dt>
+                        <div class="d-flex justify-content-between mt-3">
+                            @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-secondary" })
+                            @Html.ActionLink("Edit Product (Set Inactive)", "Edit", new { id = Model.ProductID }, new { @class = "btn btn-warning" })
+                        </div>
+                    }
+                    else
+                    {
+                        if (hasCartItems || hasWishlists)
+                        {
+                            <div class="alert alert-warning">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                <strong>Warning:</strong> This product will be removed from:
+                                <ul class="mb-0 mt-2">
+                                    @if (hasCartItems)
+                                    {
+                                        <li><strong>@cartItems.Count()</strong> shopping cart(s)</li>
+                                    }
+                                    @if (hasWishlists)
+                                    {
+                                        <li><strong>@wishlists.Count()</strong> wishlist(s)</li>
+                                    }
+                                </ul>
+                            </div>
+                        }
 
-        <dd>
-            @Html.DisplayFor(model => model.CreationDate)
-        </dd>
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>This product can be safely deleted.</strong> All variants and media will also be removed.
+                        </div>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.IsActive)
-        </dt>
+                        using (Html.BeginForm("Delete", "Products", FormMethod.Post))
+                        {
+                            @Html.AntiForgeryToken()
 
-        <dd>
-            @Html.DisplayFor(model => model.IsActive)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Category.CategoryName)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Category.CategoryName)
-        </dd>
-
-    </dl>
-
-    @using (Html.BeginForm()) {
-        @Html.AntiForgeryToken()
-
-        <div class="form-actions no-color">
-            <input type="submit" value="Delete" class="btn btn-default" /> |
-            @Html.ActionLink("Back to List", "Index")
+                            <div class="d-flex justify-content-between">
+                                @Html.ActionLink("Cancel", "Index", null, new { @class = "btn btn-secondary" })
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="bi bi-trash"></i> Yes, Delete This Product
+                                </button>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
         </div>
-    }
+    </div>
 </div>

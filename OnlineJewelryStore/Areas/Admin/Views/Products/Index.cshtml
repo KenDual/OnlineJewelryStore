@@ -1,64 +1,215 @@
 ﻿@model IEnumerable<OnlineJewelryStore.Models.Product>
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Products Management";
     Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+    ViewBag.ActiveMenu = "Products";
 }
 
-<h2>Index</h2>
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="bi bi-gem"></i> Products Management
+                    </h2>
+                    <p class="text-muted">Manage jewelry products and inventory</p>
+                </div>
+                <div>
+                    @Html.ActionLink("Create New Product", "Create", null, new { @class = "btn btn-success" })
+                </div>
+            </div>
+        </div>
+    </div>
 
-<p>
-    @Html.ActionLink("Create New", "Create")
-</p>
-<table class="table">
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.ProductName)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Description)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.BasePrice)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.CreationDate)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.IsActive)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Category.CategoryName)
-        </th>
-        <th></th>
-    </tr>
+    <!-- Search & Filter Card -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    @using (Html.BeginForm("Index", "Products", FormMethod.Get, new { @class = "row g-3" }))
+                    {
+                        <div class="col-md-4">
+                            <label class="form-label">Search by Name</label>
+                            <input type="text" name="searchString" value="@ViewBag.SearchString" class="form-control" placeholder="Enter product name..." />
+                        </div>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.ProductName)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Description)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.BasePrice)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.CreationDate)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.IsActive)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Category.CategoryName)
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.ProductID }) |
-            @Html.ActionLink("Details", "Details", new { id=item.ProductID }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.ProductID })
-        </td>
-    </tr>
-}
+                        <div class="col-md-3">
+                            <label class="form-label">Category</label>
+                            @Html.DropDownList("categoryId", (SelectList)ViewBag.Categories, "-- All Categories --", new { @class = "form-select" })
+                        </div>
 
-</table>
+                        <div class="col-md-3">
+                            <label class="form-label">Status</label>
+                            <select name="isActive" class="form-select">
+                                <option value="">-- All Status --</option>
+                                <option value="true" @(ViewBag.IsActive == true ? "selected" : "")>Active</option>
+                                <option value="false" @(ViewBag.IsActive == false ? "selected" : "")>Inactive</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-search"></i> Search
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Products Table Card -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">
+                        <i class="bi bi-list-ul"></i> All Products
+                        @if (Model != null && Model.Any())
+                        {
+                            <span class="badge bg-primary ms-2">@Model.Count() products</span>
+                        }
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4" style="width: 80px;">Image</th>
+                                    <th>Product Name</th>
+                                    <th>Category</th>
+                                    <th class="text-end">Base Price</th>
+                                    <th class="text-center">Variants</th>
+                                    <th class="text-center">Stock</th>
+                                    <th class="text-center">Status</th>
+                                    <th class="text-center" style="width: 200px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model != null && Model.Any())
+                                {
+                                    foreach (var item in Model)
+                                    {
+                                        var mainImage = item.ProductMedias?.FirstOrDefault(m => m.IsMain == true && m.MediaType == "Image");
+                                        var imageUrl = mainImage != null ? mainImage.URL : "/Content/images/no-image.jpg";
+                                        var totalStock = item.ProductVariants?.Sum(v => v.StockQuantity) ?? 0;
+                                        var variantsCount = item.ProductVariants?.Count() ?? 0;
+
+                                        <tr>
+                                            <td class="ps-4">
+                                                <img src="@imageUrl" alt="@item.ProductName" class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;" />
+                                            </td>
+                                            <td>
+                                                <strong>@item.ProductName</strong>
+                                                @if (!string.IsNullOrEmpty(item.Description) && item.Description.Length > 50)
+                                                {
+                                                    <br />
+                                                    <small class="text-muted">@item.Description.Substring(0, 50)...</small>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info text-dark">@item.Category.CategoryName</span>
+                                            </td>
+                                            <td class="text-end">
+                                                <strong>@item.BasePrice.ToString("N0") VNĐ</strong>
+                                            </td>
+                                            <td class="text-center">
+                                                @if (variantsCount > 0)
+                                                {
+                                                    <span class="badge bg-success">@variantsCount variants</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning text-dark">No variants</span>
+                                                }
+                                            </td>
+                                            <td class="text-center">
+                                                @if (totalStock > 0)
+                                                {
+                                                    <span class="badge bg-success">@totalStock in stock</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger">Out of stock</span>
+                                                }
+                                            </td>
+                                            <td class="text-center">
+                                                @if (item.IsActive)
+                                                {
+                                                    <span class="badge bg-success">
+                                                        <i class="bi bi-check-circle"></i> Active
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">
+                                                        <i class="bi bi-x-circle"></i> Inactive
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="btn-group btn-group-sm" role="group">
+                                                    @Html.ActionLink("Details", "Details", new { id = item.ProductID }, new { @class = "btn btn-info btn-sm" })
+                                                    @Html.ActionLink("Edit", "Edit", new { id = item.ProductID }, new { @class = "btn btn-warning btn-sm" })
+                                                    @Html.ActionLink("Delete", "Delete", new { id = item.ProductID }, new { @class = "btn btn-danger btn-sm" })
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="8" class="text-center py-5">
+                                            <i class="bi bi-inbox fs-1 text-muted"></i>
+                                            <p class="mt-3 text-muted">No products found. Click "Create New Product" to add one.</p>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                @if (Model != null && Model.Any())
+                {
+                    <div class="card-footer bg-light text-muted py-2">
+                        <small>
+                            <i class="bi bi-info-circle"></i>
+                            Total: <strong>@Model.Count()</strong> products |
+                            Active: <strong>@Model.Count(p => p.IsActive)</strong> |
+                            Inactive: <strong>@Model.Count(p => !p.IsActive)</strong>
+                        </small>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .table > tbody > tr {
+        transition: all 0.2s ease;
+    }
+
+        .table > tbody > tr:hover {
+            background-color: rgba(0, 123, 255, 0.05);
+        }
+
+    .btn-group-sm .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+    }
+
+    .badge {
+        font-weight: 500;
+        padding: 0.35em 0.65em;
+    }
+
+    .img-thumbnail {
+        border-radius: 0.25rem;
+    }
+</style>

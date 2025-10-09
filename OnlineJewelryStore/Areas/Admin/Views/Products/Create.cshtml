@@ -1,79 +1,81 @@
 ﻿@model OnlineJewelryStore.Models.Product
 
 @{
-    ViewBag.Title = "Create";
+    ViewBag.Title = "Create Product";
     Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+    ViewBag.ActiveMenu = "Products";
 }
 
-<h2>Create</h2>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><i class="bi bi-plus-circle"></i> Create New Product</h4>
+                </div>
+                <div class="card-body">
+                    @using (Html.BeginForm("Create", "Products", FormMethod.Post, new { @class = "needs-validation" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
 
+                        <div class="row">
+                            <!-- Product Name -->
+                            <div class="col-12 mb-3">
+                                <label class="form-label fw-bold">Product Name <span class="text-danger">*</span></label>
+                                @Html.TextBoxFor(model => model.ProductName, new { @class = "form-control", placeholder = "Enter product name (e.g., Diamond Engagement Ring)" })
+                                @Html.ValidationMessageFor(model => model.ProductName, "", new { @class = "text-danger" })
+                            </div>
 
-@using (Html.BeginForm()) 
-{
-    @Html.AntiForgeryToken()
-    
-    <div class="form-horizontal">
-        <h4>Product</h4>
-        <hr />
-        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-        <div class="form-group">
-            @Html.LabelFor(model => model.ProductName, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.ProductName, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.ProductName, "", new { @class = "text-danger" })
-            </div>
-        </div>
+                            <!-- Category -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Category <span class="text-danger">*</span></label>
+                                @Html.DropDownList("CategoryID", (IEnumerable<SelectListItem>)ViewBag.CategoryID, "-- Select Category --", new { @class = "form-select" })
+                                @Html.ValidationMessageFor(model => model.CategoryID, "", new { @class = "text-danger" })
+                            </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
-            </div>
-        </div>
+                            <!-- Base Price -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Base Price (VNĐ) <span class="text-danger">*</span></label>
+                                @Html.TextBoxFor(model => model.BasePrice, new { @class = "form-control", type = "number", step = "1000", placeholder = "e.g., 5000000" })
+                                @Html.ValidationMessageFor(model => model.BasePrice, "", new { @class = "text-danger" })
+                                <small class="text-muted">Base price before adding metal/gemstone costs</small>
+                            </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.CategoryID, "CategoryID", htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.DropDownList("CategoryID", null, htmlAttributes: new { @class = "form-control" })
-                @Html.ValidationMessageFor(model => model.CategoryID, "", new { @class = "text-danger" })
-            </div>
-        </div>
+                            <!-- Description -->
+                            <div class="col-12 mb-3">
+                                <label class="form-label fw-bold">Description</label>
+                                @Html.TextAreaFor(model => model.Description, new { @class = "form-control", rows = 5, placeholder = "Enter detailed product description..." })
+                                @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+                                <small class="text-muted">Describe the product features, materials, craftsmanship, etc.</small>
+                            </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.BasePrice, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.BasePrice, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.BasePrice, "", new { @class = "text-danger" })
-            </div>
-        </div>
+                            <!-- IsActive -->
+                            <div class="col-12 mb-3">
+                                <div class="form-check form-switch">
+                                    @Html.CheckBoxFor(model => model.IsActive, new { @class = "form-check-input", @checked = "checked" })
+                                    <label class="form-check-label fw-bold">Active (visible to customers)</label>
+                                </div>
+                                <small class="text-muted">Uncheck to hide this product from the store</small>
+                            </div>
+                        </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.CreationDate, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.CreationDate, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.CreationDate, "", new { @class = "text-danger" })
-            </div>
-        </div>
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>Note:</strong> After creating the product, you'll need to add variants (SKU, metal type, sizes) and upload images in the product details page.
+                        </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.IsActive, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                <div class="checkbox">
-                    @Html.EditorFor(model => model.IsActive)
-                    @Html.ValidationMessageFor(model => model.IsActive, "", new { @class = "text-danger" })
+                        <hr />
+
+                        <div class="d-flex justify-content-between">
+                            @Html.ActionLink("Cancel", "Index", null, new { @class = "btn btn-secondary" })
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-save"></i> Create Product
+                            </button>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
-
-        <div class="form-group">
-            <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Create" class="btn btn-default" />
-            </div>
-        </div>
     </div>
-}
-
-<div>
-    @Html.ActionLink("Back to List", "Index")
 </div>

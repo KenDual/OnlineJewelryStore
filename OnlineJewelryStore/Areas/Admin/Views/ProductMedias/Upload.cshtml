@@ -1,0 +1,172 @@
+﻿@model OnlineJewelryStore.Models.ProductMedia
+
+@{
+    ViewBag.Title = "Upload Media";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+    var product = ViewBag.Product as OnlineJewelryStore.Models.Product;
+}
+
+<div class="container-fluid">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">@Html.ActionLink("Products", "Index", "Products")</li>
+            <li class="breadcrumb-item">@Html.ActionLink(product.ProductName, "Details", "Products", new { id = product.ProductID }, null)</li>
+            <li class="breadcrumb-item">@Html.ActionLink("Media", "Index", new { productId = product.ProductID })</li>
+            <li class="breadcrumb-item active">Upload</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><i class="bi bi-upload"></i> Upload Media</h4>
+                    <small>for @product.ProductName</small>
+                </div>
+                <div class="card-body">
+                    @using (Html.BeginForm("Upload", "ProductMedias", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+                        @Html.HiddenFor(model => model.ProductID)
+
+                        <!-- File Upload Area -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Select File <span class="text-danger">*</span></label>
+                            <input type="file" name="file" id="fileInput" class="form-control" accept="image/*,video/*" required />
+                            @Html.ValidationMessage("file", "", new { @class = "text-danger" })
+                            <small class="text-muted">
+                                Accepted formats: JPG, PNG, GIF, MP4, MOV, AVI (Max 10MB)
+                            </small>
+                        </div>
+
+                        <!-- Preview Area -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Preview</label>
+                            <div id="preview" class="border rounded p-3 text-center" style="min-height: 200px; background: #f8f9fa;">
+                                <i class="bi bi-image text-muted" style="font-size: 4rem;"></i>
+                                <p class="text-muted mt-2">No file selected</p>
+                            </div>
+                        </div>
+
+                        <!-- Media Type -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Media Type <span class="text-danger">*</span></label>
+                            @Html.DropDownList("MediaType", (SelectList)ViewBag.MediaTypes, new { @class = "form-select" })
+                            @Html.ValidationMessageFor(model => model.MediaType, "", new { @class = "text-danger" })
+                            <small class="text-muted">
+                                <strong>Image:</strong> Regular product photo |
+                                <strong>Video:</strong> Product video |
+                                <strong>360View:</strong> 360° rotation view
+                            </small>
+                        </div>
+
+                        <!-- Set as Main -->
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                @Html.CheckBoxFor(model => model.IsMain, new { @class = "form-check-input" })
+                                <label class="form-check-label fw-bold">Set as Main Image</label>
+                            </div>
+                            <small class="text-muted">
+                                The main image will be displayed as the primary product image. Only one image can be main at a time.
+                            </small>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>Tips:</strong>
+                            <ul class="mb-0 mt-2">
+                                <li>Use high-quality images (at least 1000x1000px)</li>
+                                <li>White or transparent backgrounds work best</li>
+                                <li>Show product from multiple angles</li>
+                                <li>Keep file size under 10MB for faster loading</li>
+                            </ul>
+                        </div>
+
+                        <hr />
+
+                        <div class="d-flex justify-content-between">
+                            @Html.ActionLink("Cancel", "Index", new { productId = product.ProductID }, new { @class = "btn btn-secondary" })
+                            <button type="submit" class="btn btn-success" id="uploadBtn">
+                                <i class="bi bi-upload"></i> Upload Media
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script>
+        $(document).ready(function () {
+            // File input change event
+            $('#fileInput').on('change', function (e) {
+                var file = e.target.files[0];
+                if (file) {
+                    var reader = new FileReader();
+                    var preview = $('#preview');
+
+                    reader.onload = function (e) {
+                        if (file.type.startsWith('image/')) {
+                            // Image preview
+                            preview.html('<img src="' + e.target.result + '" class="img-fluid" style="max-height: 400px;" />');
+                        } else if (file.type.startsWith('video/')) {
+                            // Video preview
+                            preview.html(
+                                '<video controls class="w-100" style="max-height: 400px;">' +
+                                '<source src="' + e.target.result + '" type="' + file.type + '">' +
+                                'Your browser does not support the video tag.' +
+                                '</video>'
+                            );
+                        } else {
+                            preview.html(
+                                '<i class="bi bi-file-earmark text-primary" style="font-size: 4rem;"></i>' +
+                                '<p class="mt-2 fw-bold">' + file.name + '</p>' +
+                                '<p class="text-muted">Size: ' + (file.size / 1024 / 1024).toFixed(2) + ' MB</p>'
+                            );
+                        }
+                    };
+
+                    reader.readAsDataURL(file);
+
+                    // Auto-detect media type
+                    if (file.type.startsWith('image/')) {
+                        $('#MediaType').val('Image');
+                    } else if (file.type.startsWith('video/')) {
+                        $('#MediaType').val('Video');
+                    }
+                }
+            });
+
+            // Drag and drop (optional enhancement)
+            var preview = $('#preview');
+            preview.on('dragover', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(this).addClass('border-primary');
+            });
+
+            preview.on('dragleave', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(this).removeClass('border-primary');
+            });
+
+            preview.on('drop', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(this).removeClass('border-primary');
+
+                var files = e.originalEvent.dataTransfer.files;
+                if (files.length > 0) {
+                    $('#fileInput')[0].files = files;
+                    $('#fileInput').trigger('change');
+                }
+            });
+        });
+    </script>
+}

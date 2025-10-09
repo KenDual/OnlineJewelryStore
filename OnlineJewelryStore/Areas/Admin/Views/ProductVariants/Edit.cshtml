@@ -1,0 +1,117 @@
+﻿@model OnlineJewelryStore.Models.ProductVariant
+
+@{
+    ViewBag.Title = "Edit Variant";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+    var product = ViewBag.Product as OnlineJewelryStore.Models.Product;
+}
+
+<div class="container-fluid">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">@Html.ActionLink("Products", "Index", "Products")</li>
+            <li class="breadcrumb-item">@Html.ActionLink(product.ProductName, "Details", "Products", new { id = product.ProductID }, null)</li>
+            <li class="breadcrumb-item">@Html.ActionLink("Variants", "Index", new { productId = product.ProductID })</li>
+            <li class="breadcrumb-item active">Edit @Model.SKU</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning">
+                    <h4 class="mb-0"><i class="bi bi-pencil-square"></i> Edit Variant</h4>
+                    <small>SKU: @Model.SKU</small>
+                </div>
+                <div class="card-body">
+                    @using (Html.BeginForm("Edit", "ProductVariants", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+                        @Html.HiddenFor(model => model.VariantID)
+                        @Html.HiddenFor(model => model.ProductID)
+                        @Html.HiddenFor(model => model.CreatedAt)
+
+                        <div class="row">
+                            <!-- SKU -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">SKU <span class="text-danger">*</span></label>
+                                @Html.TextBoxFor(model => model.SKU, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.SKU, "", new { @class = "text-danger" })
+                            </div>
+
+                            <!-- Metal Type -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Metal Type</label>
+                                @Html.DropDownList("MetalType", (SelectList)ViewBag.MetalTypes, "-- Select Metal --", new { @class = "form-select" })
+                                @Html.ValidationMessageFor(model => model.MetalType, "", new { @class = "text-danger" })
+                            </div>
+
+                            <!-- Purity -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Purity</label>
+                                @Html.DropDownList("Purity", (SelectList)ViewBag.Purities, "-- Select Purity --", new { @class = "form-select" })
+                                @Html.ValidationMessageFor(model => model.Purity, "", new { @class = "text-danger" })
+                            </div>
+
+                            <!-- Ring Size -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Ring Size</label>
+                                @Html.TextBoxFor(model => model.RingSize, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.RingSize, "", new { @class = "text-danger" })
+                            </div>
+
+                            <!-- Chain Length -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Chain Length</label>
+                                @Html.TextBoxFor(model => model.ChainLength, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.ChainLength, "", new { @class = "text-danger" })
+                            </div>
+
+                            <!-- Stock Quantity -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Stock Quantity <span class="text-danger">*</span></label>
+                                @Html.TextBoxFor(model => model.StockQuantity, new { @class = "form-control", type = "number", min = "0" })
+                                @Html.ValidationMessageFor(model => model.StockQuantity, "", new { @class = "text-danger" })
+                            </div>
+
+                            <!-- Additional Price -->
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label fw-bold">Additional Price (VNĐ) <span class="text-danger">*</span></label>
+                                @Html.TextBoxFor(model => model.AdditionalPrice, new { @class = "form-control", type = "number", step = "1000" })
+                                @Html.ValidationMessageFor(model => model.AdditionalPrice, "", new { @class = "text-danger" })
+                                <small class="text-muted">
+                                    Final price: <strong id="finalPrice">@((product.BasePrice + Model.AdditionalPrice).ToString("N0")) VNĐ</strong>
+                                </small>
+                            </div>
+                        </div>
+
+                        <hr />
+
+                        <div class="d-flex justify-content-between">
+                            @Html.ActionLink("Cancel", "Index", new { productId = product.ProductID }, new { @class = "btn btn-secondary" })
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-save"></i> Save Changes
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script>
+        $(document).ready(function () {
+            var basePrice = @product.BasePrice;
+            $('#AdditionalPrice').on('input', function () {
+                var additionalPrice = parseFloat($(this).val()) || 0;
+                var finalPrice = basePrice + additionalPrice;
+                $('#finalPrice').text(finalPrice.toLocaleString('vi-VN') + ' VNĐ');
+            });
+        });
+    </script>
+}
