@@ -1,0 +1,60 @@
+﻿@model OnlineJewelryStore.Models.Category
+
+@{
+    ViewBag.Title = "Edit Category";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <div class="panel panel-warning">
+                <div class="panel-heading">
+                    <h4><i class="fa fa-edit"></i> Edit Category</h4>
+                </div>
+                <div class="panel-body">
+                    @using (Html.BeginForm())
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                        @Html.HiddenFor(model => model.CategoryID)
+
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.CategoryName, new { @class = "control-label" })
+                            @Html.EditorFor(model => model.CategoryName, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.CategoryName, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label">Parent Category</label>
+                            @Html.DropDownList("ParentCategoryID",
+                                new SelectList(ViewBag.ParentCategories, "Value", "Text"),
+                                "-- None (Main Category) --",
+                                new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.ParentCategoryID, "", new { @class = "text-danger" })
+                            <small class="text-muted">
+                                <strong>Warning:</strong> Cannot select this category or its sub-categories as parent (to prevent circular reference)
+                            </small>
+                        </div>
+
+                        if (Model.Categories1 != null && Model.Categories1.Count() > 0)
+                        {
+                            <div class="alert alert-info">
+                                <i class="fa fa-info-circle"></i>
+                                <strong>Note:</strong> This category has <strong>@Model.Categories1.Count()</strong> sub-categories.
+                                Changing its parent may affect the hierarchy structure.
+                            </div>
+                        }
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fa fa-save"></i> Save Changes
+                            </button>
+                            @Html.ActionLink("Cancel", "Index", null, new { @class = "btn btn-default" })
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

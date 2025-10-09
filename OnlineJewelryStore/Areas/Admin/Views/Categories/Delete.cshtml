@@ -1,0 +1,117 @@
+﻿@model OnlineJewelryStore.Models.Category
+
+@{
+    ViewBag.Title = "Delete Category";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <div class="panel panel-danger">
+                <div class="panel-heading">
+                    <h4><i class="fa fa-trash"></i> Delete Category</h4>
+                </div>
+                <div class="panel-body">
+                    <h3 class="text-danger">
+                        <i class="fa fa-exclamation-triangle"></i>
+                        Are you sure you want to delete this category?
+                    </h3>
+                    <hr />
+
+                    <dl class="dl-horizontal">
+                        <dt>Category Name:</dt>
+                        <dd><strong>@Model.CategoryName</strong></dd>
+
+                        <dt>Parent Category:</dt>
+                        <dd>
+                            @if (Model.Category1 != null)
+                            {
+                                <span class="label label-info">@Model.Category1.CategoryName</span>
+                            }
+                            else
+                            {
+                                <span class="label label-primary">Main Category (No Parent)</span>
+                            }
+                        </dd>
+
+                        <dt>Sub-Categories:</dt>
+                        <dd>
+                            @if (Model.Categories1 != null && Model.Categories1.Count() > 0)
+                            {
+                                <span class="badge badge-warning">@Model.Categories1.Count() sub-categories</span>
+                                <ul class="list-unstyled" style="margin-top: 10px;">
+                                    @foreach (var sub in Model.Categories1.Take(5))
+                                    {
+                                        <li><i class="fa fa-folder-o"></i> @sub.CategoryName</li>
+                                    }
+                                    @if (Model.Categories1.Count() > 5)
+                                    {
+                                        <li><em>... and @(Model.Categories1.Count() - 5) more</em></li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <span class="badge badge-success">No sub-categories</span>
+                            }
+                        </dd>
+
+                        <dt>Products:</dt>
+                        <dd>
+                            @if (Model.Products != null && Model.Products.Count() > 0)
+                            {
+                                <span class="badge badge-danger">@Model.Products.Count() products</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-success">No products</span>
+                            }
+                        </dd>
+                    </dl>
+
+                    @if ((Model.Categories1 != null && Model.Categories1.Count() > 0) || (Model.Products != null && Model.Products.Count() > 0))
+                    {
+                        <div class="alert alert-danger">
+                            <i class="fa fa-ban"></i>
+                            <strong>Cannot Delete!</strong> This category cannot be deleted because it contains:
+                            <ul>
+                                @if (Model.Categories1 != null && Model.Categories1.Count() > 0)
+                                {
+                                    <li><strong>@Model.Categories1.Count()</strong> sub-categories</li>
+                                }
+                                @if (Model.Products != null && Model.Products.Count() > 0)
+                                {
+                                    <li><strong>@Model.Products.Count()</strong> products</li>
+                                }
+                            </ul>
+                            <p>Please delete or reassign all sub-categories and products first.</p>
+                        </div>
+
+                        <div class="form-group">
+                            @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-default" })
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">
+                            <i class="fa fa-warning"></i>
+                            <strong>Warning:</strong> This action cannot be undone!
+                        </div>
+
+                        using (Html.BeginForm())
+                        {
+                            @Html.AntiForgeryToken()
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fa fa-trash"></i> Yes, Delete This Category
+                                </button>
+                                @Html.ActionLink("Cancel", "Index", null, new { @class = "btn btn-default" })
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

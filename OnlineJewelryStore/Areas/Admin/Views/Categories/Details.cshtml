@@ -1,0 +1,102 @@
+﻿@model OnlineJewelryStore.Models.Category
+
+@{
+    ViewBag.Title = "Category Details";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h4><i class="fa fa-info-circle"></i> Category Details</h4>
+                </div>
+                <div class="panel-body">
+                    <dl class="dl-horizontal">
+                        <dt>Category ID:</dt>
+                        <dd>@Model.CategoryID</dd>
+
+                        <dt>Category Name:</dt>
+                        <dd><strong style="font-size: 18px;">@Model.CategoryName</strong></dd>
+
+                        <dt>Category Type:</dt>
+                        <dd>
+                            @if (Model.ParentCategoryID == null)
+                            {
+                                <span class="label label-primary">Main Category</span>
+                            }
+                            else
+                            {
+                                <span class="label label-info">Sub-Category</span>
+                            }
+                        </dd>
+
+                        <dt>Parent Category:</dt>
+                        <dd>
+                            @if (Model.Category1 != null)
+                            {
+                                <i class="fa fa-folder"></i> @Model.Category1.CategoryName
+                                <small>
+                                    (@Html.ActionLink("View Parent", "Details", new { id = Model.Category1.CategoryID }))
+                                </small>
+                            }
+                            else
+                            {
+                                <span class="text-muted">None (This is a main category)</span>
+                            }
+                        </dd>
+
+                        <dt>Sub-Categories:</dt>
+                        <dd>
+                            @if (Model.Categories1 != null && Model.Categories1.Count() > 0)
+                            {
+                                <span class="badge">@Model.Categories1.Count() sub-categories</span>
+                                <ul class="list-group" style="margin-top: 10px;">
+                                    @foreach (var sub in Model.Categories1.OrderBy(c => c.CategoryName))
+                                    {
+                                        <li class="list-group-item">
+                                            <i class="fa fa-folder-o"></i> @sub.CategoryName
+                                            <span class="badge">@sub.Products.Count() products</span>
+                                            <div class="pull-right">
+                                                @Html.ActionLink("View", "Details", new { id = sub.CategoryID }, new { @class = "btn btn-xs btn-info" })
+                                                @Html.ActionLink("Edit", "Edit", new { id = sub.CategoryID }, new { @class = "btn btn-xs btn-warning" })
+                                            </div>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <span class="text-muted">No sub-categories</span>
+                            }
+                        </dd>
+
+                        <dt>Products Count:</dt>
+                        <dd>
+                            @if (Model.Products != null && Model.Products.Count() > 0)
+                            {
+                                <span class="badge badge-success">@Model.Products.Count() products in this category</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">No products yet</span>
+                            }
+                        </dd>
+                    </dl>
+
+                    <hr />
+
+                    <div class="form-group">
+                        @Html.ActionLink("Edit", "Edit", new { id = Model.CategoryID }, new { @class = "btn btn-warning" })
+                        @if ((Model.Categories1 == null || Model.Categories1.Count() == 0) && (Model.Products == null || Model.Products.Count() == 0))
+                        {
+                            @Html.ActionLink("Delete", "Delete", new { id = Model.CategoryID }, new { @class = "btn btn-danger" })
+                        }
+                        @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-default" })
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
