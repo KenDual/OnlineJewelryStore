@@ -93,6 +93,11 @@
             align-items: center;
             gap: 15px;
         }
+        .sidebar .nav-divider .text-muted {
+            color: rgba(255, 255, 255, 0.6) !important;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
     </style>
 </head>
 
@@ -112,76 +117,76 @@
 
             <!-- DIVIDER: Quản lý Dữ liệu -->
             <div class="nav-divider">
-                <small class="text-muted px-3 py-2 d-block">QUẢN LÝ DỮ LIỆU</small>
+                <small class="text-muted px-3 py-2 d-block">DATA MANAGEMENT</small>
             </div>
 
             <!-- 2. Quản lý Danh mục - ƯU TIÊN CAO -->
             <a class="nav-link @(ViewBag.ActiveMenu == "Categories" ? "active" : "")" href="/Admin/Categories">
                 <i class="bi bi-grid-3x3-gap"></i>
-                <span>Quản Lý Danh Mục</span>
+                <span>Categories</span>
             </a>
 
             <!-- 3. Quản lý Sản phẩm - ƯU TIÊN CAO -->
             <a class="nav-link @(ViewBag.ActiveMenu == "Products" ? "active" : "")" href="/Admin/Products">
                 <i class="bi bi-gem"></i>
-                <span>Quản Lý Sản Phẩm</span>
+                <span>Products</span>
             </a>
 
             <!-- 4. Quản lý Kho/Tồn kho - MỚI THÊM -->
             <a class="nav-link @(ViewBag.ActiveMenu == "Inventory" ? "active" : "")" href="/Admin/Inventory">
                 <i class="bi bi-box-seam"></i>
-                <span>Quản Lý Kho Hàng</span>
+                <span>Inventory</span>
             </a>
 
             <!-- DIVIDER: Bán hàng -->
             <div class="nav-divider">
-                <small class="text-muted px-3 py-2 d-block">BÁN HÀNG & MARKETING</small>
+                <small class="text-muted px-3 py-2 d-block">SALES & MARKETING</small>
             </div>
 
             <!-- 5. Quản lý Đơn hàng - ƯU TIÊN CAO -->
             <a class="nav-link @(ViewBag.ActiveMenu == "Orders" ? "active" : "")" href="/Admin/Orders">
                 <i class="bi bi-cart-check"></i>
-                <span>Quản Lý Đơn Hàng</span>
+                <span>Orders</span>
             </a>
 
             <!-- 6. Quản lý Thanh toán -->
             <a class="nav-link @(ViewBag.ActiveMenu == "Payments" ? "active" : "")" href="/Admin/Payments">
                 <i class="bi bi-credit-card"></i>
-                <span>Quản Lý Thanh Toán</span>
+                <span>Payments</span>
             </a>
 
             <!-- 7. Quản lý Mã giảm giá - MỚI THÊM, QUAN TRỌNG -->
             <a class="nav-link @(ViewBag.ActiveMenu == "Coupons" ? "active" : "")" href="/Admin/Coupons">
                 <i class="bi bi-ticket-perforated"></i>
-                <span>Mã Giảm Giá</span>
+                <span>Coupons</span>
             </a>
 
             <!-- DIVIDER: Khách hàng -->
             <div class="nav-divider">
-                <small class="text-muted px-3 py-2 d-block">KHÁCH HÀNG</small>
+                <small class="text-muted px-3 py-2 d-block">USERS</small>
             </div>
 
             <!-- 8. Quản lý Người dùng -->
             <a class="nav-link @(ViewBag.ActiveMenu == "Users" ? "active" : "")" href="/Admin/Users">
                 <i class="bi bi-people"></i>
-                <span>Quản Lý Khách Hàng</span>
+                <span>Users</span>
             </a>
 
             <!-- 9. Quản lý Đánh giá - MỚI THÊM, QUAN TRỌNG -->
             <a class="nav-link @(ViewBag.ActiveMenu == "Reviews" ? "active" : "")" href="/Admin/Reviews">
                 <i class="bi bi-star"></i>
-                <span>Quản Lý Đánh Giá</span>
+                <span>Reviews</span>
             </a>
 
             <!-- DIVIDER: Báo cáo -->
             <div class="nav-divider">
-                <small class="text-muted px-3 py-2 d-block">BÁO CÁO</small>
+                <small class="text-muted px-3 py-2 d-block">REPORTS</small>
             </div>
 
             <!-- 10. Báo cáo & Thống kê -->
             <a class="nav-link @(ViewBag.ActiveMenu == "Analytics" ? "active" : "")" href="/Admin/Analytics">
                 <i class="bi bi-bar-chart-line"></i>
-                <span>Báo Cáo & Thống Kê</span>
+                <span>Analytics</span>
             </a>
         </nav>
     </div>
@@ -205,12 +210,12 @@
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li>
                             <a class="dropdown-item" href="@Url.Action("Profile", "Account", new { area = "" })">
-                                <i class="bi bi-person"></i> Thông Tin Cá Nhân
+                                <i class="bi bi-person"></i> Profile
                             </a>
                         </li>
                         <li>
                             <a class="dropdown-item" href="@Url.Action("ChangePassword", "Account", new { area = "" })">
-                                <i class="bi bi-key"></i> Đổi Mật Khẩu
+                                <i class="bi bi-key"></i> Change password
                             </a>
                         </li>
                         <li>
@@ -218,7 +223,7 @@
                         </li>
                         <li>
                             <a class="dropdown-item text-danger" href="@Url.Action("Logout", "Account", new { area = "" })">
-                                <i class="bi bi-box-arrow-right"></i> Đăng Xuất
+                                <i class="bi bi-box-arrow-right"></i> Logout
                             </a>
                         </li>
                     </ul>
