@@ -104,44 +104,84 @@
         </div>
 
         <nav class="nav flex-column">
+            <!-- 1. Dashboard - Tổng quan -->
             <a class="nav-link @(ViewBag.ActiveMenu == "Dashboard" ? "active" : "")" href="/Admin/Dashboard">
                 <i class="bi bi-speedometer2"></i>
                 <span>Dashboard</span>
             </a>
 
-            <a class="nav-link @(ViewBag.ActiveMenu == "Users" ? "active" : "")" href="/Admin/Users">
-                <i class="bi bi-people"></i>
-                <span>Quản Lý Người Dùng</span>
-            </a>
+            <!-- DIVIDER: Quản lý Dữ liệu -->
+            <div class="nav-divider">
+                <small class="text-muted px-3 py-2 d-block">QUẢN LÝ DỮ LIỆU</small>
+            </div>
 
-            <a class="nav-link @(ViewBag.ActiveMenu == "Products" ? "active" : "")" href="/Admin/Products">
-                <i class="bi bi-box-seam"></i>
-                <span>Quản Lý Sản Phẩm</span>
-            </a>
-
+            <!-- 2. Quản lý Danh mục - ƯU TIÊN CAO -->
             <a class="nav-link @(ViewBag.ActiveMenu == "Categories" ? "active" : "")" href="/Admin/Categories">
-                <i class="bi bi-grid"></i>
+                <i class="bi bi-grid-3x3-gap"></i>
                 <span>Quản Lý Danh Mục</span>
             </a>
 
+            <!-- 3. Quản lý Sản phẩm - ƯU TIÊN CAO -->
+            <a class="nav-link @(ViewBag.ActiveMenu == "Products" ? "active" : "")" href="/Admin/Products">
+                <i class="bi bi-gem"></i>
+                <span>Quản Lý Sản Phẩm</span>
+            </a>
+
+            <!-- 4. Quản lý Kho/Tồn kho - MỚI THÊM -->
+            <a class="nav-link @(ViewBag.ActiveMenu == "Inventory" ? "active" : "")" href="/Admin/Inventory">
+                <i class="bi bi-box-seam"></i>
+                <span>Quản Lý Kho Hàng</span>
+            </a>
+
+            <!-- DIVIDER: Bán hàng -->
+            <div class="nav-divider">
+                <small class="text-muted px-3 py-2 d-block">BÁN HÀNG & MARKETING</small>
+            </div>
+
+            <!-- 5. Quản lý Đơn hàng - ƯU TIÊN CAO -->
             <a class="nav-link @(ViewBag.ActiveMenu == "Orders" ? "active" : "")" href="/Admin/Orders">
                 <i class="bi bi-cart-check"></i>
                 <span>Quản Lý Đơn Hàng</span>
             </a>
 
+            <!-- 6. Quản lý Thanh toán -->
             <a class="nav-link @(ViewBag.ActiveMenu == "Payments" ? "active" : "")" href="/Admin/Payments">
                 <i class="bi bi-credit-card"></i>
                 <span>Quản Lý Thanh Toán</span>
             </a>
 
-            <a class="nav-link @(ViewBag.ActiveMenu == "Analytics" ? "active" : "")" href="/Admin/Reports">
-                <i class="bi bi-bar-chart"></i>
-                <span>Báo Cáo & Thống Kê</span>
+            <!-- 7. Quản lý Mã giảm giá - MỚI THÊM, QUAN TRỌNG -->
+            <a class="nav-link @(ViewBag.ActiveMenu == "Coupons" ? "active" : "")" href="/Admin/Coupons">
+                <i class="bi bi-ticket-perforated"></i>
+                <span>Mã Giảm Giá</span>
             </a>
 
-            <a class="nav-link @(ViewBag.ActiveMenu == "Settings" ? "active" : "")" href="/Admin/Settings">
-                <i class="bi bi-gear"></i>
-                <span>Cài Đặt Hệ Thống</span>
+            <!-- DIVIDER: Khách hàng -->
+            <div class="nav-divider">
+                <small class="text-muted px-3 py-2 d-block">KHÁCH HÀNG</small>
+            </div>
+
+            <!-- 8. Quản lý Người dùng -->
+            <a class="nav-link @(ViewBag.ActiveMenu == "Users" ? "active" : "")" href="/Admin/Users">
+                <i class="bi bi-people"></i>
+                <span>Quản Lý Khách Hàng</span>
+            </a>
+
+            <!-- 9. Quản lý Đánh giá - MỚI THÊM, QUAN TRỌNG -->
+            <a class="nav-link @(ViewBag.ActiveMenu == "Reviews" ? "active" : "")" href="/Admin/Reviews">
+                <i class="bi bi-star"></i>
+                <span>Quản Lý Đánh Giá</span>
+            </a>
+
+            <!-- DIVIDER: Báo cáo -->
+            <div class="nav-divider">
+                <small class="text-muted px-3 py-2 d-block">BÁO CÁO</small>
+            </div>
+
+            <!-- 10. Báo cáo & Thống kê -->
+            <a class="nav-link @(ViewBag.ActiveMenu == "Analytics" ? "active" : "")" href="/Admin/Analytics">
+                <i class="bi bi-bar-chart-line"></i>
+                <span>Báo Cáo & Thống Kê</span>
             </a>
         </nav>
     </div>
