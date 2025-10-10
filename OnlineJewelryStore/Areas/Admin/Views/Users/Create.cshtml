@@ -1,81 +1,321 @@
 ﻿@model OnlineJewelryStore.Models.User
 
 @{
-    ViewBag.Title = "Create";
+    ViewBag.Title = "Create User";
     Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
 }
 
-<h2>Create</h2>
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a href="@Url.Action("Index", "Dashboard")">
+                <i class="bi bi-house-door"></i> Dashboard
+            </a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="@Url.Action("Index", "Users")">Users</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Create New</li>
+    </ol>
+</nav>
 
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">
+            <i class="bi bi-person-plus-fill text-primary me-2"></i>Create New User
+        </h2>
+        <p class="text-muted mb-0">Fill in the information below to create a new user account</p>
+    </div>
+    <div>
+        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to List
+        </a>
+    </div>
+</div>
 
-@using (Html.BeginForm())
-{
-    @Html.AntiForgeryToken()
+<!-- Create Form Card -->
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-person-badge me-2"></i>User Information
+                </h5>
+            </div>
+            <div class="card-body">
+                @using (Html.BeginForm("Create", "Users", FormMethod.Post, new { @class = "needs-validation", novalidate = "novalidate" }))
+                {
+                    @Html.AntiForgeryToken()
 
-    <div class="form-horizontal">
-        <h4>User</h4>
-        <hr />
-        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-        <div class="form-group">
-            @Html.LabelFor(model => model.FirstName, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.FirstName, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.FirstName, "", new { @class = "text-danger" })
+                    <!-- Validation Summary -->
+                    if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <strong>Please fix the following errors:</strong>
+                            @Html.ValidationSummary(true, "", new { @class = "mb-0 mt-2" })
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    <!-- Personal Information Section -->
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2 mb-3">
+                            <i class="bi bi-person-circle text-primary me-2"></i>Personal Information
+                        </h6>
+
+                        <div class="row">
+                            <!-- First Name -->
+                            <div class="col-md-6 mb-3">
+                                <label for="FirstName" class="form-label">
+                                    First Name <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-person"></i>
+                                    </span>
+                                    @Html.TextBoxFor(model => model.FirstName, new
+                                    {
+                                        @class = "form-control",
+                                        placeholder = "Enter first name",
+                                        required = "required",
+                                        maxlength = "100"
+                                    })
+                                </div>
+                                @Html.ValidationMessageFor(model => model.FirstName, "", new { @class = "text-danger small" })
+                            </div>
+
+                            <!-- Last Name -->
+                            <div class="col-md-6 mb-3">
+                                <label for="LastName" class="form-label">
+                                    Last Name <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-person"></i>
+                                    </span>
+                                    @Html.TextBoxFor(model => model.LastName, new
+                                    {
+                                        @class = "form-control",
+                                        placeholder = "Enter last name",
+                                        required = "required",
+                                        maxlength = "100"
+                                    })
+                                </div>
+                                @Html.ValidationMessageFor(model => model.LastName, "", new { @class = "text-danger small" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Information Section -->
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2 mb-3">
+                            <i class="bi bi-envelope text-primary me-2"></i>Contact Information
+                        </h6>
+
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label for="Email" class="form-label">
+                                Email Address <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-envelope"></i>
+                                </span>
+                                @Html.TextBoxFor(model => model.Email, new
+                                {
+                                    @class = "form-control",
+                                    type = "email",
+                                    placeholder = "user@example.com",
+                                    required = "required",
+                                    maxlength = "255"
+                                })
+                            </div>
+                            @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger small" })
+                            <small class="form-text text-muted">
+                                <i class="bi bi-info-circle me-1"></i>Must be unique and valid email format
+                            </small>
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="mb-3">
+                            <label for="Phone" class="form-label">
+                                Phone Number <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-telephone"></i>
+                                </span>
+                                @Html.TextBoxFor(model => model.Phone, new
+                                {
+                                    @class = "form-control",
+                                    type = "tel",
+                                    placeholder = "0123456789",
+                                    required = "required",
+                                    maxlength = "20"
+                                })
+                            </div>
+                            @Html.ValidationMessageFor(model => model.Phone, "", new { @class = "text-danger small" })
+                            <small class="form-text text-muted">
+                                <i class="bi bi-info-circle me-1"></i>Format: 10 digits (e.g., 0901234567)
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Account Information Section -->
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2 mb-3">
+                            <i class="bi bi-shield-lock text-primary me-2"></i>Account Information
+                        </h6>
+
+                        <!-- Password -->
+                        <div class="mb-3">
+                            <label for="PasswordHash" class="form-label">
+                                Password <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-key"></i>
+                                </span>
+                                @Html.TextBoxFor(model => model.PasswordHash, new
+                                {
+                                    @class = "form-control",
+                                    type = "text",
+                                    placeholder = "Enter password",
+                                    required = "required",
+                                    minlength = "3",
+                                    maxlength = "50"
+                                })
+                            </div>
+                            @Html.ValidationMessageFor(model => model.PasswordHash, "", new { @class = "text-danger small" })
+                            <small class="form-text text-muted">
+                                <i class="bi bi-info-circle me-1"></i>Minimum 3 characters.
+                            </small>
+                        </div>
+
+                        <!-- Role -->
+                        <div class="mb-3">
+                            <label for="Role" class="form-label">
+                                User Role <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-person-badge"></i>
+                                </span>
+                                @Html.DropDownListFor(model => model.Role, new SelectList(new[] {
+                                    new { Value = "", Text = "-- Select a role --" },
+                                    new { Value = "Customer", Text = "Customer" },
+                                    new { Value = "Administrator", Text = "Administrator" }
+                                }, "Value", "Text"), new { @class = "form-select", required = "required" })
+                            </div>
+                            @Html.ValidationMessageFor(model => model.Role, "", new { @class = "text-danger small" })
+                            <small class="form-text text-muted">
+                                <i class="bi bi-info-circle me-1"></i>
+                                <span class="badge bg-success me-1">Customer</span> Normal user with shopping access |
+                                <span class="badge bg-danger me-1">Administrator</span> Full system access
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-1"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-check-circle me-1"></i> Create User
+                        </button>
+                    </div>
+                }
             </div>
         </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.LastName, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.LastName, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.LastName, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.Email, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.Phone, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.Phone, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Phone, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.PasswordHash, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.PasswordHash, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.PasswordHash, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.Role, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                <select name="Role" id="Role" class="form-control">
-                    <option value="">-- Select a role --</option>
-                    <option value="Customer">Customer</option>
-                    <option value="Administrator">Administrator</option>
-                </select>
-                @Html.ValidationMessageFor(model => model.Role, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Create" class="btn btn-default" />
+        <!-- Info Card -->
+        <div class="card mt-3 border-info">
+            <div class="card-body">
+                <h6 class="card-title text-info">
+                    <i class="bi bi-info-circle-fill me-2"></i>Important Information
+                </h6>
+                <ul class="mb-0 small">
+                    <li>Email must be unique and will be used for login</li>
+                    <li>Password is stored in plaintext (demo purposes only)</li>
+                    <li>Registration date will be set automatically</li>
+                    <li>Users can be edited or deleted later (if no orders exist)</li>
+                </ul>
             </div>
         </div>
     </div>
-}
-
-<div>
-    @Html.ActionLink("Back to List", "Index")
 </div>
+
+<style>
+    /* Form styling */
+    .form-label {
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .input-group-text {
+        background-color: #f8f9fa;
+        border-right: none;
+    }
+
+    .input-group .form-control,
+    .input-group .form-select {
+        border-left: none;
+    }
+
+    .input-group:focus-within .input-group-text {
+        border-color: #86b7fe;
+    }
+
+    .input-group:focus-within .form-control,
+    .input-group:focus-within .form-select {
+        border-color: #86b7fe;
+    }
+
+    /* Section headers */
+    .border-bottom {
+        border-color: #dee2e6 !important;
+    }
+
+    /* Required asterisk */
+    .text-danger {
+        color: #dc3545 !important;
+    }
+
+    /* Help text */
+    .form-text {
+        display: block;
+        margin-top: 0.25rem;
+    }
+
+    /* Card header */
+    .card-header.bg-primary {
+        background-color: #0d6efd !important;
+    }
+</style>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script>
+        $(document).ready(function () {
+            // Form validation feedback
+            $('form').on('submit', function (e) {
+                if (!this.checkValidity()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                $(this).addClass('was-validated');
+            });
+
+            // Auto-format phone number (optional)
+            $('#Phone').on('input', function () {
+                var value = $(this).val().replace(/\D/g, '');
+                $(this).val(value);
+            });
+        });
+    </script>
+}

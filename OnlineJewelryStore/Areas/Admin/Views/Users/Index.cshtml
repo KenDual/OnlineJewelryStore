@@ -1,82 +1,411 @@
 ﻿@model IEnumerable<OnlineJewelryStore.Models.User>
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "User Management";
     Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
 }
 
-<h2>Index</h2>
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a href="@Url.Action("Index", "Dashboard")">
+                <i class="bi bi-house-door"></i> Dashboard
+            </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Users</li>
+    </ol>
+</nav>
 
-<p>
-    @Html.ActionLink("Create New", "Create")
-</p>
-<table class="table">
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.FirstName)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.LastName)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Email)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Phone)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.PasswordHash)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Role)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.RegistrationDate)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.LastLogin)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.SocialLoginProvider)
-        </th>
-        <th></th>
-    </tr>
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">
+            <i class="bi bi-people-fill text-primary me-2"></i>User Management
+        </h2>
+        <p class="text-muted mb-0">
+            Total: <strong>@ViewBag.TotalUsers</strong> users
+        </p>
+    </div>
+    <div>
+        <a href="@Url.Action("Create")" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-1"></i> Create New User
+        </a>
+    </div>
+</div>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.FirstName)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.LastName)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Email)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Phone)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.PasswordHash)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Role)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.RegistrationDate)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.LastLogin)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.SocialLoginProvider)
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.UserID }) |
-            @Html.ActionLink("Details", "Details", new { id=item.UserID }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.UserID })
-        </td>
-    </tr>
+<!-- Success/Error Messages -->
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
 }
 
-</table>
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- Search & Filter Card -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" action="@Url.Action("Index")" class="row g-3">
+            <!-- Search Box -->
+            <div class="col-md-5">
+                <label for="searchTerm" class="form-label">
+                    <i class="bi bi-search"></i> Search
+                </label>
+                <input type="text"
+                       class="form-control"
+                       id="searchTerm"
+                       name="searchTerm"
+                       value="@ViewBag.SearchTerm"
+                       placeholder="Search by name, email, or phone..." />
+            </div>
+
+            <!-- Role Filter -->
+            <div class="col-md-3">
+                <label for="roleFilter" class="form-label">
+                    <i class="bi bi-funnel"></i> Role
+                </label>
+                <select class="form-select" id="roleFilter" name="roleFilter">
+                    <option value="All" selected="@(ViewBag.RoleFilter == "All" || string.IsNullOrEmpty(ViewBag.RoleFilter))">All Roles</option>
+                    <option value="Customer" selected="@(ViewBag.RoleFilter == "Customer")">Customer</option>
+                    <option value="Administrator" selected="@(ViewBag.RoleFilter == "Administrator")">Administrator</option>
+                </select>
+            </div>
+
+            <!-- Sort Order -->
+            <div class="col-md-2">
+                <label for="sortOrder" class="form-label">
+                    <i class="bi bi-sort-down"></i> Sort By
+                </label>
+                <select class="form-select" id="sortOrder" name="sortOrder">
+                    <option value="" selected="@(string.IsNullOrEmpty(ViewBag.CurrentSort))">Name (A-Z)</option>
+                    <option value="name_desc" selected="@(ViewBag.CurrentSort == "name_desc")">Name (Z-A)</option>
+                    <option value="email" selected="@(ViewBag.CurrentSort == "email")">Email (A-Z)</option>
+                    <option value="email_desc" selected="@(ViewBag.CurrentSort == "email_desc")">Email (Z-A)</option>
+                    <option value="date_desc" selected="@(ViewBag.CurrentSort == "date_desc")">Newest First</option>
+                    <option value="date" selected="@(ViewBag.CurrentSort == "date")">Oldest First</option>
+                </select>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="col-md-2 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-primary flex-fill">
+                    <i class="bi bi-search"></i> Filter
+                </button>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary" title="Clear filters">
+                    <i class="bi bi-x-circle"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Users Table Card -->
+<div class="card shadow-sm">
+    <div class="card-body">
+        @if (Model != null && Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 80px;">ID</th>
+                            <th>Full Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th style="width: 120px;">Password</th>
+                            <th style="width: 130px;">Role</th>
+                            <th style="width: 120px;">Orders</th>
+                            <th style="width: 150px;">Total Spent</th>
+                            <th style="width: 130px;">Registered</th>
+                            <th style="width: 180px;" class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            var statistics = (Dictionary<int, dynamic>)ViewBag.UserStatistics;
+                        }
+                        @foreach (var user in Model)
+                        {
+                            var stats = statistics[user.UserID];
+                            var orderCount = stats.Item1;
+                            var totalSpent = stats.Item2;
+                            <tr>
+                                <!-- User ID -->
+                                <td>
+                                    <strong class="text-primary">#@user.UserID</strong>
+                                </td>
+
+                                <!-- Full Name -->
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-circle bg-primary text-white me-2">
+                                            @(user.FirstName?.Substring(0, 1).ToUpper())@(user.LastName?.Substring(0, 1).ToUpper())
+                                        </div>
+                                        <div>
+                                            <strong>@user.FirstName @user.LastName</strong>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- Email -->
+                                <td>
+                                    <i class="bi bi-envelope text-muted me-1"></i>
+                                    @user.Email
+                                </td>
+
+                                <!-- Phone -->
+                                <td>
+                                    <i class="bi bi-telephone text-muted me-1"></i>
+                                    @user.Phone
+                                </td>
+
+                                <!-- Password (Plaintext - OK for demo) -->
+                                <td>
+                                    <code class="text-muted small">@(user.PasswordHash?.Length > 10 ? user.PasswordHash.Substring(0, 10) + "..." : user.PasswordHash)</code>
+                                </td>
+
+                                <!-- Role Badge -->
+                                <td>
+                                    @if (user.Role == "Administrator")
+                                    {
+                                        <span class="badge bg-danger">
+                                            <i class="bi bi-shield-fill-check me-1"></i>Administrator
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-person-fill me-1"></i>Customer
+                                        </span>
+                                    }
+                                </td>
+
+                                <!-- Orders Count -->
+                                <td>
+                                    @if (orderCount > 0)
+                                    {
+                                        <span class="badge bg-info">
+                                            <i class="bi bi-bag-check-fill me-1"></i>@orderCount
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">No orders</span>
+                                    }
+                                </td>
+
+                                <!-- Total Spent -->
+                                <td>
+                                    @if (totalSpent > 0)
+                                    {
+                                        <strong class="text-success">@totalSpent.ToString("N0") VNĐ</strong>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">0 VNĐ</span>
+                                    }
+                                </td>
+
+                                <!-- Registration Date -->
+                                <td>
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar3 me-1"></i>
+                                        @user.RegistrationDate.ToString("dd/MM/yyyy")
+                                    </small>
+                                </td>
+
+                                <!-- Actions -->
+                                <td class="text-center">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a href="@Url.Action("Details", new { id = user.UserID })"
+                                           class="btn btn-outline-info"
+                                           title="View Details">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="@Url.Action("Edit", new { id = user.UserID })"
+                                           class="btn btn-outline-primary"
+                                           title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a href="@Url.Action("Delete", new { id = user.UserID })"
+                                           class="btn btn-outline-danger"
+                                           title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            if (ViewBag.TotalPages > 1)
+            {
+                <nav aria-label="User list pagination" class="mt-4">
+                    <ul class="pagination justify-content-center mb-0">
+                        <!-- Previous Button -->
+                        <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+                            <a class="page-link"
+                               href="@Url.Action("Index", new {
+                                   searchTerm = ViewBag.SearchTerm,
+                                   roleFilter = ViewBag.RoleFilter,
+                                   sortOrder = ViewBag.CurrentSort,
+                                   page = ViewBag.CurrentPage - 1
+                               })"
+                               aria-label="Previous">
+                                <span aria-hidden="true">&laquo; Previous</span>
+                            </a>
+                        </li>
+
+                        <!-- Page Numbers -->
+                        @{
+                            int currentPage = ViewBag.CurrentPage;
+                            int totalPages = ViewBag.TotalPages;
+                            int startPage = Math.Max(1, currentPage - 2);
+                            int endPage = Math.Min(totalPages, currentPage + 2);
+                        }
+
+                        @if (startPage > 1)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("Index", new {
+                                       searchTerm = ViewBag.SearchTerm,
+                                       roleFilter = ViewBag.RoleFilter,
+                                       sortOrder = ViewBag.CurrentSort,
+                                       page = 1
+                                   })">1</a>
+                            </li>
+                            if (startPage > 2)
+                            {
+                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                            }
+                        }
+
+                        @for (int i = startPage; i <= endPage; i++)
+                        {
+                            <li class="page-item @(i == currentPage ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("Index", new {
+                                       searchTerm = ViewBag.SearchTerm,
+                                       roleFilter = ViewBag.RoleFilter,
+                                       sortOrder = ViewBag.CurrentSort,
+                                       page = i
+                                   })">@i</a>
+                            </li>
+                        }
+
+                        @if (endPage < totalPages)
+                        {
+                            if (endPage < totalPages - 1)
+                            {
+                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                            }
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("Index", new {
+                                       searchTerm = ViewBag.SearchTerm,
+                                       roleFilter = ViewBag.RoleFilter,
+                                       sortOrder = ViewBag.CurrentSort,
+                                       page = totalPages
+                                   })">@totalPages</a>
+                            </li>
+                        }
+
+                        <!-- Next Button -->
+                        <li class="page-item @(ViewBag.CurrentPage >= ViewBag.TotalPages ? "disabled" : "")">
+                            <a class="page-link"
+                               href="@Url.Action("Index", new {
+                                   searchTerm = ViewBag.SearchTerm,
+                                   roleFilter = ViewBag.RoleFilter,
+                                   sortOrder = ViewBag.CurrentSort,
+                                   page = ViewBag.CurrentPage + 1
+                               })"
+                               aria-label="Next">
+                                <span aria-hidden="true">Next &raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- Pagination Info -->
+                    <div class="text-center mt-3">
+                        <p class="text-muted mb-0">
+                            Showing
+                            <strong>@((ViewBag.CurrentPage - 1) * ViewBag.PageSize + 1)</strong>
+                            to
+                            <strong>@Math.Min(ViewBag.CurrentPage * ViewBag.PageSize, ViewBag.TotalUsers)</strong>
+                            of
+                            <strong>@ViewBag.TotalUsers</strong>
+                            users
+                        </p>
+                    </div>
+                </nav>
+            }
+        }
+        else
+        {
+            <!-- No Users Found -->
+            <div class="text-center py-5">
+                <i class="bi bi-inbox display-1 text-muted"></i>
+                <h4 class="mt-3">No users found</h4>
+                <p class="text-muted">
+                    @if (!string.IsNullOrEmpty(ViewBag.SearchTerm) || !string.IsNullOrEmpty(ViewBag.RoleFilter))
+                    {
+                        <text>Try adjusting your search or filter criteria.</text>
+                    }
+                    else
+                    {
+                        <text>Get started by creating your first user.</text>
+                    }
+                </p>
+                <a href="@Url.Action("Create")" class="btn btn-primary mt-2">
+                    <i class="bi bi-plus-circle me-1"></i> Create First User
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .avatar-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+        cursor: pointer;
+    }
+    .badge i {
+        font-size: 0.85em;
+    }
+    .btn-group-sm .btn {
+        padding: 0.25rem 0.5rem;
+    }
+    .pagination .page-item.active .page-link {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+    code {
+        background-color: #f8f9fa;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.875em;
+    }
+</style>

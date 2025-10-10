@@ -1,97 +1,421 @@
 ﻿@model OnlineJewelryStore.Models.User
 
 @{
-    ViewBag.Title = "Delete";
+    ViewBag.Title = "Delete User";
     Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+
+    var orderCount = ViewBag.OrderCount ?? 0;
+    var addressCount = ViewBag.AddressCount ?? 0;
+    var wishlistCount = ViewBag.WishlistCount ?? 0;
+    var reviewCount = ViewBag.ReviewCount ?? 0;
+    var cartItemCount = ViewBag.CartItemCount ?? 0;
+
+    var canDelete = orderCount == 0;
 }
 
-<h2>Delete</h2>
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a href="@Url.Action("Index", "Dashboard")">
+                <i class="bi bi-house-door"></i> Dashboard
+            </a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="@Url.Action("Index", "Users")">Users</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Delete</li>
+    </ol>
+</nav>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>User</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.FirstName)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.FirstName)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.LastName)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.LastName)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Phone)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Phone)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.PasswordHash)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.PasswordHash)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Role)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Role)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.RegistrationDate)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.RegistrationDate)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.LastLogin)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.LastLogin)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.SocialLoginProvider)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.SocialLoginProvider)
-        </dd>
-
-    </dl>
-
-    @using (Html.BeginForm()) {
-        @Html.AntiForgeryToken()
-
-        <div class="form-actions no-color">
-            <input type="submit" value="Delete" class="btn btn-default" /> |
-            @Html.ActionLink("Back to List", "Index")
-        </div>
-    }
+<!-- Page Header -->
+<div class="mb-4">
+    <h2 class="mb-1 text-danger">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>Delete User Confirmation
+    </h2>
+    <p class="text-muted mb-0">Review the information below before deleting this user</p>
 </div>
+
+<!-- Main Content -->
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+
+        <!-- Warning Alert -->
+        @if (!canDelete)
+        {
+            <!-- CANNOT DELETE - Has Orders -->
+            <div class="alert alert-danger d-flex align-items-center" role="alert">
+                <i class="bi bi-shield-fill-exclamation fs-3 me-3"></i>
+                <div>
+                    <h5 class="alert-heading mb-2">Cannot Delete This User!</h5>
+                    <p class="mb-0">
+                        This user has <strong>@orderCount order(s)</strong> in the system.
+                        Users with order history cannot be deleted to preserve transaction records.
+                    </p>
+                </div>
+            </div>
+        }
+        else
+        {
+            <!-- CAN DELETE - Warning -->
+            <div class="alert alert-warning d-flex align-items-center" role="alert">
+                <i class="bi bi-exclamation-triangle fs-3 me-3"></i>
+                <div>
+                    <h5 class="alert-heading mb-2">Warning: Permanent Action!</h5>
+                    <p class="mb-0">
+                        This action cannot be undone. The user and all associated data will be permanently deleted.
+                    </p>
+                </div>
+            </div>
+        }
+
+        <!-- User Information Card -->
+        <div class="card shadow-sm mb-3">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-person-x-fill me-2"></i>User to be Deleted
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- User Avatar/Initials -->
+                    <div class="col-md-3 text-center mb-3 mb-md-0">
+                        <div class="avatar-large bg-danger text-white mx-auto">
+                            @(Model.FirstName?.Substring(0, 1).ToUpper())@(Model.LastName?.Substring(0, 1).ToUpper())
+                        </div>
+                        <h5 class="mt-3 mb-1">@Model.FirstName @Model.LastName</h5>
+                        @if (Model.Role == "Administrator")
+                        {
+                            <span class="badge bg-danger">
+                                <i class="bi bi-shield-fill-check me-1"></i>Administrator
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success">
+                                <i class="bi bi-person-fill me-1"></i>Customer
+                            </span>
+                        }
+                    </div>
+
+                    <!-- User Details -->
+                    <div class="col-md-9">
+                        <dl class="row mb-0">
+                            <dt class="col-sm-4">
+                                <i class="bi bi-hash text-muted me-2"></i>User ID:
+                            </dt>
+                            <dd class="col-sm-8">
+                                <strong class="text-primary">#@Model.UserID</strong>
+                            </dd>
+
+                            <dt class="col-sm-4">
+                                <i class="bi bi-envelope text-muted me-2"></i>Email:
+                            </dt>
+                            <dd class="col-sm-8">@Model.Email</dd>
+
+                            <dt class="col-sm-4">
+                                <i class="bi bi-telephone text-muted me-2"></i>Phone:
+                            </dt>
+                            <dd class="col-sm-8">@Model.Phone</dd>
+
+                            <dt class="col-sm-4">
+                                <i class="bi bi-key text-muted me-2"></i>Password:
+                            </dt>
+                            <dd class="col-sm-8">
+                                <code class="small">@Model.PasswordHash</code>
+                            </dd>
+
+                            <dt class="col-sm-4">
+                                <i class="bi bi-calendar3 text-muted me-2"></i>Registered:
+                            </dt>
+                            <dd class="col-sm-8">@Model.RegistrationDate.ToString("dd/MM/yyyy HH:mm")</dd>
+
+                            @if (Model.LastLogin.HasValue)
+                            {
+                                <dt class="col-sm-4">
+                                    <i class="bi bi-clock-history text-muted me-2"></i>Last Login:
+                                </dt>
+                                <dd class="col-sm-8">@Model.LastLogin.Value.ToString("dd/MM/yyyy HH:mm")</dd>
+                            }
+
+                            @if (!string.IsNullOrEmpty(Model.SocialLoginProvider))
+                            {
+                                <dt class="col-sm-4">
+                                    <i class="bi bi-google text-muted me-2"></i>Social Login:
+                                </dt>
+                                <dd class="col-sm-8">
+                                    <span class="badge bg-info">@Model.SocialLoginProvider</span>
+                                </dd>
+                            }
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Impact Analysis Card -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <i class="bi bi-graph-down text-warning me-2"></i>Deletion Impact Analysis
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-3">
+                    The following data will be affected by deleting this user:
+                </p>
+
+                <div class="row g-3">
+                    <!-- Orders -->
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center p-3 border rounded @(orderCount > 0 ? "bg-danger-subtle border-danger" : "")">
+                            <i class="bi bi-bag-x fs-2 me-3 @(orderCount > 0 ? "text-danger" : "text-muted")"></i>
+                            <div>
+                                <h6 class="mb-0">Orders</h6>
+                                <p class="mb-0 @(orderCount > 0 ? "text-danger fw-bold" : "text-muted")">
+                                    @orderCount order(s)
+                                    @if (orderCount > 0)
+                                    {
+                                        <br /><small>⚠️ CANNOT DELETE</small>
+                                    }
+                                    else
+                                    {
+                                        <br /><small>✓ No orders</small>
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Addresses -->
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center p-3 border rounded @(addressCount > 0 ? "bg-warning-subtle border-warning" : "")">
+                            <i class="bi bi-geo-alt fs-2 me-3 @(addressCount > 0 ? "text-warning" : "text-muted")"></i>
+                            <div>
+                                <h6 class="mb-0">Addresses</h6>
+                                <p class="mb-0">
+                                    @addressCount address(es)
+                                    @if (addressCount > 0)
+                                    {
+                                        <br /><small class="text-warning">⚠️ Will be deleted</small>
+                                    }
+                                    else
+                                    {
+                                        <br /><small class="text-muted">✓ No addresses</small>
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Wishlist -->
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center p-3 border rounded @(wishlistCount > 0 ? "bg-warning-subtle border-warning" : "")">
+                            <i class="bi bi-heart fs-2 me-3 @(wishlistCount > 0 ? "text-warning" : "text-muted")"></i>
+                            <div>
+                                <h6 class="mb-0">Wishlist Items</h6>
+                                <p class="mb-0">
+                                    @wishlistCount item(s)
+                                    @if (wishlistCount > 0)
+                                    {
+                                        <br /><small class="text-warning">⚠️ Will be deleted</small>
+                                    }
+                                    else
+                                    {
+                                        <br /><small class="text-muted">✓ No wishlist items</small>
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reviews -->
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center p-3 border rounded @(reviewCount > 0 ? "bg-warning-subtle border-warning" : "")">
+                            <i class="bi bi-star fs-2 me-3 @(reviewCount > 0 ? "text-warning" : "text-muted")"></i>
+                            <div>
+                                <h6 class="mb-0">Reviews</h6>
+                                <p class="mb-0">
+                                    @reviewCount review(s)
+                                    @if (reviewCount > 0)
+                                    {
+                                        <br /><small class="text-warning">⚠️ Will be deleted</small>
+                                    }
+                                    else
+                                    {
+                                        <br /><small class="text-muted">✓ No reviews</small>
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cart -->
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center p-3 border rounded @(cartItemCount > 0 ? "bg-warning-subtle border-warning" : "")">
+                            <i class="bi bi-cart fs-2 me-3 @(cartItemCount > 0 ? "text-warning" : "text-muted")"></i>
+                            <div>
+                                <h6 class="mb-0">Shopping Cart</h6>
+                                <p class="mb-0">
+                                    @cartItemCount item(s)
+                                    @if (cartItemCount > 0)
+                                    {
+                                        <br /><small class="text-warning">⚠️ Will be deleted</small>
+                                    }
+                                    else
+                                    {
+                                        <br /><small class="text-muted">✓ Empty cart</small>
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @if (canDelete)
+                {
+                    <div class="alert alert-warning mt-3 mb-0">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Note:</strong> All data marked with ⚠️ will be permanently deleted and cannot be recovered.
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="card shadow-sm">
+            <div class="card-body">
+                @if (canDelete)
+                {
+                    <!-- CAN DELETE -->
+                    using (Html.BeginForm("Delete", "Users", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="@Url.Action("Index")" class="btn btn-outline-secondary btn-lg">
+                                <i class="bi bi-arrow-left me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-danger btn-lg px-5" onclick="return confirm('Are you absolutely sure you want to delete this user? This action cannot be undone!');">
+                                <i class="bi bi-trash-fill me-2"></i>Yes, Delete User
+                            </button>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <!-- CANNOT DELETE -->
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="@Url.Action("Index")" class="btn btn-secondary btn-lg">
+                            <i class="bi bi-arrow-left me-2"></i>Back to List
+                        </a>
+                        <button type="button" class="btn btn-danger btn-lg px-5" disabled>
+                            <i class="bi bi-x-circle me-2"></i>Cannot Delete User
+                        </button>
+                    </div>
+                    <div class="text-center mt-3">
+                        <p class="text-muted mb-0">
+                            <i class="bi bi-info-circle me-1"></i>
+                            To delete this user, all orders must be removed first (which is not recommended).
+                        </p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Alternative Action Card (if cannot delete) -->
+        @if (!canDelete)
+        {
+            <div class="card border-info mt-3">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">
+                        <i class="bi bi-lightbulb-fill me-2"></i>Alternative Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-3">Since this user cannot be deleted, consider these alternatives:</p>
+                    <ul class="mb-0">
+                        <li class="mb-2">
+                            <strong>Edit User:</strong> Update user information, change role, or reset password
+                            <a href="@Url.Action("Edit", new { id = Model.UserID })" class="btn btn-sm btn-outline-primary ms-2">
+                                <i class="bi bi-pencil me-1"></i>Edit User
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <strong>View Orders:</strong> Review the user's order history
+                            <a href="@Url.Action("Details", new { id = Model.UserID })" class="btn btn-sm btn-outline-info ms-2">
+                                <i class="bi bi-eye me-1"></i>View Details
+                            </a>
+                        </li>
+                        <li>
+                            <strong>Block Account:</strong> Prevent login without deleting data (feature not yet implemented)
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    /* Avatar Large */
+    .avatar-large {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 48px;
+        border: 4px solid white;
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+
+    /* Definition List Styling */
+    dl dt {
+        font-weight: 600;
+        color: #6c757d;
+    }
+
+    dl dd {
+        color: #212529;
+    }
+
+    /* Impact Cards */
+    .bg-danger-subtle {
+        background-color: #f8d7da !important;
+    }
+
+    .bg-warning-subtle {
+        background-color: #fff3cd !important;
+    }
+
+    .border-danger {
+        border-color: #dc3545 !important;
+    }
+
+    .border-warning {
+        border-color: #ffc107 !important;
+    }
+
+    /* Button styling */
+    .btn-lg {
+        padding: 0.75rem 1.5rem;
+        font-size: 1.1rem;
+    }
+
+    /* Alert styling */
+    .alert h5.alert-heading {
+        font-weight: 600;
+    }
+
+    /* Card header */
+    .card-header.bg-danger {
+        background-color: #dc3545 !important;
+    }
+
+    .card-header.bg-info {
+        background-color: #0dcaf0 !important;
+    }
+</style>

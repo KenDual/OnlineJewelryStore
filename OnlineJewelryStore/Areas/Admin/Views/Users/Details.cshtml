@@ -1,91 +1,938 @@
 ﻿@model OnlineJewelryStore.Models.User
 
 @{
-    ViewBag.Title = "Details";
+    ViewBag.Title = "User Details";
     Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+
+    var addresses = (List<OnlineJewelryStore.Models.Address>)ViewBag.Addresses;
+    var orders = (List<OnlineJewelryStore.Models.Order>)ViewBag.Orders;
+    var wishlist = (List<OnlineJewelryStore.Models.Wishlist>)ViewBag.Wishlist;
+    var reviews = (List<OnlineJewelryStore.Models.Review>)ViewBag.Reviews;
+    var cart = (OnlineJewelryStore.Models.Cart)ViewBag.Cart;
 }
 
-<h2>Details</h2>
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a href="@Url.Action("Index", "Dashboard")">
+                <i class="bi bi-house-door"></i> Dashboard
+            </a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="@Url.Action("Index", "Users")">Users</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">@Model.FirstName @Model.LastName</li>
+    </ol>
+</nav>
 
-<div>
-    <h4>User</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.FirstName)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.FirstName)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.LastName)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.LastName)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Phone)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Phone)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.PasswordHash)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.PasswordHash)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Role)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Role)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.RegistrationDate)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.RegistrationDate)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.LastLogin)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.LastLogin)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.SocialLoginProvider)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.SocialLoginProvider)
-        </dd>
-
-    </dl>
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">
+            <i class="bi bi-person-circle text-primary me-2"></i>User Details
+        </h2>
+        <p class="text-muted mb-0">Complete information about @Model.FirstName @Model.LastName</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="@Url.Action("Edit", new { id = Model.UserID })" class="btn btn-primary">
+            <i class="bi bi-pencil me-1"></i> Edit User
+        </a>
+        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to List
+        </a>
+    </div>
 </div>
-<p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.UserID }) |
-    @Html.ActionLink("Back to List", "Index")
-</p>
+
+<!-- User Profile Card -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row align-items-center">
+            <!-- Avatar -->
+            <div class="col-md-2 text-center mb-3 mb-md-0">
+                <div class="avatar-xlarge bg-primary text-white mx-auto">
+                    @(Model.FirstName?.Substring(0, 1).ToUpper())@(Model.LastName?.Substring(0, 1).ToUpper())
+                </div>
+            </div>
+
+            <!-- Basic Info -->
+            <div class="col-md-7">
+                <h3 class="mb-2">@Model.FirstName @Model.LastName</h3>
+                <div class="mb-2">
+                    @if (Model.Role == "Administrator")
+                    {
+                        <span class="badge bg-danger fs-6">
+                            <i class="bi bi-shield-fill-check me-1"></i>Administrator
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success fs-6">
+                            <i class="bi bi-person-fill me-1"></i>Customer
+                        </span>
+                    }
+                </div>
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <i class="bi bi-envelope text-primary me-2"></i>
+                        <a href="mailto:@Model.Email">@Model.Email</a>
+                    </div>
+                    <div class="col-md-6">
+                        <i class="bi bi-telephone text-primary me-2"></i>
+                        <a href="tel:@Model.Phone">@Model.Phone</a>
+                    </div>
+                    <div class="col-md-6">
+                        <i class="bi bi-calendar-plus text-primary me-2"></i>
+                        Joined: @Model.RegistrationDate.ToString("dd/MM/yyyy")
+                    </div>
+                    <div class="col-md-6">
+                        <i class="bi bi-clock-history text-primary me-2"></i>
+                        Last Login: @(Model.LastLogin.HasValue ? Model.LastLogin.Value.ToString("dd/MM/yyyy") : "Never")
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="col-md-3">
+                <div class="text-center p-3 bg-light rounded">
+                    <h4 class="text-primary mb-0">@ViewBag.TotalOrders</h4>
+                    <small class="text-muted">Total Orders</small>
+                </div>
+                <div class="text-center p-3 bg-light rounded mt-2">
+                    <h4 class="text-success mb-0">@ViewBag.TotalSpent.ToString("N0") ₫</h4>
+                    <small class="text-muted">Total Spent</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards Row -->
+<div class="row g-3 mb-4">
+    <!-- Total Orders -->
+    <div class="col-md-3">
+        <div class="card border-primary h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-bag-check-fill text-primary fs-1 mb-3"></i>
+                <h3 class="mb-1">@ViewBag.TotalOrders</h3>
+                <p class="text-muted mb-0">Total Orders</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Spent -->
+    <div class="col-md-3">
+        <div class="card border-success h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-cash-stack text-success fs-1 mb-3"></i>
+                <h3 class="mb-1">@ViewBag.TotalSpent.ToString("N0") ₫</h3>
+                <p class="text-muted mb-0">Total Spent</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Average Order Value -->
+    <div class="col-md-3">
+        <div class="card border-info h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-graph-up text-info fs-1 mb-3"></i>
+                <h3 class="mb-1">@ViewBag.AverageOrderValue.ToString("N0") ₫</h3>
+                <p class="text-muted mb-0">Avg Order Value</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wishlist Items -->
+    <div class="col-md-3">
+        <div class="card border-warning h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-heart-fill text-warning fs-1 mb-3"></i>
+                <h3 class="mb-1">@wishlist.Count</h3>
+                <p class="text-muted mb-0">Wishlist Items</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabs Navigation -->
+<ul class="nav nav-tabs nav-fill mb-3" id="userDetailsTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab">
+            <i class="bi bi-person-circle me-2"></i>Basic Info
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="addresses-tab" data-bs-toggle="tab" data-bs-target="#addresses" type="button" role="tab">
+            <i class="bi bi-geo-alt me-2"></i>Addresses
+            <span class="badge bg-secondary ms-1">@addresses.Count</span>
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders" type="button" role="tab">
+            <i class="bi bi-bag me-2"></i>Orders
+            <span class="badge bg-secondary ms-1">@ViewBag.AllOrdersCount</span>
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="wishlist-tab" data-bs-toggle="tab" data-bs-target="#wishlist" type="button" role="tab">
+            <i class="bi bi-heart me-2"></i>Wishlist
+            <span class="badge bg-secondary ms-1">@wishlist.Count</span>
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab">
+            <i class="bi bi-star me-2"></i>Reviews
+            <span class="badge bg-secondary ms-1">@reviews.Count</span>
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="cart-tab" data-bs-toggle="tab" data-bs-target="#cart" type="button" role="tab">
+            <i class="bi bi-cart me-2"></i>Shopping Cart
+            <span class="badge bg-secondary ms-1">@(cart != null ? cart.CartItems.Count : 0)</span>
+        </button>
+    </li>
+</ul>
+
+<!-- Tabs Content -->
+<div class="tab-content" id="userDetailsTabsContent">
+
+    <!-- TAB 1: BASIC INFO -->
+    <div class="tab-pane fade show active" id="info" role="tabpanel">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <i class="bi bi-info-circle me-2"></i>Personal Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <dl class="row">
+                            <dt class="col-sm-5">
+                                <i class="bi bi-hash text-muted me-2"></i>User ID:
+                            </dt>
+                            <dd class="col-sm-7">
+                                <strong class="text-primary">#@Model.UserID</strong>
+                            </dd>
+
+                            <dt class="col-sm-5">
+                                <i class="bi bi-person text-muted me-2"></i>First Name:
+                            </dt>
+                            <dd class="col-sm-7">@Model.FirstName</dd>
+
+                            <dt class="col-sm-5">
+                                <i class="bi bi-person text-muted me-2"></i>Last Name:
+                            </dt>
+                            <dd class="col-sm-7">@Model.LastName</dd>
+
+                            <dt class="col-sm-5">
+                                <i class="bi bi-envelope text-muted me-2"></i>Email:
+                            </dt>
+                            <dd class="col-sm-7">
+                                <a href="mailto:@Model.Email">@Model.Email</a>
+                            </dd>
+
+                            <dt class="col-sm-5">
+                                <i class="bi bi-telephone text-muted me-2"></i>Phone:
+                            </dt>
+                            <dd class="col-sm-7">
+                                <a href="tel:@Model.Phone">@Model.Phone</a>
+                            </dd>
+                        </dl>
+                    </div>
+
+                    <div class="col-md-6">
+                        <dl class="row">
+                            <dt class="col-sm-5">
+                                <i class="bi bi-shield text-muted me-2"></i>Role:
+                            </dt>
+                            <dd class="col-sm-7">
+                                @if (Model.Role == "Administrator")
+                                {
+                                    <span class="badge bg-danger">
+                                        <i class="bi bi-shield-fill-check me-1"></i>Administrator
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">
+                                        <i class="bi bi-person-fill me-1"></i>Customer
+                                    </span>
+                                }
+                            </dd>
+
+                            <dt class="col-sm-5">
+                                <i class="bi bi-key text-muted me-2"></i>Password:
+                            </dt>
+                            <dd class="col-sm-7">
+                                <code class="small">@Model.PasswordHash</code>
+                            </dd>
+
+                            <dt class="col-sm-5">
+                                <i class="bi bi-calendar-plus text-muted me-2"></i>Registration:
+                            </dt>
+                            <dd class="col-sm-7">
+                                @Model.RegistrationDate.ToString("dd/MM/yyyy HH:mm")
+                                <br />
+                                <small class="text-muted">
+                                    (@((DateTime.Now - Model.RegistrationDate).Days) days ago)
+                                </small>
+                            </dd>
+
+                            <dt class="col-sm-5">
+                                <i class="bi bi-clock-history text-muted me-2"></i>Last Login:
+                            </dt>
+                            <dd class="col-sm-7">
+                                @if (Model.LastLogin.HasValue)
+                                {
+                                    @Model.LastLogin.Value.ToString("dd/MM/yyyy HH:mm")
+                                    <br />
+                                    <small class="text-muted">
+                                        (@((DateTime.Now - Model.LastLogin.Value).Days) days ago)
+                                    </small>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Never logged in</span>
+                                }
+                            </dd>
+
+                            <dt class="col-sm-5">
+                                <i class="bi bi-google text-muted me-2"></i>Social Login:
+                            </dt>
+                            <dd class="col-sm-7">
+                                @if (!string.IsNullOrEmpty(Model.SocialLoginProvider))
+                                {
+                                    <span class="badge bg-info">
+                                        <i class="bi bi-box-arrow-in-right me-1"></i>@Model.SocialLoginProvider
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Not connected</span>
+                                }
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+
+                <!-- Order Status Breakdown -->
+                <hr class="my-4" />
+                <h6 class="mb-3">
+                    <i class="bi bi-graph-up text-primary me-2"></i>Order Status Breakdown
+                </h6>
+                <div class="row g-2">
+                    <div class="col-md-2">
+                        <div class="text-center p-3 bg-warning bg-opacity-10 rounded">
+                            <h5 class="mb-1">@ViewBag.PendingOrders</h5>
+                            <small class="text-muted">Pending</small>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="text-center p-3 bg-info bg-opacity-10 rounded">
+                            <h5 class="mb-1">@ViewBag.ProcessingOrders</h5>
+                            <small class="text-muted">Processing</small>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="text-center p-3 bg-primary bg-opacity-10 rounded">
+                            <h5 class="mb-1">@ViewBag.ShippedOrders</h5>
+                            <small class="text-muted">Shipped</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center p-3 bg-success bg-opacity-10 rounded">
+                            <h5 class="mb-1">@ViewBag.DeliveredOrders</h5>
+                            <small class="text-muted">Delivered</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center p-3 bg-danger bg-opacity-10 rounded">
+                            <h5 class="mb-1">@ViewBag.CancelledOrders</h5>
+                            <small class="text-muted">Cancelled</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: ADDRESSES -->
+    <div class="tab-pane fade" id="addresses" role="tabpanel">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-geo-alt me-2"></i>Saved Addresses
+                    <span class="badge bg-secondary ms-2">@addresses.Count</span>
+                </h5>
+            </div>
+            <div class="card-body">
+                @if (addresses != null && addresses.Any())
+                {
+                    <div class="row g-3">
+                        @foreach (var address in addresses)
+                        {
+                            <div class="col-md-6">
+                                <div class="card h-100 @(address.IsDefault ? "border-primary" : "")">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="mb-0">
+                                                <i class="bi bi-house-door me-2"></i>Address #@address.AddressID
+                                            </h6>
+                                            @if (address.IsDefault)
+                                            {
+                                                <span class="badge bg-primary">
+                                                    <i class="bi bi-star-fill me-1"></i>Default
+                                                </span>
+                                            }
+                                        </div>
+                                        <address class="mb-2">
+                                            @address.StreetAddress<br />
+                                            @address.City, @address.State @address.PostalCode<br />
+                                            @address.Country
+                                        </address>
+                                        <p class="mb-0">
+                                            <i class="bi bi-telephone me-2"></i>@address.Phone
+                                        </p>
+                                        <small class="text-muted">
+                                            <i class="bi bi-calendar me-1"></i>
+                                            Added: @address.CreatedAt.ToString("dd/MM/yyyy")
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <i class="bi bi-geo-alt display-1 text-muted"></i>
+                        <h5 class="mt-3">No Addresses</h5>
+                        <p class="text-muted">This user hasn't added any addresses yet.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 3: ORDERS -->
+    <div class="tab-pane fade" id="orders" role="tabpanel">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-bag me-2"></i>Order History
+                    <span class="badge bg-secondary ms-2">@ViewBag.AllOrdersCount</span>
+                </h5>
+                <div>
+                    <small class="text-muted">Showing latest 20 orders</small>
+                </div>
+            </div>
+            <div class="card-body">
+                @if (orders != null && orders.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Items</th>
+                                    <th>Total</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in orders)
+                                {
+                                    <tr>
+                                        <td>
+                                            <strong class="text-primary">#@order.OrderID</strong>
+                                        </td>
+                                        <td>
+                                            <small>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</small>
+                                        </td>
+                                        <td>
+                                            @switch (order.Status)
+                                            {
+                                                case "Pending":
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="bi bi-clock me-1"></i>Pending
+                                                    </span>
+                                                    break;
+                                                case "Processing":
+                                                    <span class="badge bg-info">
+                                                        <i class="bi bi-arrow-repeat me-1"></i>Processing
+                                                    </span>
+                                                    break;
+                                                case "Shipped":
+                                                    <span class="badge bg-primary">
+                                                        <i class="bi bi-truck me-1"></i>Shipped
+                                                    </span>
+                                                    break;
+                                                case "Delivered":
+                                                    <span class="badge bg-success">
+                                                        <i class="bi bi-check-circle me-1"></i>Delivered
+                                                    </span>
+                                                    break;
+                                                case "Cancelled":
+                                                    <span class="badge bg-danger">
+                                                        <i class="bi bi-x-circle me-1"></i>Cancelled
+                                                    </span>
+                                                    break;
+                                            }
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary">
+                                                @order.OrderItems.Count items
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <strong class="text-success">@order.GrandTotal.ToString("N0") ₫</strong>
+                                        </td>
+                                        <td>
+                                            <a href="@Url.Action("Details", "Orders", new { id = order.OrderID })"
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-eye"></i> View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    if (ViewBag.AllOrdersCount > 20)
+                    {
+                        <div class="alert alert-info mb-0 mt-3">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Showing 20 of @ViewBag.AllOrdersCount total orders.
+                            <a href="#" class="alert-link">View all orders</a>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <i class="bi bi-bag-x display-1 text-muted"></i>
+                        <h5 class="mt-3">No Orders Yet</h5>
+                        <p class="text-muted">This user hasn't placed any orders.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 4: WISHLIST -->
+    <div class="tab-pane fade" id="wishlist" role="tabpanel">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <i class="bi bi-heart me-2"></i>Wishlist Items
+                    <span class="badge bg-secondary ms-2">@wishlist.Count</span>
+                </h5>
+            </div>
+            <div class="card-body">
+                @if (wishlist != null && wishlist.Any())
+                {
+                    <div class="row g-3">
+                        @foreach (var item in wishlist)
+                        {
+                            var product = item.ProductVariant?.Product;
+                            var variant = item.ProductVariant;
+
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <div class="d-flex">
+                                            <div class="me-3">
+                                                @if (product != null)
+                                                {
+                                                    var mainMedia = product.ProductMedias.FirstOrDefault(m => m.IsMain);
+                                                    if (mainMedia != null)
+                                                    {
+                                                        <img src="@Url.Content(mainMedia.URL)"
+                                                             alt="@product.ProductName"
+                                                             class="img-thumbnail"
+                                                             style="width: 80px; height: 80px; object-fit: cover;" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="bg-light d-flex align-items-center justify-content-center"
+                                                             style="width: 80px; height: 80px;">
+                                                            <i class="bi bi-image text-muted fs-3"></i>
+                                                        </div>
+                                                    }
+                                                }
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-1">
+                                                    @(product?.ProductName ?? "N/A")
+                                                </h6>
+                                                @if (variant != null)
+                                                {
+                                                    <p class="mb-1 small text-muted">
+                                                        @if (!string.IsNullOrEmpty(variant.MetalType))
+                                                        {
+                                                            <span class="badge bg-secondary me-1">@variant.MetalType</span>
+                                                        }
+                                                        @if (!string.IsNullOrEmpty(variant.Purity))
+                                                        {
+                                                            <span class="badge bg-secondary me-1">@variant.Purity</span>
+                                                        }
+                                                        @if (!string.IsNullOrEmpty(variant.RingSize))
+                                                        {
+                                                            <span class="badge bg-secondary me-1">Size @variant.RingSize</span>
+                                                        }
+                                                    </p>
+                                                    <p class="mb-1">
+                                                        <strong class="text-primary">
+                                                            @((product.BasePrice + variant.AdditionalPrice).ToString("N0")) ₫
+                                                        </strong>
+                                                    </p>
+                                                }
+                                                <small class="text-muted">
+                                                    <i class="bi bi-calendar me-1"></i>
+                                                    Added: @item.AddedAt.ToString("dd/MM/yyyy")
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <i class="bi bi-heart display-1 text-muted"></i>
+                        <h5 class="mt-3">Empty Wishlist</h5>
+                        <p class="text-muted">This user hasn't added any items to wishlist.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 5: REVIEWS -->
+    <div class="tab-pane fade" id="reviews" role="tabpanel">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <i class="bi bi-star me-2"></i>Reviews Written
+                    <span class="badge bg-secondary ms-2">@ViewBag.TotalReviews</span>
+                </h5>
+                @if (ViewBag.TotalReviews > 0)
+                {
+                    <small class="text-muted">
+                        Average Rating Given:
+                        <strong>@ViewBag.AverageRatingGiven.ToString("0.0")</strong>
+                        <i class="bi bi-star-fill text-warning ms-1"></i>
+                    </small>
+                }
+            </div>
+            <div class="card-body">
+                @if (reviews != null && reviews.Any())
+                {
+                    foreach (var review in reviews)
+                    {
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h6 class="mb-1">
+                                            <a href="@Url.Action("Details", "Products", new { id = review.ProductID })">
+                                                @review.Product.ProductName
+                                            </a>
+                                        </h6>
+                                        <div class="mb-2">
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                if (i <= review.Rating)
+                                                {
+                                                    <i class="bi bi-star-fill text-warning"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="bi bi-star text-muted"></i>
+                                                }
+                                            }
+                                            <span class="ms-2 text-muted">@review.Rating/5</span>
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">
+                                        @review.CreatedAt.ToString("dd/MM/yyyy")
+                                    </small>
+                                </div>
+                                @if (!string.IsNullOrEmpty(review.Title))
+                                {
+                                    <h6 class="mb-2">@review.Title</h6>
+                                }
+                                @if (!string.IsNullOrEmpty(review.Body))
+                                {
+                                    <p class="mb-0">@review.Body</p>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <i class="bi bi-star display-1 text-muted"></i>
+                        <h5 class="mt-3">No Reviews</h5>
+                        <p class="text-muted">This user hasn't written any product reviews yet.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 6: SHOPPING CART -->
+    <div class="tab-pane fade" id="cart" role="tabpanel">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-cart me-2"></i>Current Shopping Cart
+                </h5>
+                @if (cart != null && cart.CartItems.Any())
+                {
+                    <div>
+                        <span class="badge bg-primary me-2">@ViewBag.CartTotalItems items</span>
+                        <strong class="text-success">@ViewBag.CartTotalValue.ToString("N0") ₫</strong>
+                    </div>
+                }
+            </div>
+            <div class="card-body">
+                @if (cart != null && cart.CartItems.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Variant</th>
+                                    <th>Quantity</th>
+                                    <th>Unit Price</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in cart.CartItems)
+                                {
+                                    var product = item.ProductVariant?.Product;
+                                    var variant = item.ProductVariant;
+                                    var unitPrice = (product?.BasePrice ?? 0) + (variant?.AdditionalPrice ?? 0);
+                                    var totalPrice = unitPrice * item.Quantity;
+
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                @if (product != null)
+                                                {
+                                                    var mainMedia = product.ProductMedias.FirstOrDefault(m => m.IsMain);
+                                                    if (mainMedia != null)
+                                                    {
+                                                        <img src="@Url.Content(mainMedia.URL)"
+                                                             alt="@product.ProductName"
+                                                             class="img-thumbnail me-2"
+                                                             style="width: 50px; height: 50px; object-fit: cover;" />
+                                                    }
+                                                    <strong>@product.ProductName</strong>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">N/A</span>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @if (variant != null)
+                                            {
+                                                <div>
+                                                    @if (!string.IsNullOrEmpty(variant.MetalType))
+                                                    {
+                                                        <span class="badge bg-secondary me-1">@variant.MetalType</span>
+                                                    }
+                                                    @if (!string.IsNullOrEmpty(variant.Purity))
+                                                    {
+                                                        <span class="badge bg-secondary me-1">@variant.Purity</span>
+                                                    }
+                                                    @if (!string.IsNullOrEmpty(variant.RingSize))
+                                                    {
+                                                        <span class="badge bg-secondary">Size @variant.RingSize</span>
+                                                    }
+                                                </div>
+                                            }
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-primary">@item.Quantity</span>
+                                        </td>
+                                        <td>
+                                            @unitPrice.ToString("N0") ₫
+                                        </td>
+                                        <td>
+                                            <strong class="text-success">@totalPrice.ToString("N0") ₫</strong>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <th colspan="4" class="text-end">Total Cart Value:</th>
+                                    <th>
+                                        <strong class="text-success fs-5">
+                                            @ViewBag.CartTotalValue.ToString("N0") ₫
+                                        </strong>
+                                    </th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <div class="text-muted small mt-3">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Cart created on: @cart.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <i class="bi bi-cart-x display-1 text-muted"></i>
+                        <h5 class="mt-3">Empty Cart</h5>
+                        <p class="text-muted">This user's shopping cart is currently empty.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Avatar Extra Large */
+    .avatar-xlarge {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 48px;
+        border: 4px solid white;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+
+    /* Tabs styling */
+    .nav-tabs .nav-link {
+        color: #6c757d;
+        font-weight: 500;
+        border: none;
+        border-bottom: 3px solid transparent;
+        padding: 1rem 1.5rem;
+    }
+
+        .nav-tabs .nav-link:hover {
+            border-color: transparent;
+            border-bottom-color: #dee2e6;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: #0d6efd;
+            border-color: transparent;
+            border-bottom-color: #0d6efd;
+            background-color: transparent;
+        }
+
+        .nav-tabs .nav-link .badge {
+            font-size: 0.75rem;
+        }
+
+    /* Card hover effect */
+    .card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+    /* Table styling */
+    .table tbody tr {
+        transition: background-color 0.2s;
+    }
+
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+    /* Badge spacing */
+    .badge i {
+        font-size: 0.85em;
+    }
+
+    /* Image thumbnail */
+    .img-thumbnail {
+        border-radius: 8px;
+    }
+
+    /* Empty state icons */
+    .display-1 {
+        font-size: 5rem;
+        opacity: 0.3;
+    }
+
+    /* Definition list styling */
+    dl dt {
+        font-weight: 600;
+        color: #6c757d;
+    }
+
+    dl dd {
+        color: #212529;
+    }
+
+    /* Code styling */
+    code {
+        background-color: #f8f9fa;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.875em;
+    }
+
+    /* Address card */
+    address {
+        line-height: 1.6;
+        font-style: normal;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Initialize Bootstrap tabs
+            var triggerTabList = [].slice.call(document.querySelectorAll('#userDetailsTabs button'))
+            triggerTabList.forEach(function (triggerEl) {
+                var tabTrigger = new bootstrap.Tab(triggerEl)
+
+                triggerEl.addEventListener('click', function (event) {
+                    event.preventDefault()
+                    tabTrigger.show()
+                })
+            })
+
+            // Optional: Save active tab to localStorage
+            $('#userDetailsTabs button').on('shown.bs.tab', function (e) {
+                localStorage.setItem('activeUserTab', $(e.target).attr('id'));
+            });
+
+            // Restore active tab
+            var activeTab = localStorage.getItem('activeUserTab');
+            if (activeTab) {
+                $('#' + activeTab).tab('show');
+            }
+        });
+    </script>
+}
