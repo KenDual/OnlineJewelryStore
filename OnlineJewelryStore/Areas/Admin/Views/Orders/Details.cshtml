@@ -47,9 +47,13 @@
                     <i class="bi bi-pencil"></i> Edit Status
                 </a>
             }
-            <button onclick="window.print()" class="btn btn-outline-primary">
-                <i class="bi bi-printer"></i> Print
-            </button>
+
+            <a href="@Url.Action("Invoice", "Orders", new { id = Model.OrderID })"
+               target="_blank"
+               class="btn btn-outline-primary">
+                <i class="bi bi-file-earmark-text"></i> View Invoice
+            </a>
+
         </div>
     </div>
 
@@ -115,7 +119,7 @@
                         </div>
                         @if (Model.Status != "Delivered" && Model.Status != "Cancelled")
                         {
-                            <a href="@Url.Action("Cancel", "Orders", new { id = Model.OrderID })"
+                            <a href="@Url.Action("Edit", "Orders", new { id = Model.OrderID })"
                                class="btn btn-outline-danger btn-sm">
                                 <i class="bi bi-x-lg"></i> Cancel Order
                             </a>
@@ -331,13 +335,24 @@
                         <h4 class="mb-0 text-success">@Model.GrandTotal.ToString("N0") đ</h4>
                     </div>
 
-                    @if (Model.Status == "Pending" && Model.CouponID == null)
+                    <!-- Nút Áp mã giảm giá-->
+                    @if (Model.Status == "Pending")
                     {
                         <div class="mt-3">
-                            <a href="@Url.Action("ApplyCoupon", "Orders", new { id = Model.OrderID })"
-                               class="btn btn-outline-primary w-100">
-                                <i class="bi bi-ticket-perforated"></i> Apply Coupon
-                            </a>
+                            @if (Model.CouponID == null)
+                            {
+                                <a href="@Url.Action("ApplyCoupon", "Orders", new { id = Model.OrderID })"
+                                   class="btn btn-outline-success w-100">
+                                    <i class="bi bi-ticket-perforated"></i> Apply Coupon Code
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="@Url.Action("ApplyCoupon", "Orders", new { id = Model.OrderID })"
+                                   class="btn btn-outline-primary w-100">
+                                    <i class="bi bi-pencil"></i> Change Coupon
+                                </a>
+                            }
                         </div>
                     }
                 </div>
@@ -570,24 +585,24 @@
         padding-left: 30px;
     }
 
-    .timeline::before {
-        content: '';
-        position: absolute;
-        left: 8px;
-        top: 10px;
-        bottom: 10px;
-        width: 2px;
-        background: #dee2e6;
-    }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 10px;
+            bottom: 10px;
+            width: 2px;
+            background: #dee2e6;
+        }
 
     .timeline-item {
         position: relative;
         padding-bottom: 20px;
     }
 
-    .timeline-item:last-child {
-        padding-bottom: 0;
-    }
+        .timeline-item:last-child {
+            padding-bottom: 0;
+        }
 
     .timeline-marker {
         position: absolute;

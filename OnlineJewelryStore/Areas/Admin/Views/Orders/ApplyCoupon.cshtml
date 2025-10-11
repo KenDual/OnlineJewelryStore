@@ -1,0 +1,313 @@
+﻿@model OnlineJewelryStore.Models.Order
+
+@{
+    ViewBag.Title = "Apply Coupon - Order #" + Model.OrderID;
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container-fluid">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })">
+                    <i class="bi bi-house-door"></i> Dashboard
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="@Url.Action("Index", "Orders")">
+                    <i class="bi bi-bag-check"></i> Orders
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="@Url.Action("Details", "Orders", new { id = Model.OrderID })">
+                    Order #@Model.OrderID
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                Apply Coupon
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">
+                <i class="bi bi-ticket-perforated text-primary"></i> Apply Coupon Code
+            </h2>
+            <p class="text-muted mb-0">Order #@Model.OrderID</p>
+        </div>
+        <a href="@Url.Action("Details", "Orders", new { id = Model.OrderID })" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Details
+        </a>
+    </div>
+
+    <!-- Success/Error Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["WarningMessage"] != null)
+    {
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i> @TempData["WarningMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row g-4">
+        <!-- LEFT: Apply Coupon Form -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0">
+                        <i class="bi bi-tag-fill"></i> Enter Coupon Code
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Current Coupon Warning (if exists) -->
+                    @if (ViewBag.HasCoupon)
+                    {
+                        <div class="alert alert-info border-start border-info border-4">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-info-circle fs-4 me-3"></i>
+                                <div>
+                                    <h6 class="alert-heading mb-2">Current Coupon Applied</h6>
+                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                        <span class="badge bg-success fs-6">@ViewBag.CurrentCouponCode</span>
+                                        <span class="text-muted">(@ViewBag.CurrentCouponPercent% OFF)</span>
+                                    </div>
+                                    <p class="mb-0 small">
+                                        <strong>Note:</strong> Applying a new coupon will replace the current one.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Apply Coupon Form -->
+                    @using (Html.BeginForm("ApplyCoupon", "Orders", FormMethod.Post, new { @class = "mb-4" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.Hidden("id", Model.OrderID)
+
+                        <div class="mb-3">
+                            <label for="couponCode" class="form-label fw-bold">
+                                <i class="bi bi-tag text-primary"></i> Coupon Code *
+                            </label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text bg-light">
+                                    <i class="bi bi-ticket-perforated"></i>
+                                </span>
+                                <input type="text"
+                                       class="form-control"
+                                       id="couponCode"
+                                       name="couponCode"
+                                       placeholder="Enter coupon code (e.g., SAVE20, WINTER50)"
+                                       required
+                                       maxlength="32"
+                                       style="text-transform: uppercase;" />
+                                <button type="submit" class="btn btn-primary px-4">
+                                    <i class="bi bi-check-circle me-1"></i> Apply Coupon
+                                </button>
+                            </div>
+                            <div class="form-text">
+                                <i class="bi bi-info-circle"></i>
+                                Enter your coupon code and click <strong>Apply Coupon</strong> to get discount.
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Remove Coupon Form (if exists) -->
+                    @if (ViewBag.HasCoupon)
+                    {
+                        <hr class="my-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">Remove Current Coupon?</h6>
+                                <small class="text-muted">
+                                    This will remove the discount and recalculate the order total.
+                                </small>
+                            </div>
+                            @using (Html.BeginForm("RemoveCoupon", "Orders", FormMethod.Post))
+                            {
+                                @Html.AntiForgeryToken()
+                                @Html.Hidden("id", Model.OrderID)
+                                <button type="submit"
+                                        class="btn btn-outline-danger"
+                                        onclick="return confirm('Are you sure you want to remove this coupon?');">
+                                    <i class="bi bi-x-circle me-1"></i> Remove Coupon
+                                </button>
+                            }
+                        </div>
+                    }
+
+                    <!-- How to Find Coupons -->
+                    <hr class="my-4">
+                    <div class="bg-light p-3 rounded">
+                        <h6 class="mb-2">
+                            <i class="bi bi-question-circle text-primary"></i> How to find coupon codes?
+                        </h6>
+                        <ul class="mb-0 small">
+                            <li>Check your email for promotional codes</li>
+                            <li>Visit the Coupons Management page for active codes</li>
+                            <li>Coupon codes are case-insensitive</li>
+                            <li>Each order can only use one coupon at a time</li>
+                            <li>Discount is calculated from the Subtotal amount</li>
+                        </ul>
+                    </div>
+
+                    <!-- Back Button -->
+                    <hr class="my-4">
+                    <a href="@Url.Action("Details", "Orders", new { id = Model.OrderID })"
+                       class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to Order Details
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Order Summary -->
+        <div class="col-lg-4">
+            <!-- Current Order Summary -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">
+                        <i class="bi bi-receipt"></i> Current Order Summary
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-1">Order ID</small>
+                        <strong class="fs-5">#@Model.OrderID</strong>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-1">Order Status</small>
+                        <span class="badge bg-warning text-dark">
+                            <i class="bi bi-clock"></i> @Model.Status
+                        </span>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Subtotal:</span>
+                        <strong>@Model.Subtotal.ToString("N0") đ</strong>
+                    </div>
+
+                    @if (Model.TaxTotal > 0)
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Tax:</span>
+                            <strong>@Model.TaxTotal.ToString("N0") đ</strong>
+                        </div>
+                    }
+
+                    @if (Model.ShippingFee > 0)
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Shipping Fee:</span>
+                            <strong>@Model.ShippingFee.ToString("N0") đ</strong>
+                        </div>
+                    }
+
+                    @if (Model.DiscountTotal > 0)
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-success">
+                                <i class="bi bi-ticket-perforated"></i> Discount:
+                            </span>
+                            <strong class="text-success">-@Model.DiscountTotal.ToString("N0") đ</strong>
+                        </div>
+                    }
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between">
+                        <span class="h6 mb-0">Grand Total:</span>
+                        <h4 class="mb-0 text-success">@Model.GrandTotal.ToString("N0") đ</h4>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Info Card -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">
+                        <i class="bi bi-person"></i> Customer
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center"
+                             style="width: 40px; height: 40px;">
+                            <span class="text-primary fw-bold">
+                                @Model.User.FirstName.Substring(0, 1)@Model.User.LastName.Substring(0, 1)
+                            </span>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="mb-0">@Model.User.FirstName @Model.User.LastName</h6>
+                            <small class="text-muted">@Model.User.Email</small>
+                        </div>
+                    </div>
+                    <small class="text-muted">
+                        <i class="bi bi-telephone"></i> @Model.User.Phone
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const couponInput = document.getElementById('couponCode');
+        if (couponInput) {
+            couponInput.addEventListener('input', function (e) {
+                this.value = this.value.toUpperCase().trim();
+            });
+            couponInput.focus();
+        }
+    });
+</script>
+
+<style>
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+
+    .input-group-lg > .form-control,
+    .input-group-lg > .input-group-text,
+    .input-group-lg > .btn {
+        padding: 0.75rem 1rem;
+        font-size: 1.1rem;
+    }
+
+    .card {
+        transition: transform 0.2s;
+    }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+    .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+</style>

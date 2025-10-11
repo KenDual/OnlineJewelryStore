@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
+using System.Data.SqlClient;
 using OnlineJewelryStore.Models;
 using OnlineJewelryStore.Filters;
 
@@ -536,6 +537,193 @@ namespace OnlineJewelryStore.Areas.Admin.Controllers
             }
         }
 
+        // ============================================================
+        // 🎫 MODULE 5: APPLY COUPON ACTIONS
+        // ============================================================
+
+        /// <summary>
+        /// GET: Admin/Orders/ApplyCoupon/5
+        /// Hiển thị form apply coupon cho order
+        /// </summary>
+        public ActionResult ApplyCoupon(int? id)
+        {
+            if (id == null)
+            {
+                TempData["ErrorMessage"] = "Order ID is required.";
+                return RedirectToAction("Index");
+            }
+
+            try
+            {
+                var order = db.Orders
+                    .Include(o => o.User)
+                    .Include(o => o.Coupon)
+                    .Include(o => o.Payments)
+                    .Include(o => o.OrderItems.Select(oi => oi.ProductVariant))
+                    .FirstOrDefault(o => o.OrderID == id);
+
+                if (order == null)
+                {
+                    TempData["ErrorMessage"] = "Order not found.";
+                    return RedirectToAction("Index");
+                }
+
+                // ⚠️ Chỉ cho phép apply coupon khi Status = 'Pending'
+                if (order.Status != "Pending")
+                {
+                    TempData["ErrorMessage"] = "Coupon can only be applied to Pending orders.";
+                    return RedirectToAction("Details", new { id });
+                }
+
+                // Pass current coupon info to view (nếu đã có)
+                ViewBag.HasCoupon = order.CouponID.HasValue;
+                ViewBag.CurrentCouponCode = order.Coupon?.Code;
+                ViewBag.CurrentCouponPercent = order.Coupon?.PercentOff;
+
+                return View(order);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error loading coupon form: " + ex.Message;
+                return RedirectToAction("Details", new { id });
+            }
+        }
+
+        /// <summary>
+        /// POST: Admin/Orders/ApplyCoupon/5
+        /// Xử lý apply coupon code vào order
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ApplyCoupon(int id, string couponCode)
+        {
+            if (string.IsNullOrWhiteSpace(couponCode))
+            {
+                TempData["ErrorMessage"] = "Please enter a coupon code.";
+                return RedirectToAction("ApplyCoupon", new { id });
+            }
+
+            try
+            {
+                // 1️⃣ Gọi stored procedure ApplyCouponToOrder
+                var orderIdParam = new SqlParameter("@OrderID", id);
+                var codeParam = new SqlParameter("@Code", couponCode.Trim());
+
+                var result = db.Database.SqlQuery<CouponApplyResult>(
+                    "EXEC ApplyCouponToOrder @OrderID, @Code",
+                    orderIdParam, codeParam
+                ).FirstOrDefault();
+
+                if (result == null)
+                {
+                    TempData["ErrorMessage"] = "Failed to apply coupon. Please try again.";
+                    return RedirectToAction("ApplyCoupon", new { id });
+                }
+
+                // 2️⃣ 🔴 CRITICAL: Update Payment.Amount để match với GrandTotal mới
+                // Nếu không update, trigger TR_Payments_ValidateAmount sẽ fail khi set Status = 'Captured'
+                var payment = db.Payments.FirstOrDefault(p => p.OrderID == id);
+                if (payment != null)
+                {
+                    payment.Amount = result.GrandTotal;
+                    db.SaveChanges();
+                }
+
+                // 3️⃣ Success message
+                TempData["SuccessMessage"] = $"✅ Coupon '{result.Code}' applied successfully! " +
+                                            $"You saved {result.DiscountTotal:N0} ₫ " +
+                                            $"({result.PercentOff}% discount).";
+
+                return RedirectToAction("Details", new { id });
+            }
+            catch (SqlException ex)
+            {
+                // Handle stored procedure errors (THROW statements)
+                string errorMessage = ex.Message;
+
+                // Parse friendly error messages
+                if (errorMessage.Contains("Coupon is invalid or inactive"))
+                {
+                    TempData["ErrorMessage"] = $"❌ Invalid coupon code: '{couponCode}' is not found or inactive.";
+                }
+                else if (errorMessage.Contains("Order not found"))
+                {
+                    TempData["ErrorMessage"] = "❌ Order not found.";
+                }
+                else if (errorMessage.Contains("Coupon can only be applied on Pending orders"))
+                {
+                    TempData["ErrorMessage"] = "❌ Coupon can only be applied to Pending orders.";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "❌ Error: " + errorMessage;
+                }
+
+                return RedirectToAction("ApplyCoupon", new { id });
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "❌ Unexpected error: " + ex.Message;
+                return RedirectToAction("ApplyCoupon", new { id });
+            }
+        }
+
+        /// POST: Admin/Orders/RemoveCoupon/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult RemoveCoupon(int id)
+        {
+            try
+            {
+                var order = db.Orders
+                    .Include(o => o.Payments)
+                    .Include(o => o.Coupon)
+                    .FirstOrDefault(o => o.OrderID == id);
+
+                if (order == null)
+                {
+                    TempData["ErrorMessage"] = "Order not found.";
+                    return RedirectToAction("Index");
+                }
+
+                // Chỉ cho phép remove coupon khi Status = 'Pending'
+                if (order.Status != "Pending")
+                {
+                    TempData["ErrorMessage"] = "Can only remove coupon from Pending orders.";
+                    return RedirectToAction("Details", new { id });
+                }
+
+                // Check if order has coupon
+                if (order.CouponID == null)
+                {
+                    TempData["WarningMessage"] = "No coupon to remove.";
+                    return RedirectToAction("Details", new { id });
+                }
+
+                string removedCouponCode = order.Coupon?.Code ?? "coupon";
+
+                order.CouponID = null;
+                order.DiscountTotal = 0;
+                order.GrandTotal = order.Subtotal + (order.TaxTotal) + (order.ShippingFee);
+
+                var payment = order.Payments.FirstOrDefault();
+                if (payment != null)
+                {
+                    payment.Amount = order.GrandTotal;
+                }
+
+                db.SaveChanges();
+
+                TempData["SuccessMessage"] = $"✅ Coupon '{removedCouponCode}' removed successfully.";
+                return RedirectToAction("Details", new { id });
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "❌ Error removing coupon: " + ex.Message;
+                return RedirectToAction("Details", new { id });
+            }
+        }
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -544,5 +732,19 @@ namespace OnlineJewelryStore.Areas.Admin.Controllers
             }
             base.Dispose(disposing);
         }
+    }
+
+    // Helper để áp mã Coupon vào giá thành
+    public class CouponApplyResult
+    {
+        public int OrderID { get; set; }
+        public int? CouponID { get; set; }
+        public string Code { get; set; }
+        public decimal PercentOff { get; set; }
+        public decimal Subtotal { get; set; }
+        public decimal? TaxTotal { get; set; }
+        public decimal? ShippingFee { get; set; }
+        public decimal DiscountTotal { get; set; }
+        public decimal GrandTotal { get; set; }
     }
 }

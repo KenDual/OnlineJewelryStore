@@ -284,6 +284,7 @@
     <Content Include="Areas\Admin\Views\Orders\Edit.cshtml" />
     <Content Include="Views\Orders\Invoice.cshtml" />
     <Content Include="App_Browsers\qt.browser" />
+    <Content Include="Areas\Admin\Views\Orders\ApplyCoupon.cshtml" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
