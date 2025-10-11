@@ -1,0 +1,476 @@
+﻿@model OnlineJewelryStore.Models.Coupon
+
+@{
+    ViewBag.Title = "Chi Tiết Mã Giảm Giá";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+    var totalUsed = (int)ViewBag.TotalUsed;
+    var totalRevenue = (decimal)ViewBag.TotalRevenue;
+    var totalDiscount = (decimal)ViewBag.TotalDiscount;
+    var avgDiscount = (decimal)ViewBag.AverageDiscount;
+}
+
+<div class="container-fluid px-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="@Url.Action("Index", "Dashboard")">
+                    <i class="bi bi-house-door"></i> Dashboard
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="@Url.Action("Index", "Coupons")">
+                    <i class="bi bi-ticket-perforated"></i> Mã Giảm Giá
+                </a>
+            </li>
+            <li class="breadcrumb-item active">Chi Tiết</li>
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="bi bi-info-circle text-primary"></i>
+                        Chi Tiết Mã Giảm Giá
+                    </h2>
+                    <p class="text-muted mb-0">Thông tin đầy đủ và thống kê sử dụng</p>
+                </div>
+                <div class="btn-group">
+                    <a href="@Url.Action("Edit", new { id = Model.CouponID })" class="btn btn-primary">
+                        <i class="bi bi-pencil"></i> Chỉnh Sửa
+                    </a>
+                    <a href="@Url.Action("Delete", new { id = Model.CouponID })" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Xóa
+                    </a>
+                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Quay Lại
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Coupon Info Card -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary bg-opacity-10 rounded-circle p-4 me-4">
+                            <i class="bi bi-ticket-perforated text-primary display-3"></i>
+                        </div>
+                        <div>
+                            <h1 class="fw-bold text-primary mb-2" style="letter-spacing: 3px;">@Model.Code</h1>
+                            <span class="badge bg-success fs-4 px-4 py-2">
+                                <i class="bi bi-percent"></i>
+                                @Model.PercentOff.ToString("0.##")% OFF
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                    @if (Model.IsActive)
+                    {
+                        <span class="badge bg-success fs-5 px-4 py-2 mb-2">
+                            <i class="bi bi-check-circle-fill"></i> Đang Hoạt Động
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary fs-5 px-4 py-2 mb-2">
+                            <i class="bi bi-x-circle-fill"></i> Đã Vô Hiệu Hóa
+                        </span>
+                    }
+                    <div class="mt-2">
+                        <form method="post" action="@Url.Action("ToggleActive", new { id = Model.CouponID })" style="display: inline;">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-@(Model.IsActive ? "warning" : "success") btn-sm">
+                                <i class="bi bi-toggle-@(Model.IsActive ? "off" : "on")"></i>
+                                @(Model.IsActive ? "Vô Hiệu Hóa" : "Kích Hoạt")
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-cart-check fs-3 text-primary"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="text-muted small">Tổng Lượt Dùng</div>
+                            <div class="fs-3 fw-bold text-primary">@totalUsed</div>
+                            <small class="text-muted">đơn hàng</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-success bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-currency-dollar fs-3 text-success"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="text-muted small">Tổng Doanh Thu</div>
+                            <div class="fs-3 fw-bold text-success">@totalRevenue.ToString("N0")</div>
+                            <small class="text-muted">VND</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-warning bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-piggy-bank fs-3 text-warning"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="text-muted small">Tổng Giảm Giá</div>
+                            <div class="fs-3 fw-bold text-warning">@totalDiscount.ToString("N0")</div>
+                            <small class="text-muted">VND</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-info bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-calculator fs-3 text-info"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="text-muted small">Giảm TB/Đơn</div>
+                            <div class="fs-3 fw-bold text-info">@avgDiscount.ToString("N0")</div>
+                            <small class="text-muted">VND</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Orders Using This Coupon -->
+        <div class="col-lg-8 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">
+                        <i class="bi bi-receipt text-primary"></i>
+                        Đơn Hàng Đã Sử Dụng Mã
+                        <span class="badge bg-primary">@totalUsed</span>
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.Orders.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Mã Đơn</th>
+                                        <th>Khách Hàng</th>
+                                        <th>Ngày Đặt</th>
+                                        <th>Tổng Tiền</th>
+                                        <th>Giảm Giá</th>
+                                        <th>Trạng Thái</th>
+                                        <th class="text-end">Hành Động</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var order in Model.Orders.OrderByDescending(o => o.OrderDate))
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong class="text-primary">#@order.OrderID</strong>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <div class="fw-bold">@order.User.FirstName @order.User.LastName</div>
+                                                    <small class="text-muted">@order.User.Email</small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <small>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</small>
+                                            </td>
+                                            <td>
+                                                <strong>@order.GrandTotal.ToString("N0")₫</strong>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-success">
+                                                    -@order.DiscountTotal.ToString("N0")₫
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @switch (order.Status)
+                                                {
+                                                    case "Pending":
+                                                        <span class="badge bg-warning">Chờ xử lý</span>
+                                                        break;
+                                                    case "Processing":
+                                                        <span class="badge bg-info">Đang xử lý</span>
+                                                        break;
+                                                    case "Shipped":
+                                                        <span class="badge bg-primary">Đã gửi</span>
+                                                        break;
+                                                    case "Delivered":
+                                                        <span class="badge bg-success">Đã giao</span>
+                                                        break;
+                                                    case "Cancelled":
+                                                        <span class="badge bg-danger">Đã hủy</span>
+                                                        break;
+                                                }
+                                            </td>
+                                            <td class="text-end">
+                                                <a href="@Url.Action("Details", "Orders", new { id = order.OrderID })"
+                                                   class="btn btn-sm btn-outline-primary"
+                                                   title="Xem chi tiết">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="bi bi-inbox display-1 text-muted"></i>
+                            <p class="text-muted mt-3 mb-0">
+                                Mã giảm giá này chưa được sử dụng trong đơn hàng nào
+                            </p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Info -->
+        <div class="col-lg-4">
+            <!-- Coupon Details -->
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-header bg-primary text-white py-3">
+                    <h6 class="mb-0">
+                        <i class="bi bi-info-circle"></i>
+                        Thông Tin Chi Tiết
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3 pb-3 border-bottom">
+                        <small class="text-muted d-block mb-1">ID Coupon</small>
+                        <strong>@Model.CouponID</strong>
+                    </div>
+
+                    <div class="mb-3 pb-3 border-bottom">
+                        <small class="text-muted d-block mb-1">Mã Coupon</small>
+                        <strong class="fs-5 text-primary d-block" style="letter-spacing: 2px;">@Model.Code</strong>
+                    </div>
+
+                    <div class="mb-3 pb-3 border-bottom">
+                        <small class="text-muted d-block mb-1">Phần Trăm Giảm</small>
+                        <span class="badge bg-success fs-5">
+                            <i class="bi bi-percent"></i>
+                            @Model.PercentOff.ToString("0.##")%
+                        </span>
+                    </div>
+
+                    <div class="mb-3 pb-3 border-bottom">
+                        <small class="text-muted d-block mb-1">Trạng Thái</small>
+                        @if (Model.IsActive)
+                        {
+                            <span class="badge bg-success">
+                                <i class="bi bi-check-circle"></i> Hoạt động
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">
+                                <i class="bi bi-x-circle"></i> Vô hiệu hóa
+                            </span>
+                        }
+                    </div>
+
+                    <div>
+                        <small class="text-muted d-block mb-1">Lượt Sử Dụng</small>
+                        @if (totalUsed > 0)
+                        {
+                            <span class="badge bg-info">
+                                <i class="bi bi-cart-check"></i>
+                                @totalUsed lượt
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">
+                                <i class="bi bi-dash-circle"></i> Chưa sử dụng
+                            </span>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Insights -->
+            @if (Model.Orders.Any())
+            {
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-header bg-success text-white py-3">
+                        <h6 class="mb-0">
+                            <i class="bi bi-people"></i>
+                            Thống Kê Khách Hàng
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Tổng Khách</span>
+                                <strong class="text-success">@Model.Orders.Select(o => o.UserID).Distinct().Count()</strong>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-success" style="width: 100%"></div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Khách Mới</span>
+                                <strong class="text-info">
+                                    @Model.Orders.GroupBy(o => o.UserID).Count(g => g.Count() == 1)
+                                </strong>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-info"
+                                     style="width: @(Model.Orders.GroupBy(o => o.UserID).Count(g => g.Count() == 1) * 100.0 / Model.Orders.Select(o => o.UserID).Distinct().Count())%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Khách Quay Lại</span>
+                                <strong class="text-warning">
+                                    @Model.Orders.GroupBy(o => o.UserID).Count(g => g.Count() > 1)
+                                </strong>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-warning"
+                                     style="width: @(Model.Orders.GroupBy(o => o.UserID).Count(g => g.Count() > 1) * 100.0 / Model.Orders.Select(o => o.UserID).Distinct().Count())%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Customers -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-warning py-3">
+                        <h6 class="mb-0">
+                            <i class="bi bi-star"></i>
+                            Top Khách Hàng
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        @foreach (var customerGroup in Model.Orders.GroupBy(o => o.User).OrderByDescending(g => g.Count()).Take(5))
+                        {
+                            <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold">@customerGroup.Key.FirstName @customerGroup.Key.LastName</div>
+                                    <small class="text-muted">@customerGroup.Key.Email</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-primary">@customerGroup.Count() đơn</span>
+                                    <div class="small text-muted mt-1">
+                                        @customerGroup.Sum(o => o.DiscountTotal).ToString("N0")₫
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Confirm toggle status
+            $('form[action*="ToggleActive"]').on('submit', function (e) {
+                var isActive = '@Model.IsActive'.toLowerCase() === 'true';
+                var action = isActive ? 'vô hiệu hóa' : 'kích hoạt';
+
+                if (!confirm('Bạn có chắc muốn ' + action + ' mã giảm giá "@Model.Code"?')) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+
+            // Add animation on load
+            $('.card').hide().fadeIn(500);
+
+            // Highlight rows on hover
+            $('tbody tr').hover(
+                function() {
+                    $(this).addClass('table-active');
+                },
+                function() {
+                    $(this).removeClass('table-active');
+                }
+            );
+        });
+    </script>
+
+    <style>
+        .card {
+            transition: all 0.3s ease;
+        }
+
+            .card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+            }
+
+        .progress {
+            border-radius: 10px;
+        }
+
+        .progress-bar {
+            border-radius: 10px;
+        }
+
+        tbody tr {
+            transition: all 0.2s ease;
+        }
+
+            tbody tr:hover {
+                transform: translateX(5px);
+            }
+    </style>
+}

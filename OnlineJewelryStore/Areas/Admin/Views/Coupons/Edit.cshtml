@@ -1,0 +1,465 @@
+﻿@model OnlineJewelryStore.Models.Coupon
+
+@{
+    ViewBag.Title = "Chỉnh Sửa Mã Giảm Giá";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+    var hasBeenUsed = (bool)ViewBag.HasBeenUsed;
+    var usageCount = (int)ViewBag.UsageCount;
+}
+
+<div class="container-fluid px-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="@Url.Action("Index", "Dashboard")">
+                    <i class="bi bi-house-door"></i> Dashboard
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="@Url.Action("Index", "Coupons")">
+                    <i class="bi bi-ticket-perforated"></i> Mã Giảm Giá
+                </a>
+            </li>
+            <li class="breadcrumb-item active">Chỉnh Sửa</li>
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="bi bi-pencil-square text-primary"></i>
+                        Chỉnh Sửa Mã Giảm Giá
+                    </h2>
+                    <p class="text-muted mb-0">Cập nhật thông tin mã giảm giá</p>
+                </div>
+                <div class="btn-group">
+                    <a href="@Url.Action("Details", new { id = Model.CouponID })" class="btn btn-outline-info">
+                        <i class="bi bi-eye"></i> Xem Chi Tiết
+                    </a>
+                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Quay Lại
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Warning if used -->
+    @if (hasBeenUsed)
+    {
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <h5 class="alert-heading">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                Mã Đã Được Sử Dụng
+            </h5>
+            <p class="mb-0">
+                Mã coupon này đã được sử dụng trong <strong>@usageCount đơn hàng</strong>.
+                Việc thay đổi thông tin có thể ảnh hưởng đến hiển thị lịch sử đơn hàng.
+                Bạn có thể vô hiệu hóa mã thay vì chỉnh sửa.
+            </p>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row">
+        <!-- Main Form -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle text-primary"></i>
+                        Thông Tin Mã Giảm Giá
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    @using (Html.BeginForm("Edit", "Coupons", FormMethod.Post, new { @class = "needs-validation", novalidate = "novalidate" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.CouponID)
+
+                        <div class="row g-4">
+                            <!-- Coupon Code -->
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    @Html.TextBoxFor(m => m.Code, new
+                                    {
+                                        @class = "form-control form-control-lg",
+                                        placeholder = "Mã Coupon",
+                                        required = "required",
+                                        maxlength = "32",
+                                        style = "text-transform: uppercase; letter-spacing: 2px; font-weight: bold;"
+                                    })
+                                    <label>
+                                        <i class="bi bi-ticket-perforated text-primary"></i>
+                                        Mã Coupon <span class="text-danger">*</span>
+                                    </label>
+                                    @Html.ValidationMessageFor(m => m.Code, "", new { @class = "text-danger small mt-1 d-block" })
+                                </div>
+                                @if (hasBeenUsed)
+                                {
+                                    <small class="text-warning d-block mt-2">
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                        Lưu ý: Mã này đã được sử dụng. Việc thay đổi mã có thể gây nhầm lẫn.
+                                    </small>
+                                }
+                                else
+                                {
+                                    <small class="text-muted d-block mt-2">
+                                        <i class="bi bi-info-circle"></i>
+                                        Mã sẽ tự động được viết hoa. Đảm bảo mã là duy nhất.
+                                    </small>
+                                }
+                            </div>
+
+                            <!-- Percent Off -->
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    @Html.TextBoxFor(m => m.PercentOff, new
+                                    {
+                                        @class = "form-control form-control-lg",
+                                        placeholder = "Phần Trăm Giảm Giá",
+                                        required = "required",
+                                        type = "number",
+                                        step = "0.01",
+                                        min = "0.01",
+                                        max = "100"
+                                    })
+                                    <label>
+                                        <i class="bi bi-percent text-success"></i>
+                                        Phần Trăm Giảm Giá <span class="text-danger">*</span>
+                                    </label>
+                                    @Html.ValidationMessageFor(m => m.PercentOff, "", new { @class = "text-danger small mt-1 d-block" })
+                                </div>
+                                <small class="text-muted d-block mt-2">
+                                    <i class="bi bi-info-circle"></i>
+                                    Nhập giá trị từ 0.01% đến 100%
+                                </small>
+
+                                <!-- Preview Discount -->
+                                <div class="mt-3 p-3 bg-light rounded">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-6">
+                                            <label class="small text-muted mb-1">Giá Gốc (VD)</label>
+                                            <input type="text"
+                                                   class="form-control"
+                                                   id="originalPrice"
+                                                   placeholder="1,000,000"
+                                                   value="1000000">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="small text-muted mb-1">Giá Sau Giảm</label>
+                                            <div class="input-group">
+                                                <input type="text"
+                                                       class="form-control bg-success text-white fw-bold"
+                                                       id="discountedPrice"
+                                                       readonly>
+                                                <span class="input-group-text">₫</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <small class="text-muted d-block mt-2">
+                                        <i class="bi bi-calculator"></i>
+                                        Tiết kiệm: <span id="savedAmount" class="text-success fw-bold">0₫</span>
+                                    </small>
+                                </div>
+                            </div>
+
+                            <!-- Is Active -->
+                            <div class="col-12">
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body">
+                                        <div class="form-check form-switch">
+                                            @Html.CheckBoxFor(m => m.IsActive, new
+                                            {
+                                                @class = "form-check-input",
+                                                style = "width: 3rem; height: 1.5rem; cursor: pointer;"
+                                            })
+                                            <label class="form-check-label ms-2" style="cursor: pointer;">
+                                                <strong>Trạng Thái Hoạt Động</strong>
+                                                <p class="text-muted small mb-0 mt-1">
+                                                    @if (Model.IsActive)
+                                                    {
+                                                        <text>Mã đang hoạt động và có thể được sử dụng</text>
+                                                    }
+                                                    else
+                                                    {
+                                                        <text>Mã đã vô hiệu hóa, khách hàng không thể sử dụng</text>
+                                                    }
+                                                </p>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Buttons -->
+                            <div class="col-12">
+                                <hr>
+                                <div class="d-flex justify-content-between">
+                                    <a href="@Url.Action("Index")" class="btn btn-lg btn-outline-secondary">
+                                        <i class="bi bi-x-circle"></i> Hủy
+                                    </a>
+                                    <button type="submit" class="btn btn-lg btn-primary">
+                                        <i class="bi bi-check-circle"></i> Lưu Thay Đổi
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar - Statistics & Info -->
+        <div class="col-lg-4">
+            @if (hasBeenUsed)
+            {
+                <!-- Usage Statistics -->
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-header bg-info text-white py-3">
+                        <h6 class="mb-0">
+                            <i class="bi bi-graph-up"></i>
+                            Thống Kê Sử Dụng
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted">Tổng Đơn Hàng</span>
+                                <span class="badge bg-primary fs-6">@usageCount</span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-primary" style="width: 100%"></div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted">Khách Hàng</span>
+                                <span class="badge bg-success fs-6">@Model.Orders.Select(o => o.UserID).Distinct().Count()</span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-success" style="width: 85%"></div>
+                            </div>
+                        </div>
+
+                        <div class="mb-0">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted">Tổng Giảm Giá</span>
+                                <span class="badge bg-warning text-dark fs-6">
+                                    @Model.Orders.Sum(o => o.DiscountTotal).ToString("N0")₫
+                                </span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-warning" style="width: 70%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-light">
+                        <a href="@Url.Action("Details", new { id = Model.CouponID })" class="btn btn-sm btn-info w-100">
+                            <i class="bi bi-eye"></i> Xem Chi Tiết Thống Kê
+                        </a>
+                    </div>
+                </div>
+            }
+
+            <!-- Current Info -->
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-header bg-primary text-white py-3">
+                    <h6 class="mb-0">
+                        <i class="bi bi-info-circle"></i>
+                        Thông Tin Hiện Tại
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3 pb-3 border-bottom">
+                        <small class="text-muted d-block mb-1">Mã Coupon</small>
+                        <strong class="fs-5 text-primary d-block" style="letter-spacing: 2px;">@Model.Code</strong>
+                    </div>
+
+                    <div class="mb-3 pb-3 border-bottom">
+                        <small class="text-muted d-block mb-1">Phần Trăm Giảm</small>
+                        <span class="badge bg-success fs-5">
+                            <i class="bi bi-percent"></i>
+                            @Model.PercentOff.ToString("0.##")% OFF
+                        </span>
+                    </div>
+
+                    <div class="mb-3 pb-3 border-bottom">
+                        <small class="text-muted d-block mb-1">Trạng Thái</small>
+                        @if (Model.IsActive)
+                        {
+                            <span class="badge bg-success">
+                                <i class="bi bi-check-circle"></i> Đang hoạt động
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">
+                                <i class="bi bi-x-circle"></i> Đã vô hiệu hóa
+                            </span>
+                        }
+                    </div>
+
+                    <div>
+                        <small class="text-muted d-block mb-1">Lượt Sử Dụng</small>
+                        @if (Model.Orders.Count > 0)
+                        {
+                            <span class="badge bg-info">
+                                <i class="bi bi-cart-check"></i>
+                                @Model.Orders.Count lượt
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">
+                                <i class="bi bi-dash-circle"></i> Chưa sử dụng
+                            </span>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tips Card -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-warning py-3">
+                    <h6 class="mb-0">
+                        <i class="bi bi-lightbulb"></i>
+                        Lưu Ý Khi Chỉnh Sửa
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex mb-3">
+                        <i class="bi bi-exclamation-triangle text-warning fs-5 me-3"></i>
+                        <small class="text-muted">
+                            Thay đổi mã có thể gây nhầm lẫn nếu đã được sử dụng
+                        </small>
+                    </div>
+
+                    <div class="d-flex mb-3">
+                        <i class="bi bi-exclamation-triangle text-warning fs-5 me-3"></i>
+                        <small class="text-muted">
+                            Thay đổi % giảm không ảnh hưởng đơn hàng cũ
+                        </small>
+                    </div>
+
+                    <div class="d-flex">
+                        <i class="bi bi-check-circle text-success fs-5 me-3"></i>
+                        <small class="text-muted">
+                            Vô hiệu hóa để ngừng sử dụng nhưng giữ lịch sử
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script>
+        $(document).ready(function () {
+            // Auto uppercase Code input
+            $('#Code').on('input', function () {
+                this.value = this.value.toUpperCase().replace(/\s/g, '');
+            });
+
+            // Calculate discount preview
+            function calculateDiscount() {
+                var percentOff = parseFloat($('#PercentOff').val()) || 0;
+                var originalPrice = parseFloat($('#originalPrice').val().replace(/,/g, '')) || 0;
+
+                if (percentOff > 0 && originalPrice > 0) {
+                    var discount = originalPrice * (percentOff / 100);
+                    var finalPrice = originalPrice - discount;
+
+                    $('#discountedPrice').val(finalPrice.toLocaleString('vi-VN'));
+                    $('#savedAmount').text(discount.toLocaleString('vi-VN') + '₫');
+                } else {
+                    $('#discountedPrice').val('0');
+                    $('#savedAmount').text('0₫');
+                }
+            }
+
+            // Trigger calculation on input change
+            $('#PercentOff, #originalPrice').on('input', calculateDiscount);
+
+            // Format number input
+            $('#originalPrice').on('input', function () {
+                var value = this.value.replace(/\D/g, '');
+                this.value = value;
+            });
+
+            // Initial calculation
+            calculateDiscount();
+
+            // Form validation
+            $('form').on('submit', function (e) {
+                var code = $('#Code').val().trim();
+                var percentOff = parseFloat($('#PercentOff').val());
+
+                if (code === '') {
+                    e.preventDefault();
+                    alert('Vui lòng nhập mã coupon!');
+                    $('#Code').focus();
+                    return false;
+                }
+
+                if (isNaN(percentOff) || percentOff <= 0 || percentOff > 100) {
+                    e.preventDefault();
+                    alert('Phần trăm giảm giá phải từ 0.01% đến 100%!');
+                    $('#PercentOff').focus();
+                    return false;
+                }
+            });
+
+            // Toggle switch animation
+            $('#IsActive').on('change', function () {
+                if (this.checked) {
+                    $(this).closest('.card').addClass('border-success').removeClass('border-0');
+                } else {
+                    $(this).closest('.card').removeClass('border-success').addClass('border-0');
+                }
+            });
+
+            // Set initial border based on IsActive
+            if ($('#IsActive').is(':checked')) {
+                $('#IsActive').closest('.card').addClass('border-success');
+            }
+        });
+    </script>
+
+    <style>
+        .form-floating > .form-control:focus ~ label,
+        .form-floating > .form-control:not(:placeholder-shown) ~ label {
+            color: #0d6efd;
+        }
+
+        .form-control:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+
+        .card {
+            transition: all 0.3s ease;
+        }
+
+            .card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+            }
+
+        .progress {
+            border-radius: 10px;
+        }
+
+        .progress-bar {
+            border-radius: 10px;
+        }
+    </style>
+}

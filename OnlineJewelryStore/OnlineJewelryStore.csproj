@@ -133,8 +133,10 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Areas\Admin\AdminAreaRegistration.cs" />
     <Compile Include="Areas\Admin\Controllers\CategoriesController.cs" />
+    <Compile Include="Areas\Admin\Controllers\CouponsController.cs" />
     <Compile Include="Areas\Admin\Controllers\DashboardController.cs" />
     <Compile Include="Areas\Admin\Controllers\OrdersController.cs" />
+    <Compile Include="Areas\Admin\Controllers\PaymentsController.cs" />
     <Compile Include="Areas\Admin\Controllers\ProductMediasController.cs" />
     <Compile Include="Areas\Admin\Controllers\ProductVariantsController.cs" />
     <Compile Include="Areas\Admin\Controllers\UsersController.cs" />
@@ -285,6 +287,15 @@
     <Content Include="Views\Orders\Invoice.cshtml" />
     <Content Include="App_Browsers\qt.browser" />
     <Content Include="Areas\Admin\Views\Orders\ApplyCoupon.cshtml" />
+    <Content Include="Areas\Admin\Views\Payments\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\Payments\Edit.cshtml" />
+    <Content Include="Areas\Admin\Views\Payments\Details.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\_PaymentStatusBadge.cshtml" />
+    <Content Include="Areas\Admin\Views\Coupons\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\Coupons\Create.cshtml" />
+    <Content Include="Areas\Admin\Views\Coupons\Delete.cshtml" />
+    <Content Include="Areas\Admin\Views\Coupons\Edit.cshtml" />
+    <Content Include="Areas\Admin\Views\Coupons\Details.cshtml" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />

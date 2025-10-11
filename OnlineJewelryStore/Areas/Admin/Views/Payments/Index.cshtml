@@ -1,0 +1,413 @@
+﻿@model OnlineJewelryStore.Areas.Admin.Controllers.PaymentsController.PaymentFilterViewModel
+
+@{
+    ViewBag.Title = "Payment Management";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a href="@Url.Action("Index", "Dashboard")"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+            <i class="bi bi-credit-card"></i> Payments
+        </li>
+    </ol>
+</nav>
+
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">
+            <i class="bi bi-credit-card text-primary"></i> Payment Management
+        </h2>
+        <p class="text-muted mb-0">View and manage all payment transactions</p>
+    </div>
+    <div>
+        <span class="badge bg-info fs-6">
+            <i class="bi bi-receipt"></i> Total: @Model.TotalRecords payments
+        </span>
+    </div>
+</div>
+
+<!-- TempData Messages -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i> @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Filter Card -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">
+            <i class="bi bi-funnel"></i> Search & Filter
+        </h5>
+    </div>
+    <div class="card-body">
+        @using (Html.BeginForm("Index", "Payments", FormMethod.Get, new { @class = "row g-3" }))
+        {
+            <!-- Search -->
+            <div class="col-md-6 col-lg-3">
+                <label class="form-label">
+                    <i class="bi bi-search"></i> Search
+                </label>
+                @Html.TextBoxFor(m => m.SearchTerm, new
+                {
+                    @class = "form-control",
+                    placeholder = "Transaction, Order ID, Customer..."
+                })
+            </div>
+
+            <!-- Payment Method Filter -->
+            <div class="col-md-6 col-lg-2">
+                <label class="form-label">
+                    <i class="bi bi-wallet2"></i> Method
+                </label>
+                @Html.DropDownListFor(m => m.Method, new SelectList(new[] {
+                    new { Value = "All", Text = "All Methods" },
+                    new { Value = "COD", Text = "COD" },
+                    new { Value = "Card", Text = "Card" },
+                    new { Value = "PayPal", Text = "PayPal" },
+                    new { Value = "VNPay", Text = "VNPay" },
+                    new { Value = "MoMo", Text = "MoMo" },
+                    new { Value = "Bank", Text = "Bank" }
+                }, "Value", "Text", Model.Method ?? "All"), new { @class = "form-select" })
+            </div>
+
+            <!-- Status Filter -->
+            <div class="col-md-6 col-lg-2">
+                <label class="form-label">
+                    <i class="bi bi-flag"></i> Status
+                </label>
+                @Html.DropDownListFor(m => m.Status, new SelectList(new[] {
+                    new { Value = "All", Text = "All Status" },
+                    new { Value = "Pending", Text = "Pending" },
+                    new { Value = "Authorized", Text = "Authorized" },
+                    new { Value = "Captured", Text = "Captured" },
+                    new { Value = "Failed", Text = "Failed" },
+                    new { Value = "Refunded", Text = "Refunded" }
+                }, "Value", "Text", Model.Status ?? "All"), new { @class = "form-select" })
+            </div>
+
+            <!-- From Date -->
+            <div class="col-md-6 col-lg-2">
+                <label class="form-label">
+                    <i class="bi bi-calendar-check"></i> From Date
+                </label>
+                @Html.TextBoxFor(m => m.FromDate, "{0:yyyy-MM-dd}", new
+                {
+                    @class = "form-control",
+                    type = "date"
+                })
+            </div>
+
+            <!-- To Date -->
+            <div class="col-md-6 col-lg-2">
+                <label class="form-label">
+                    <i class="bi bi-calendar-x"></i> To Date
+                </label>
+                @Html.TextBoxFor(m => m.ToDate, "{0:yyyy-MM-dd}", new
+                {
+                    @class = "form-control",
+                    type = "date"
+                })
+            </div>
+
+            <!-- Buttons -->
+            <div class="col-12 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-search"></i> Search
+                </button>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-clockwise"></i> Reset
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Sort & Display Options -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                @using (Html.BeginForm("Index", "Payments", FormMethod.Get, new { @class = "d-flex gap-2 align-items-center" }))
+                {
+                    @Html.Hidden("SearchTerm", Model.SearchTerm)
+                    @Html.Hidden("Method", Model.Method)
+                    @Html.Hidden("Status", Model.Status)
+                    @Html.Hidden("FromDate", Model.FromDate?.ToString("yyyy-MM-dd"))
+                    @Html.Hidden("ToDate", Model.ToDate?.ToString("yyyy-MM-dd"))
+
+                    <label class="mb-0 me-2"><i class="bi bi-sort-down"></i> Sort by:</label>
+                    @Html.DropDownListFor(m => m.SortBy, new SelectList(new[] {
+                        new { Value = "date_desc", Text = "Newest First" },
+                        new { Value = "date_asc", Text = "Oldest First" },
+                        new { Value = "amount_desc", Text = "Highest Amount" },
+                        new { Value = "amount_asc", Text = "Lowest Amount" },
+                        new { Value = "status", Text = "Status" },
+                        new { Value = "method", Text = "Payment Method" }
+                    }, "Value", "Text", Model.SortBy), new
+                        {
+                            @class = "form-select form-select-sm w-auto",
+                        onchange = "this.form.submit()"
+                    })
+                }
+            </div>
+            <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                <span class="text-muted">
+                    Showing @((Model.Page - 1) * Model.PageSize + 1) - @Math.Min(Model.Page * Model.PageSize, Model.TotalRecords) of @Model.TotalRecords results
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payments Table -->
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        @if (Model.Payments != null && Model.Payments.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 80px;">ID</th>
+                            <th style="width: 100px;">Order</th>
+                            <th>Customer</th>
+                            <th style="width: 150px;">Amount</th>
+                            <th style="width: 120px;">Method</th>
+                            <th style="width: 120px;">Status</th>
+                            <th style="width: 180px;">Transaction Ref</th>
+                            <th style="width: 140px;">Date</th>
+                            <th style="width: 120px;" class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var payment in Model.Payments)
+                        {
+                            <tr>
+                                <td>
+                                    <strong class="text-primary">#@payment.PaymentID</strong>
+                                </td>
+                                <td>
+                                    <a href="@Url.Action("Details", "Orders", new { id = payment.OrderID })"
+                                       class="text-decoration-none">
+                                        <i class="bi bi-box-seam"></i> #@payment.OrderID
+                                    </a>
+                                </td>
+                                <td>
+                                    @if (payment.Order != null && payment.Order.User != null)
+                                    {
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-circle bg-info text-white me-2">
+                                                @(payment.Order.User.FirstName?.Substring(0, 1).ToUpper())@(payment.Order.User.LastName?.Substring(0, 1).ToUpper())
+                                            </div>
+                                            <div>
+                                                <div class="fw-semibold">@payment.Order.User.FirstName @payment.Order.User.LastName</div>
+                                                <small class="text-muted">@payment.Order.User.Email</small>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">N/A</span>
+                                    }
+                                </td>
+                                <td>
+                                    <strong class="text-success">@payment.Amount.ToString("N0") @payment.Currency</strong>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="bi @OnlineJewelryStore.Areas.Admin.Controllers.PaymentsController.GetMethodIcon(payment.Method)"></i>
+                                        @payment.Method
+                                    </span>
+                                </td>
+                                <td>
+                                    @Html.Partial("_PaymentStatusBadge", payment.Status)
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(payment.TransactionRef))
+                                    {
+                                        <small class="font-monospace text-muted">@payment.TransactionRef</small>
+                                    }
+                                    else
+                                    {
+                                        <small class="text-muted fst-italic">No reference</small>
+                                    }
+                                </td>
+                                <td>
+                                    <div>
+                                        <small class="text-muted">
+                                            <i class="bi bi-calendar3"></i>
+                                            @payment.CreatedAt.ToString("dd/MM/yyyy")
+                                        </small>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted">
+                                            <i class="bi bi-clock"></i>
+                                            @payment.CreatedAt.ToString("HH:mm")
+                                        </small>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="@Url.Action("Details", new { id = payment.PaymentID })"
+                                           class="btn btn-outline-info"
+                                           title="View Details">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="@Url.Action("Edit", new { id = payment.PaymentID })"
+                                           class="btn btn-outline-primary"
+                                           title="Edit Payment">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="bi bi-inbox display-1 text-muted"></i>
+                <h5 class="mt-3 text-muted">No payments found</h5>
+                <p class="text-muted">Try adjusting your search or filter criteria</p>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Pagination -->
+@if (Model.TotalPages > 1)
+{
+    <nav aria-label="Payment pagination" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <!-- Previous Button -->
+            <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                <a class="page-link" href="@Url.Action("Index", new {
+                    SearchTerm = Model.SearchTerm,
+                    Method = Model.Method,
+                    Status = Model.Status,
+                    FromDate = Model.FromDate?.ToString("yyyy-MM-dd"),
+                    ToDate = Model.ToDate?.ToString("yyyy-MM-dd"),
+                    SortBy = Model.SortBy,
+                    Page = Model.Page - 1,
+                    PageSize = Model.PageSize
+                })">
+                    <i class="bi bi-chevron-left"></i> Previous
+                </a>
+            </li>
+
+            <!-- Page Numbers -->
+            @{
+                var startPage = Math.Max(1, Model.Page - 2);
+                var endPage = Math.Min(Model.TotalPages, Model.Page + 2);
+            }
+
+            @if (startPage > 1)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="@Url.Action("Index", new {
+                        SearchTerm = Model.SearchTerm,
+                        Method = Model.Method,
+                        Status = Model.Status,
+                        FromDate = Model.FromDate?.ToString("yyyy-MM-dd"),
+                        ToDate = Model.ToDate?.ToString("yyyy-MM-dd"),
+                        SortBy = Model.SortBy,
+                        Page = 1,
+                        PageSize = Model.PageSize
+                    })">1</a>
+                </li>
+                if (startPage > 2)
+                {
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                }
+            }
+
+            @for (var i = startPage; i <= endPage; i++)
+            {
+                <li class="page-item @(i == Model.Page ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new {
+                        SearchTerm = Model.SearchTerm,
+                        Method = Model.Method,
+                        Status = Model.Status,
+                        FromDate = Model.FromDate?.ToString("yyyy-MM-dd"),
+                        ToDate = Model.ToDate?.ToString("yyyy-MM-dd"),
+                        SortBy = Model.SortBy,
+                        Page = i,
+                        PageSize = Model.PageSize
+                    })">@i</a>
+                </li>
+            }
+
+            @if (endPage < Model.TotalPages)
+            {
+                if (endPage < Model.TotalPages - 1)
+                {
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                }
+                <li class="page-item">
+                    <a class="page-link" href="@Url.Action("Index", new {
+                        SearchTerm = Model.SearchTerm,
+                        Method = Model.Method,
+                        Status = Model.Status,
+                        FromDate = Model.FromDate?.ToString("yyyy-MM-dd"),
+                        ToDate = Model.ToDate?.ToString("yyyy-MM-dd"),
+                        SortBy = Model.SortBy,
+                        Page = Model.TotalPages,
+                        PageSize = Model.PageSize
+                    })">@Model.TotalPages</a>
+                </li>
+            }
+
+            <!-- Next Button -->
+            <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                <a class="page-link" href="@Url.Action("Index", new {
+                    SearchTerm = Model.SearchTerm,
+                    Method = Model.Method,
+                    Status = Model.Status,
+                    FromDate = Model.FromDate?.ToString("yyyy-MM-dd"),
+                    ToDate = Model.ToDate?.ToString("yyyy-MM-dd"),
+                    SortBy = Model.SortBy,
+                    Page = Model.Page + 1,
+                    PageSize = Model.PageSize
+                })">
+                    Next <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+}
+
+<style>
+    .avatar-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .table > tbody > tr:hover {
+        background-color: rgba(0, 123, 255, 0.05);
+    }
+</style>

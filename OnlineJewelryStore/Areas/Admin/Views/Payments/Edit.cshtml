@@ -1,0 +1,402 @@
+﻿@model OnlineJewelryStore.Models.Payment
+
+@{
+    ViewBag.Title = "Edit Payment - #" + Model.PaymentID;
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+    var allowedStatuses = ViewBag.AllowedStatuses as string[];
+    var paymentMethods = ViewBag.PaymentMethods as SelectListItem[];
+}
+
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a href="@Url.Action("Index", "Dashboard")"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="@Url.Action("Index", "Payments")"><i class="bi bi-credit-card"></i> Payments</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="@Url.Action("Details", new { id = Model.PaymentID })">Payment #@Model.PaymentID</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Edit</li>
+    </ol>
+</nav>
+
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">
+            <i class="bi bi-pencil text-primary"></i> Edit Payment #@Model.PaymentID
+        </h2>
+        <p class="text-muted mb-0">Update payment details and status</p>
+    </div>
+    <div>
+        <a href="@Url.Action("Details", new { id = Model.PaymentID })" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Cancel
+        </a>
+    </div>
+</div>
+
+<!-- TempData Messages -->
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i> @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row">
+    <!-- Left Column: Edit Form -->
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-pencil-square"></i> Payment Details
+                </h5>
+            </div>
+            <div class="card-body">
+                @using (Html.BeginForm("Edit", "Payments", FormMethod.Post, new { @class = "needs-validation", novalidate = "novalidate" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(m => m.PaymentID)
+                    @Html.HiddenFor(m => m.OrderID)
+                    @Html.HiddenFor(m => m.Amount)
+                    @Html.HiddenFor(m => m.Currency)
+                    @Html.HiddenFor(m => m.CreatedAt)
+                    @Html.HiddenFor(m => m.CapturedAt)
+
+                    <div class="row g-3">
+                        <!-- Payment ID (Read-only) -->
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="bi bi-hash"></i> Payment ID
+                            </label>
+                            <input type="text" class="form-control" value="#@Model.PaymentID" readonly />
+                        </div>
+
+                        <!-- Order ID (Read-only with link) -->
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="bi bi-box-seam"></i> Order ID
+                            </label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" value="Order #@Model.OrderID" readonly />
+                                <a href="@Url.Action("Details", "Orders", new { id = Model.OrderID })"
+                                   class="btn btn-outline-secondary"
+                                   target="_blank">
+                                    <i class="bi bi-box-arrow-up-right"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Amount (Read-only) -->
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="bi bi-cash-stack"></i> Amount
+                            </label>
+                            <div class="input-group">
+                                <input type="text" class="form-control fw-bold text-success"
+                                       value="@Model.Amount.ToString("N0")" readonly />
+                                <span class="input-group-text">@Model.Currency</span>
+                            </div>
+                            @if (Model.Order != null)
+                            {
+                                <small class="text-muted">
+                                    Order Total: @Model.Order.GrandTotal.ToString("N0") @Model.Currency
+                                    @if (Math.Abs(Model.Amount - Model.Order.GrandTotal) > 0.01m)
+                                    {
+                                        <span class="text-danger">⚠️ Mismatch!</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-success">✓ Match</span>
+                                    }
+                                </small>
+                            }
+                        </div>
+
+                        <!-- Current Status (Read-only display) -->
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="bi bi-flag"></i> Current Status
+                            </label>
+                            <div>
+                                @Html.Partial("_PaymentStatusBadge", Model.Status)
+                            </div>
+                        </div>
+
+                        <!-- Payment Method -->
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="bi bi-wallet2"></i> Payment Method
+                                <span class="text-danger">*</span>
+                            </label>
+                            @Html.DropDownListFor(m => m.Method, paymentMethods, new
+                            {
+                                @class = "form-select",
+                                required = "required"
+                            })
+                            @Html.ValidationMessageFor(m => m.Method, "", new { @class = "text-danger small" })
+                        </div>
+
+                        <!-- Provider -->
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="bi bi-building"></i> Provider
+                                <small class="text-muted">(Optional)</small>
+                            </label>
+                            @Html.TextBoxFor(m => m.Provider, new
+                            {
+                                @class = "form-control",
+                                placeholder = "e.g., Visa, MasterCard, VNPay Gateway..."
+                            })
+                            @Html.ValidationMessageFor(m => m.Provider, "", new { @class = "text-danger small" })
+                        </div>
+
+                        <!-- Transaction Reference -->
+                        <div class="col-12">
+                            <label class="form-label">
+                                <i class="bi bi-receipt-cutoff"></i> Transaction Reference
+                                <small class="text-muted">(Optional)</small>
+                            </label>
+                            @Html.TextBoxFor(m => m.TransactionRef, new
+                            {
+                                @class = "form-control font-monospace",
+                                placeholder = "e.g., TXN-12345-20250101..."
+                            })
+                            @Html.ValidationMessageFor(m => m.TransactionRef, "", new { @class = "text-danger small" })
+                            <small class="text-muted">
+                                <i class="bi bi-info-circle"></i>
+                                Enter the transaction reference from payment gateway (if available)
+                            </small>
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <!-- New Status -->
+                        <div class="col-12">
+                            <label class="form-label fs-5 fw-semibold">
+                                <i class="bi bi-arrow-left-right"></i> Change Status
+                            </label>
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i>
+                                <strong>Current Status:</strong> @Html.Partial("_PaymentStatusBadge", Model.Status)
+                            </div>
+                        </div>
+
+                        <!-- Status Options -->
+                        <div class="col-12">
+                            <label class="form-label">
+                                <i class="bi bi-flag-fill"></i> New Status
+                                <span class="text-danger">*</span>
+                            </label>
+                            <select name="newStatus" class="form-select form-select-lg" required>
+                                @foreach (var status in allowedStatuses)
+                                {
+                                    <option value="@status" selected="@(status == Model.Status)">
+                                        @status
+                                    </option>
+                                }
+                            </select>
+                            <small class="text-muted">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                Only valid status transitions are shown based on current status
+                            </small>
+                        </div>
+
+                        <!-- Status Transition Rules Info -->
+                        <div class="col-12">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="bi bi-info-circle text-info"></i> Status Transition Rules
+                                    </h6>
+                                    <ul class="mb-0 small">
+                                        @if (Model.Status == "Pending")
+                                        {
+                                            <li>✅ Can change to: <strong>Authorized, Captured, Failed</strong></li>
+                                            <li>💡 Use <strong>Authorize</strong> to pre-authorize the payment</li>
+                                            <li>💡 Use <strong>Capture</strong> to complete the payment immediately</li>
+                                            <li>💡 Use <strong>Failed</strong> if payment cannot be processed</li>
+                                        }
+                                        else if (Model.Status == "Authorized")
+                                        {
+                                            <li>✅ Can change to: <strong>Captured, Failed</strong></li>
+                                            <li>💡 Use <strong>Capture</strong> to finalize the payment</li>
+                                            <li>💡 Use <strong>Failed</strong> if authorization expires or fails</li>
+                                        }
+                                        else if (Model.Status == "Captured")
+                                        {
+                                            <li>✅ Can change to: <strong>Refunded</strong> only</li>
+                                            <li>⚠️ Refunding will cancel the order and restore inventory</li>
+                                        }
+                                        else if (Model.Status == "Failed" || Model.Status == "Refunded")
+                                        {
+                                            <li>❌ Cannot change status (terminal state)</li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Created & Captured Date Info -->
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Created At</label>
+                            <div class="fw-semibold">
+                                <i class="bi bi-calendar-check"></i>
+                                @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss")
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Captured At</label>
+                            <div class="fw-semibold">
+                                @if (Model.CapturedAt.HasValue)
+                                {
+                                    <i class="bi bi-check-circle text-success"></i>
+                                    @Model.CapturedAt.Value.ToString("dd/MM/yyyy HH:mm:ss")
+                                }
+                                else
+                                {
+                                    <span class="text-muted fst-italic">Not captured yet</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <!-- Form Actions -->
+                    <div class="d-flex gap-2 justify-content-end">
+                        <a href="@Url.Action("Details", new { id = Model.PaymentID })" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-check-circle"></i> Save Changes
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Info & Customer -->
+    <div class="col-lg-4">
+        <!-- Customer Info Card -->
+        @if (Model.Order != null && Model.Order.User != null)
+        {
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-person-circle"></i> Customer Info
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <div class="avatar-circle bg-info text-white mx-auto" style="width: 80px; height: 80px; font-size: 32px;">
+                            @(Model.Order.User.FirstName?.Substring(0, 1).ToUpper())@(Model.Order.User.LastName?.Substring(0, 1).ToUpper())
+                        </div>
+                        <h5 class="mt-3 mb-1">@Model.Order.User.FirstName @Model.Order.User.LastName</h5>
+                        <p class="text-muted mb-0">@Model.Order.User.Email</p>
+                        @if (!string.IsNullOrEmpty(Model.Order.User.Phone))
+                        {
+                            <p class="text-muted mb-0">
+                                <i class="bi bi-telephone"></i> @Model.Order.User.Phone
+                            </p>
+                        }
+                    </div>
+                    <hr />
+                    <a href="@Url.Action("Details", "Users", new { id = Model.Order.UserID })" class="btn btn-outline-info w-100">
+                        <i class="bi bi-person-vcard"></i> View Customer Profile
+                    </a>
+                </div>
+            </div>
+        }
+
+        <!-- Quick Tips Card -->
+        <div class="card shadow-sm mb-4 border-warning">
+            <div class="card-header bg-warning">
+                <h5 class="mb-0">
+                    <i class="bi bi-lightbulb"></i> Quick Tips
+                </h5>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0 small">
+                    <li class="mb-2">
+                        <strong>Capture:</strong> Completes the payment and charges the customer
+                    </li>
+                    <li class="mb-2">
+                        <strong>Authorize:</strong> Reserves funds but doesn't charge yet
+                    </li>
+                    <li class="mb-2">
+                        <strong>Refund:</strong> Returns money to customer (only for Captured)
+                    </li>
+                    <li class="mb-2">
+                        <strong>Failed:</strong> Payment couldn't be processed
+                    </li>
+                    <li class="mb-0">
+                        💡 Amount must match Order Grand Total when capturing
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Validation Card -->
+        <div class="card shadow-sm border-success">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-shield-check"></i> Validation
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-2">
+                    <i class="bi bi-check-circle text-success"></i>
+                    Payment ID: <strong>#@Model.PaymentID</strong>
+                </div>
+                <div class="mb-2">
+                    <i class="bi bi-check-circle text-success"></i>
+                    Order ID: <strong>#@Model.OrderID</strong>
+                </div>
+                <div class="mb-2">
+                    @if (Model.Order != null && Math.Abs(Model.Amount - Model.Order.GrandTotal) < 0.01m)
+                    {
+                        <i class="bi bi-check-circle text-success"></i>
+                        <span class="text-success">Amount matches order total ✓</span>
+                    }
+                    else
+                    {
+                        <i class="bi bi-exclamation-triangle text-warning"></i>
+                        <span class="text-warning">Amount mismatch ⚠️</span>
+                    }
+                </div>
+                @if (Model.Status == "Captured" || Model.Status == "Refunded")
+                {
+                    <div class="alert alert-warning mt-3 mb-0 small">
+                        <i class="bi bi-lock"></i>
+                        This payment is in a terminal state. Limited changes allowed.
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .avatar-circle {
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+    }
+
+    .form-select-lg {
+        padding: 0.75rem 1rem;
+        font-size: 1.1rem;
+    }
+</style>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

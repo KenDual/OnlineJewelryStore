@@ -1,0 +1,516 @@
+﻿@model IEnumerable<OnlineJewelryStore.Models.Coupon>
+
+@{
+    ViewBag.Title = "Quản Lý Mã Giảm Giá";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="@Url.Action("Index", "Dashboard")">
+                    <i class="bi bi-house-door"></i> Dashboard
+                </a>
+            </li>
+            <li class="breadcrumb-item active">Mã Giảm Giá</li>
+        </ol>
+    </nav>
+
+    <div style="display: none;">
+        @Html.AntiForgeryToken()
+    </div>
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">
+                <i class="bi bi-ticket-perforated text-primary"></i>
+                Quản Lý Mã Giảm Giá
+            </h2>
+            <p class="text-muted mb-0">Tạo và quản lý các mã giảm giá cho khách hàng</p>
+        </div>
+        <div>
+            <a href="@Url.Action("Create")" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Tạo Mã Giảm Giá
+            </a>
+        </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i>
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle"></i>
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-ticket-perforated fs-4 text-primary"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="text-muted small">Tổng Mã</div>
+                            <div class="fs-4 fw-bold">@ViewBag.TotalCoupons</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-success bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-check-circle fs-4 text-success"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="text-muted small">Đang Hoạt Động</div>
+                            <div class="fs-4 fw-bold text-success">@ViewBag.ActiveCoupons</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-secondary bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-x-circle fs-4 text-secondary"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="text-muted small">Đã Vô Hiệu Hóa</div>
+                            <div class="fs-4 fw-bold text-secondary">@ViewBag.InactiveCoupons</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-info bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-graph-up fs-4 text-info"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="text-muted small">Tổng Lượt Dùng</div>
+                            <div class="fs-4 fw-bold text-info">@ViewBag.TotalUsage</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search & Filter Section -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" action="@Url.Action("Index")" class="row g-3">
+                <!-- Search by Code -->
+                <div class="col-md-4">
+                    <label class="form-label small text-muted">Tìm Theo Mã</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text"
+                               name="searchCode"
+                               class="form-control"
+                               placeholder="Nhập mã coupon..."
+                               value="@ViewBag.SearchCode">
+                    </div>
+                </div>
+
+                <!-- Filter by Status -->
+                <div class="col-md-3">
+                    <label class="form-label small text-muted">Trạng Thái</label>
+                    <select name="isActive" class="form-select">
+                        <option value="">-- Tất cả --</option>
+                        <option value="true" @(ViewBag.IsActive == true ? "selected" : "")>
+                            Đang hoạt động
+                        </option>
+                        <option value="false" @(ViewBag.IsActive == false ? "selected" : "")>
+                            Đã vô hiệu hóa
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Sort -->
+                <div class="col-md-3">
+                    <label class="form-label small text-muted">Sắp Xếp</label>
+                    <select name="sortOrder" class="form-select">
+                        <option value="">Mã (A-Z)</option>
+                        <option value="code_desc" @(ViewBag.CurrentSort == "code_desc" ? "selected" : "")>
+                            Mã (Z-A)
+                        </option>
+                        <option value="percent" @(ViewBag.CurrentSort == "percent" ? "selected" : "")>
+                            % Giảm (Thấp → Cao)
+                        </option>
+                        <option value="percent_desc" @(ViewBag.CurrentSort == "percent_desc" ? "selected" : "")>
+                            % Giảm (Cao → Thấp)
+                        </option>
+                        <option value="usage" @(ViewBag.CurrentSort == "usage" ? "selected" : "")>
+                            Lượt dùng (Ít → Nhiều)
+                        </option>
+                        <option value="usage_desc" @(ViewBag.CurrentSort == "usage_desc" ? "selected" : "")>
+                            Lượt dùng (Nhiều → Ít)
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Buttons -->
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100 me-2">
+                        <i class="bi bi-funnel"></i> Lọc
+                    </button>
+                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Coupons Table -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+            <h5 class="mb-0">
+                <i class="bi bi-list-ul"></i>
+                Danh Sách Mã Giảm Giá
+                <span class="badge bg-secondary">@Model.Count() mã</span>
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 5%">
+                                    <input type="checkbox" class="form-check-input" id="selectAll">
+                                </th>
+                                <th style="width: 20%">
+                                    <i class="bi bi-ticket-perforated"></i> Mã Coupon
+                                </th>
+                                <th style="width: 15%">
+                                    <i class="bi bi-percent"></i> Giảm Giá
+                                </th>
+                                <th style="width: 15%">
+                                    <i class="bi bi-graph-up"></i> Lượt Sử Dụng
+                                </th>
+                                <th style="width: 15%">
+                                    <i class="bi bi-toggle-on"></i> Trạng Thái
+                                </th>
+                                <th style="width: 30%" class="text-end">
+                                    <i class="bi bi-gear"></i> Hành Động
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var coupon in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <input type="checkbox"
+                                               class="form-check-input coupon-checkbox"
+                                               value="@coupon.CouponID">
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-primary bg-opacity-10 rounded p-2 me-3">
+                                                <i class="bi bi-ticket-perforated text-primary fs-5"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold text-primary">@coupon.Code</div>
+                                                <small class="text-muted">ID: @coupon.CouponID</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-success rounded-pill fs-6 px-3 py-2">
+                                            <i class="bi bi-percent"></i>
+                                            @coupon.PercentOff.ToString("0.##")% OFF
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if (coupon.Orders.Count > 0)
+                                        {
+                                            <div>
+                                                <span class="badge bg-info">
+                                                    <i class="bi bi-cart-check"></i>
+                                                    @coupon.Orders.Count lượt
+                                                </span>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                <i class="bi bi-dash-circle"></i> Chưa sử dụng
+                                            </span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (coupon.IsActive)
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i> Hoạt động
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">
+                                                <i class="bi bi-x-circle"></i> Vô hiệu hóa
+                                            </span>
+                                        }
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="btn-group" role="group">
+                                            <!-- Details -->
+                                            <a href="@Url.Action("Details", new { id = coupon.CouponID })"
+                                               class="btn btn-sm btn-outline-info"
+                                               title="Xem chi tiết">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+
+                                            <!-- Edit -->
+                                            <a href="@Url.Action("Edit", new { id = coupon.CouponID })"
+                                               class="btn btn-sm btn-outline-primary"
+                                               title="Chỉnh sửa">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+
+                                            <!-- Toggle Active -->
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-@(coupon.IsActive ? "warning" : "success") toggle-active-btn"
+                                                    data-id="@coupon.CouponID"
+                                                    title="@(coupon.IsActive ? "Vô hiệu hóa" : "Kích hoạt")">
+                                                <i class="bi bi-@(coupon.IsActive ? "toggle-off" : "toggle-on")"></i>
+                                            </button>
+
+                                            <!-- Delete -->
+                                            <a href="@Url.Action("Delete", new { id = coupon.CouponID })"
+                                               class="btn btn-sm btn-outline-danger"
+                                               title="Xóa">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Bulk Actions -->
+                <div class="card-footer bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">
+                                <i class="bi bi-info-circle"></i>
+                                Chọn các mã để thực hiện hành động hàng loạt
+                            </small>
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-sm btn-success" id="bulkActivateBtn">
+                                <i class="bi bi-toggle-on"></i> Kích hoạt
+                            </button>
+                            <button type="button" class="btn btn-sm btn-warning" id="bulkDeactivateBtn">
+                                <i class="bi bi-toggle-off"></i> Vô hiệu hóa
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox display-1 text-muted"></i>
+                    <p class="text-muted mt-3">
+                        @if (!string.IsNullOrEmpty(ViewBag.SearchCode) || ViewBag.IsActive != null)
+                        {
+                            <text>Không tìm thấy mã giảm giá phù hợp với bộ lọc.</text>
+                        }
+                        else
+                        {
+                            <text>Chưa có mã giảm giá nào. Hãy tạo mã mới!</text>
+                        }
+                    </p>
+                    <a href="@Url.Action("Create")" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Tạo Mã Giảm Giá
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Select All Checkboxes
+            $('#selectAll').on('change', function () {
+                $('.coupon-checkbox').prop('checked', this.checked);
+            });
+
+            // Toggle Active Button
+            $('.toggle-active-btn').on('click', function (e) {
+                e.preventDefault();
+                var btn = $(this);
+                var couponId = btn.data('id');
+
+                // Create a hidden form and submit it
+                var form = $('<form>').attr({
+                    'action': '@Url.Action("ToggleActive")',
+                    'method': 'POST'
+                });
+
+                // Add anti-forgery token
+                var token = $('input[name="__RequestVerificationToken"]').val();
+                form.append($('<input>').attr({
+                    'name': '__RequestVerificationToken',
+                    'type': 'hidden',
+                    'value': token
+                }));
+
+                // Add coupon ID
+                form.append($('<input>').attr({
+                    'name': 'id',
+                    'type': 'hidden',
+                    'value': couponId
+                }));
+
+                // Append to body and submit
+                $('body').append(form);
+                form.submit();
+            });
+
+            // Bulk Activate
+            $('#bulkActivateBtn').on('click', function () {
+                var selectedIds = $('.coupon-checkbox:checked').map(function () {
+                    return $(this).val();
+                }).get();
+
+                if (selectedIds.length === 0) {
+                    alert('Vui lòng chọn ít nhất một mã giảm giá!');
+                    return;
+                }
+
+                if (confirm('Bạn có chắc muốn kích hoạt ' + selectedIds.length + ' mã đã chọn?')) {
+                    submitBulkAction(selectedIds, true);
+                }
+            });
+
+            // Bulk Deactivate
+            $('#bulkDeactivateBtn').on('click', function () {
+                var selectedIds = $('.coupon-checkbox:checked').map(function () {
+                    return $(this).val();
+                }).get();
+
+                if (selectedIds.length === 0) {
+                    alert('Vui lòng chọn ít nhất một mã giảm giá!');
+                    return;
+                }
+
+                if (confirm('Bạn có chắc muốn vô hiệu hóa ' + selectedIds.length + ' mã đã chọn?')) {
+                    submitBulkAction(selectedIds, false);
+                }
+            });
+
+            function submitBulkAction(ids, isActive) {
+                var form = $('<form>').attr({
+                    'action': '@Url.Action("BulkToggleActive")',
+                    'method': 'POST'
+                });
+
+                // Add anti-forgery token
+                form.append($('@Html.AntiForgeryToken()'));
+
+                // Add ids
+                $.each(ids, function (index, id) {
+                    form.append($('<input>').attr({
+                        'name': 'ids',
+                        'type': 'hidden',
+                        'value': id
+                    }));
+                });
+
+                // Add isActive
+                form.append($('<input>').attr({
+                    'name': 'isActive',
+                    'type': 'hidden',
+                    'value': isActive
+                }));
+
+                $('body').append(form);
+                form.submit();
+            }
+        });
+    </script>
+}
+
+<style>
+    .table tbody tr {
+        transition: all 0.2s ease;
+    }
+
+        .table tbody tr:hover {
+            background-color: rgba(0, 123, 255, 0.05);
+            transform: translateX(5px);
+        }
+
+    .badge {
+        font-weight: 500;
+    }
+
+    .btn-group .btn {
+        border-radius: 0;
+    }
+
+        .btn-group .btn:first-child {
+            border-top-left-radius: 0.25rem;
+            border-bottom-left-radius: 0.25rem;
+        }
+
+        .btn-group .btn:last-child {
+            border-top-right-radius: 0.25rem;
+            border-bottom-right-radius: 0.25rem;
+        }
+
+    .card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        }
+</style>

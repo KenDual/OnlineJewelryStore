@@ -1,0 +1,33 @@
+﻿@model string
+
+@{
+    var status = Model ?? "Unknown";
+    var badgeClass = OnlineJewelryStore.Areas.Admin.Controllers.PaymentsController.GetStatusBadgeClass(status);
+    var icon = "";
+
+    switch (status)
+    {
+        case "Pending":
+            icon = "bi-hourglass-split";
+            break;
+        case "Authorized":
+            icon = "bi-check-circle";
+            break;
+        case "Captured":
+            icon = "bi-check-circle-fill";
+            break;
+        case "Failed":
+            icon = "bi-x-circle-fill";
+            break;
+        case "Refunded":
+            icon = "bi-arrow-counterclockwise";
+            break;
+        default:
+            icon = "bi-question-circle";
+            break;
+    }
+}
+
+<span class="badge bg-@badgeClass">
+    <i class="bi @icon"></i> @status
+</span>
