@@ -1,0 +1,621 @@
+﻿@model OnlineJewelryStore.Models.Order
+
+@{
+    ViewBag.Title = "Order Details #" + Model.OrderID;
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+    var payment = Model.Payments.FirstOrDefault();
+    var invoice = Model.Invoices.FirstOrDefault();
+}
+
+<div class="container-fluid">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })">
+                    <i class="bi bi-house-door"></i> Dashboard
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="@Url.Action("Index", "Orders")">
+                    <i class="bi bi-bag-check"></i> Orders
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                Order #@Model.OrderID
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">
+                <i class="bi bi-receipt text-primary"></i> Order #@Model.OrderID
+            </h2>
+            <p class="text-muted mb-0">
+                <i class="bi bi-calendar"></i> Placed on @Model.OrderDate.ToString("dd/MM/yyyy HH:mm")
+            </p>
+        </div>
+        <div class="btn-group">
+            <a href="@Url.Action("Index", "Orders")" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </a>
+            @if (Model.Status != "Delivered" && Model.Status != "Cancelled")
+            {
+                <a href="@Url.Action("Edit", "Orders", new { id = Model.OrderID })" class="btn btn-primary">
+                    <i class="bi bi-pencil"></i> Edit Status
+                </a>
+            }
+            <button onclick="window.print()" class="btn btn-outline-primary">
+                <i class="bi bi-printer"></i> Print
+            </button>
+        </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row g-4">
+        <!-- LEFT COLUMN -->
+        <div class="col-lg-8">
+
+            <!-- Order Status Timeline -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">
+                        <i class="bi bi-clock-history"></i> Order Status
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="flex-grow-1">
+                            @switch (Model.Status)
+                            {
+                                case "Pending":
+                                    <span class="badge bg-warning text-dark fs-6 px-3 py-2">
+                                        <i class="bi bi-clock"></i> Pending
+                                    </span>
+                                    break;
+                                case "Processing":
+                                    <span class="badge bg-info fs-6 px-3 py-2">
+                                        <i class="bi bi-gear"></i> Processing
+                                    </span>
+                                    break;
+                                case "Shipped":
+                                    <span class="badge bg-primary fs-6 px-3 py-2">
+                                        <i class="bi bi-truck"></i> Shipped
+                                    </span>
+                                    break;
+                                case "Delivered":
+                                    <span class="badge bg-success fs-6 px-3 py-2">
+                                        <i class="bi bi-check-circle"></i> Delivered
+                                    </span>
+                                    break;
+                                case "Cancelled":
+                                    <span class="badge bg-danger fs-6 px-3 py-2">
+                                        <i class="bi bi-x-circle"></i> Cancelled
+                                    </span>
+                                    break;
+                            }
+                        </div>
+                        @if (Model.Status != "Delivered" && Model.Status != "Cancelled")
+                        {
+                            <a href="@Url.Action("Cancel", "Orders", new { id = Model.OrderID })"
+                               class="btn btn-outline-danger btn-sm">
+                                <i class="bi bi-x-lg"></i> Cancel Order
+                            </a>
+                        }
+                    </div>
+
+                    <!-- Timeline -->
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-success"></div>
+                            <div class="timeline-content">
+                                <h6 class="mb-1">Order Placed</h6>
+                                <p class="text-muted mb-0">
+                                    <i class="bi bi-calendar"></i> @Model.OrderDate.ToString("dd/MM/yyyy HH:mm")
+                                </p>
+                            </div>
+                        </div>
+
+                        @if (payment != null && payment.CapturedAt.HasValue)
+                        {
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-success"></div>
+                                <div class="timeline-content">
+                                    <h6 class="mb-1">Payment Captured</h6>
+                                    <p class="text-muted mb-0">
+                                        <i class="bi bi-calendar"></i> @payment.CapturedAt.Value.ToString("dd/MM/yyyy HH:mm")
+                                    </p>
+                                </div>
+                            </div>
+                        }
+
+                        @if (Model.DeliveredAt.HasValue)
+                        {
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-success"></div>
+                                <div class="timeline-content">
+                                    <h6 class="mb-1">Delivered</h6>
+                                    <p class="text-muted mb-0">
+                                        <i class="bi bi-calendar"></i> @Model.DeliveredAt.Value.ToString("dd/MM/yyyy HH:mm")
+                                    </p>
+                                </div>
+                            </div>
+                        }
+
+                        @if (Model.Status == "Cancelled" && !string.IsNullOrEmpty(Model.CancellationReason))
+                        {
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-danger"></div>
+                                <div class="timeline-content">
+                                    <h6 class="mb-1 text-danger">Order Cancelled</h6>
+                                    <p class="text-muted mb-0">
+                                        <strong>Reason:</strong> @Model.CancellationReason
+                                    </p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Items -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">
+                        <i class="bi bi-box-seam"></i> Order Items
+                        <span class="badge bg-secondary">@Model.OrderItems.Count item@(Model.OrderItems.Count > 1 ? "s" : "")</span>
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="px-3">Product</th>
+                                    <th>Variant Details</th>
+                                    <th>SKU</th>
+                                    <th class="text-end">Unit Price</th>
+                                    <th class="text-center">Qty</th>
+                                    <th class="text-end px-3">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.OrderItems)
+                                {
+                                    var mainImage = item.ProductVariant.Product.ProductMedias
+                                        .FirstOrDefault(m => m.IsMain) ??
+                                        item.ProductVariant.Product.ProductMedias.FirstOrDefault();
+                                    var itemSubtotal = item.UnitPrice * item.Quantity;
+
+                                    <tr>
+                                        <td class="px-3">
+                                            <div class="d-flex align-items-center">
+                                                @if (mainImage != null)
+                                                {
+                                                    <img src="@Url.Content(mainImage.URL)"
+                                                         alt="@item.ProductVariant.Product.ProductName"
+                                                         class="rounded"
+                                                         style="width: 60px; height: 60px; object-fit: cover;">
+                                                }
+                                                else
+                                                {
+                                                    <div class="bg-light rounded d-flex align-items-center justify-content-center"
+                                                         style="width: 60px; height: 60px;">
+                                                        <i class="bi bi-image text-muted"></i>
+                                                    </div>
+                                                }
+                                                <div class="ms-3">
+                                                    <h6 class="mb-0">@item.ProductVariant.Product.ProductName</h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(item.ProductVariant.MetalType))
+                                            {
+                                                <span class="badge bg-secondary">@item.ProductVariant.MetalType</span>
+                                            }
+                                            @if (!string.IsNullOrEmpty(item.ProductVariant.Purity))
+                                            {
+                                                <span class="badge bg-info">@item.ProductVariant.Purity</span>
+                                            }
+                                            @if (!string.IsNullOrEmpty(item.ProductVariant.RingSize))
+                                            {
+                                                <span class="badge bg-primary">Size: @item.ProductVariant.RingSize</span>
+                                            }
+                                            @if (!string.IsNullOrEmpty(item.ProductVariant.ChainLength))
+                                            {
+                                                <span class="badge bg-primary">Length: @item.ProductVariant.ChainLength</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <code>@item.ProductVariant.SKU</code>
+                                        </td>
+                                        <td class="text-end">
+                                            <strong>@item.UnitPrice.ToString("N0") đ</strong>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-light text-dark">×@item.Quantity</span>
+                                        </td>
+                                        <td class="text-end px-3">
+                                            <strong class="text-success">@itemSubtotal.ToString("N0") đ</strong>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gift Message -->
+            @if (!string.IsNullOrEmpty(Model.GiftMessage))
+            {
+                <div class="card border-0 shadow-sm mb-4 border-start border-primary border-4">
+                    <div class="card-body">
+                        <h6 class="mb-2">
+                            <i class="bi bi-gift text-primary"></i> Gift Message
+                        </h6>
+                        <p class="mb-0 text-muted fst-italic">
+                            "@Model.GiftMessage"
+                        </p>
+                    </div>
+                </div>
+            }
+
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="col-lg-4">
+
+            <!-- Order Summary -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0">
+                        <i class="bi bi-receipt"></i> Order Summary
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Subtotal:</span>
+                        <strong>@Model.Subtotal.ToString("N0") đ</strong>
+                    </div>
+
+                    @if (Model.TaxTotal > 0)
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Tax:</span>
+                            <strong>@Model.TaxTotal.ToString("N0") đ</strong>
+                        </div>
+                    }
+
+                    @if (Model.ShippingFee > 0)
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Shipping Fee:</span>
+                            <strong>@Model.ShippingFee.ToString("N0") đ</strong>
+                        </div>
+                    }
+
+                    @if (Model.DiscountTotal > 0)
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-danger">
+                                <i class="bi bi-ticket-perforated"></i> Discount:
+                            </span>
+                            <strong class="text-danger">-@Model.DiscountTotal.ToString("N0") đ</strong>
+                        </div>
+                    }
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between">
+                        <span class="h6 mb-0">Grand Total:</span>
+                        <h4 class="mb-0 text-success">@Model.GrandTotal.ToString("N0") đ</h4>
+                    </div>
+
+                    @if (Model.Status == "Pending" && Model.CouponID == null)
+                    {
+                        <div class="mt-3">
+                            <a href="@Url.Action("ApplyCoupon", "Orders", new { id = Model.OrderID })"
+                               class="btn btn-outline-primary w-100">
+                                <i class="bi bi-ticket-perforated"></i> Apply Coupon
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Coupon Information -->
+            @if (Model.Coupon != null)
+            {
+                <div class="card border-0 shadow-sm mb-4 border-start border-success border-4">
+                    <div class="card-body">
+                        <h6 class="mb-2">
+                            <i class="bi bi-ticket-perforated text-success"></i> Coupon Applied
+                        </h6>
+                        <div class="bg-light p-3 rounded">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold">@Model.Coupon.Code</span>
+                                <span class="badge bg-success">@Model.Coupon.PercentOff% OFF</span>
+                            </div>
+                            <small class="text-muted">
+                                You saved @Model.DiscountTotal.ToString("N0") đ
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Customer Information -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">
+                        <i class="bi bi-person"></i> Customer Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center"
+                             style="width: 48px; height: 48px; min-width: 48px;">
+                            <span class="text-primary fw-bold fs-5">
+                                @Model.User.FirstName.Substring(0, 1)@Model.User.LastName.Substring(0, 1)
+                            </span>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="mb-0">@Model.User.FirstName @Model.User.LastName</h6>
+                            <small class="text-muted">
+                                Customer since @Model.User.RegistrationDate.ToString("MMM yyyy")
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="mb-2">
+                        <i class="bi bi-envelope text-muted"></i>
+                        <a href="mailto:@Model.User.Email" class="ms-2">@Model.User.Email</a>
+                    </div>
+
+                    <div class="mb-3">
+                        <i class="bi bi-telephone text-muted"></i>
+                        <a href="tel:@Model.User.Phone" class="ms-2">@Model.User.Phone</a>
+                    </div>
+
+                    <a href="@Url.Action("Details", "Users", new { id = Model.UserID })"
+                       class="btn btn-outline-primary btn-sm w-100">
+                        <i class="bi bi-person-circle"></i> View Customer Profile
+                    </a>
+                </div>
+            </div>
+
+            <!-- Shipping Address -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">
+                        <i class="bi bi-geo-alt"></i> Shipping Address
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-1"><strong>@Model.User.FirstName @Model.User.LastName</strong></p>
+                    <p class="mb-1">@Model.Address.StreetAddress</p>
+                    <p class="mb-1">@Model.Address.City, @Model.Address.State</p>
+                    <p class="mb-1">@Model.Address.PostalCode</p>
+                    <p class="mb-2">@Model.Address.Country</p>
+                    <div class="border-top pt-2">
+                        <i class="bi bi-telephone text-muted"></i>
+                        <span class="ms-2">@Model.Address.Phone</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Information -->
+            @if (payment != null)
+            {
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0">
+                            <i class="bi bi-credit-card"></i> Payment Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted">Method:</span>
+                                @switch (payment.Method)
+                                {
+                                    case "COD":
+                                        <span class="badge bg-secondary">
+                                            <i class="bi bi-cash"></i> Cash on Delivery
+                                        </span>
+                                        break;
+                                    case "Card":
+                                        <span class="badge bg-primary">
+                                            <i class="bi bi-credit-card"></i> Credit/Debit Card
+                                        </span>
+                                        break;
+                                    case "PayPal":
+                                        <span class="badge bg-info">
+                                            <i class="bi bi-paypal"></i> PayPal
+                                        </span>
+                                        break;
+                                    case "VNPay":
+                                        <span class="badge bg-danger">
+                                            <i class="bi bi-wallet2"></i> VNPay
+                                        </span>
+                                        break;
+                                    case "MoMo":
+                                        <span class="badge bg-danger">
+                                            <i class="bi bi-phone"></i> MoMo
+                                        </span>
+                                        break;
+                                    case "Bank":
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-bank"></i> Bank Transfer
+                                        </span>
+                                        break;
+                                }
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted">Status:</span>
+                                @switch (payment.Status)
+                                {
+                                    case "Pending":
+                                        <span class="badge bg-secondary">Pending</span>
+                                        break;
+                                    case "Authorized":
+                                        <span class="badge bg-info">Authorized</span>
+                                        break;
+                                    case "Captured":
+                                        <span class="badge bg-success">Captured</span>
+                                        break;
+                                    case "Failed":
+                                        <span class="badge bg-danger">Failed</span>
+                                        break;
+                                    case "Refunded":
+                                        <span class="badge bg-warning text-dark">Refunded</span>
+                                        break;
+                                }
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted">Amount:</span>
+                                <strong class="text-success">@payment.Amount.ToString("N0") @payment.Currency</strong>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(payment.TransactionRef))
+                            {
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-muted">Transaction Ref:</span>
+                                    <code class="small">@payment.TransactionRef</code>
+                                </div>
+                            }
+
+                            @if (payment.CapturedAt.HasValue)
+                            {
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted">Captured At:</span>
+                                    <small>@payment.CapturedAt.Value.ToString("dd/MM/yyyy HH:mm")</small>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Invoice -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">
+                        <i class="bi bi-file-earmark-text"></i> Invoice
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (invoice != null)
+                    {
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Invoice Number:</span>
+                                <strong>@invoice.InvoiceNumber</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-3">
+                                <span class="text-muted">Invoice Date:</span>
+                                <span>@invoice.InvoiceDate.ToString("dd/MM/yyyy")</span>
+                            </div>
+                        </div>
+
+                        <a href="@Url.Content(invoice.PDF_URL)"
+                           target="_blank"
+                           class="btn btn-success w-100">
+                            <i class="bi bi-download"></i> Download Invoice PDF
+                        </a>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-3">
+                            <i class="bi bi-info-circle"></i> No invoice has been generated yet.
+                        </p>
+                        <a href="@Url.Action("GenerateInvoice", "Orders", new { id = Model.OrderID })"
+                           class="btn btn-primary w-100">
+                            <i class="bi bi-file-earmark-plus"></i> Generate Invoice
+                        </a>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Timeline Styles */
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 8px;
+        top: 10px;
+        bottom: 10px;
+        width: 2px;
+        background: #dee2e6;
+    }
+
+    .timeline-item {
+        position: relative;
+        padding-bottom: 20px;
+    }
+
+    .timeline-item:last-child {
+        padding-bottom: 0;
+    }
+
+    .timeline-marker {
+        position: absolute;
+        left: -26px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        border: 3px solid #fff;
+        box-shadow: 0 0 0 2px #dee2e6;
+    }
+
+    .timeline-content h6 {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    /* Print Styles */
+    @@media print {
+        .btn-group,
+        .breadcrumb,
+        .alert {
+            display: none !important;
+        }
+
+        .card {
+            border: 1px solid #dee2e6 !important;
+            box-shadow: none !important;
+            page-break-inside: avoid;
+        }
+    }
+</style>

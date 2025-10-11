@@ -1,0 +1,581 @@
+﻿@model OnlineJewelryStore.Models.Order
+
+@{
+    Layout = null;
+    var payment = Model.Payments.FirstOrDefault();
+    var invoiceNumber = ViewBag.InvoiceNumber ?? $"INV-{Model.OrderID}-{DateTime.Now:yyyyMMdd}";
+    var invoiceDate = ViewBag.InvoiceDate ?? DateTime.Now;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice @invoiceNumber</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+            padding: 20px;
+            background: #fff;
+        }
+
+        .invoice-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+        }
+
+        /* Header */
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #0d6efd;
+        }
+
+        .company-info {
+            flex: 1;
+        }
+
+        .company-name {
+            font-size: 28px;
+            font-weight: bold;
+            color: #0d6efd;
+            margin-bottom: 10px;
+        }
+
+        .company-details {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.8;
+        }
+
+        .invoice-title {
+            text-align: right;
+        }
+
+            .invoice-title h1 {
+                font-size: 36px;
+                color: #333;
+                margin-bottom: 10px;
+            }
+
+        .invoice-number {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .invoice-date {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* Two Column Section */
+        .info-section {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+        }
+
+        .info-box {
+            flex: 1;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+
+            .info-box:first-child {
+                margin-right: 20px;
+            }
+
+            .info-box h3 {
+                font-size: 16px;
+                margin-bottom: 15px;
+                color: #0d6efd;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+
+            .info-box p {
+                margin-bottom: 5px;
+                font-size: 13px;
+            }
+
+            .info-box strong {
+                display: inline-block;
+                width: 120px;
+                color: #666;
+            }
+
+        /* Items Table */
+        .items-table {
+            width: 100%;
+            margin-bottom: 30px;
+            border-collapse: collapse;
+        }
+
+            .items-table thead {
+                background: #0d6efd;
+                color: white;
+            }
+
+            .items-table th {
+                padding: 12px;
+                text-align: left;
+                font-weight: 600;
+                font-size: 13px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+                .items-table th.text-right {
+                    text-align: right;
+                }
+
+                .items-table th.text-center {
+                    text-align: center;
+                }
+
+            .items-table tbody tr {
+                border-bottom: 1px solid #dee2e6;
+            }
+
+                .items-table tbody tr:last-child {
+                    border-bottom: 2px solid #0d6efd;
+                }
+
+            .items-table td {
+                padding: 15px 12px;
+                font-size: 13px;
+            }
+
+                .items-table td.text-right {
+                    text-align: right;
+                }
+
+                .items-table td.text-center {
+                    text-align: center;
+                }
+
+        .product-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .variant-details {
+            font-size: 11px;
+            color: #666;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            background: #e9ecef;
+            border-radius: 3px;
+            font-size: 11px;
+            margin-right: 5px;
+        }
+
+        /* Summary Section */
+        .summary-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 40px;
+        }
+
+        .summary-box {
+            width: 350px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+            .summary-row.total {
+                background: #f8f9fa;
+                padding: 15px;
+                margin-top: 10px;
+                border: 2px solid #0d6efd;
+                border-radius: 5px;
+            }
+
+                .summary-row.total .label {
+                    font-size: 18px;
+                    font-weight: bold;
+                }
+
+                .summary-row.total .value {
+                    font-size: 22px;
+                    font-weight: bold;
+                    color: #28a745;
+                }
+
+            .summary-row .label {
+                color: #666;
+            }
+
+            .summary-row .value {
+                font-weight: 600;
+                color: #333;
+            }
+
+            .summary-row.discount .value {
+                color: #dc3545;
+            }
+
+        /* Payment Info */
+        .payment-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+        }
+
+            .payment-section h3 {
+                font-size: 16px;
+                margin-bottom: 15px;
+                color: #0d6efd;
+                text-transform: uppercase;
+            }
+
+        .payment-details {
+            display: flex;
+            gap: 30px;
+        }
+
+        .payment-item {
+            flex: 1;
+        }
+
+            .payment-item strong {
+                display: block;
+                color: #666;
+                font-size: 12px;
+                margin-bottom: 5px;
+                text-transform: uppercase;
+            }
+
+            .payment-item span {
+                font-size: 14px;
+                font-weight: 600;
+            }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-captured {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        /* Footer */
+        .invoice-footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 2px solid #dee2e6;
+        }
+
+        .terms {
+            margin-bottom: 20px;
+        }
+
+            .terms h4 {
+                font-size: 14px;
+                margin-bottom: 10px;
+                color: #333;
+            }
+
+            .terms p {
+                font-size: 11px;
+                color: #666;
+                line-height: 1.8;
+            }
+
+        .thank-you {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+            .thank-you h3 {
+                font-size: 20px;
+                color: #0d6efd;
+                margin-bottom: 10px;
+            }
+
+            .thank-you p {
+                font-size: 13px;
+                color: #666;
+            }
+
+        /* Print Styles */
+        @@media print {
+            body {
+                padding: 0;
+            }
+
+            .invoice-container {
+                max-width: 100%;
+            }
+        }
+
+        /* Page Break */
+        .page-break {
+            page-break-after: always;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <!-- Header -->
+        <div class="invoice-header">
+            <div class="company-info">
+                <div class="company-name">Luxury Jewelry Store</div>
+                <div class="company-details">
+                    <p>123 Diamond Street, District 1</p>
+                    <p>Ho Chi Minh City, Vietnam</p>
+                    <p>Phone: +84 (028) 1234 5678</p>
+                    <p>Email: info@luxuryjewelry.com</p>
+                    <p>Website: www.luxuryjewelry.com</p>
+                </div>
+            </div>
+            <div class="invoice-title">
+                <h1>INVOICE</h1>
+                <div class="invoice-number">
+                    <strong>Invoice No:</strong> @invoiceNumber
+                </div>
+                <div class="invoice-date">
+                    <strong>Date:</strong> @invoiceDate.ToString("dd/MM/yyyy")
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer & Order Info -->
+        <div class="info-section">
+            <div class="info-box">
+                <h3>Bill To</h3>
+                <p><strong>Customer:</strong> @Model.User.FirstName @Model.User.LastName</p>
+                <p><strong>Email:</strong> @Model.User.Email</p>
+                <p><strong>Phone:</strong> @Model.User.Phone</p>
+                <p><strong>Order ID:</strong> #@Model.OrderID</p>
+                <p><strong>Order Date:</strong> @Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</p>
+            </div>
+            <div class="info-box">
+                <h3>Ship To</h3>
+                <p><strong>Recipient:</strong> @Model.User.FirstName @Model.User.LastName</p>
+                <p><strong>Address:</strong> @Model.Address.StreetAddress</p>
+                <p><strong>City/State:</strong> @Model.Address.City, @Model.Address.State</p>
+                <p><strong>Postal Code:</strong> @Model.Address.PostalCode</p>
+                <p><strong>Country:</strong> @Model.Address.Country</p>
+                <p><strong>Phone:</strong> @Model.Address.Phone</p>
+            </div>
+        </div>
+
+        <!-- Order Items Table -->
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th style="width: 5%;">#</th>
+                    <th style="width: 40%;">Product Description</th>
+                    <th style="width: 15%;">SKU</th>
+                    <th style="width: 10%;" class="text-center">Qty</th>
+                    <th style="width: 15%;" class="text-right">Unit Price</th>
+                    <th style="width: 15%;" class="text-right">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int itemNumber = 1;
+                }
+                @foreach (var item in Model.OrderItems)
+                {
+                    var itemTotal = item.UnitPrice * item.Quantity;
+                    <tr>
+                        <td>@itemNumber</td>
+                        <td>
+                            <div class="product-name">@item.ProductVariant.Product.ProductName</div>
+                            <div class="variant-details">
+                                @if (!string.IsNullOrEmpty(item.ProductVariant.MetalType))
+                                {
+                                    <span class="badge">@item.ProductVariant.MetalType</span>
+                                }
+                                @if (!string.IsNullOrEmpty(item.ProductVariant.Purity))
+                                {
+                                    <span class="badge">@item.ProductVariant.Purity</span>
+                                }
+                                @if (!string.IsNullOrEmpty(item.ProductVariant.RingSize))
+                                {
+                                    <span class="badge">Size: @item.ProductVariant.RingSize</span>
+                                }
+                                @if (!string.IsNullOrEmpty(item.ProductVariant.ChainLength))
+                                {
+                                    <span class="badge">Length: @item.ProductVariant.ChainLength</span>
+                                }
+                            </div>
+                        </td>
+                        <td><code style="font-size: 11px;">@item.ProductVariant.SKU</code></td>
+                        <td class="text-center">@item.Quantity</td>
+                        <td class="text-right">@item.UnitPrice.ToString("N0") đ</td>
+                        <td class="text-right"><strong>@itemTotal.ToString("N0") đ</strong></td>
+                    </tr>
+                    itemNumber++;
+                }
+            </tbody>
+        </table>
+
+        <!-- Summary -->
+        <div class="summary-section">
+            <div class="summary-box">
+                <div class="summary-row">
+                    <div class="label">Subtotal:</div>
+                    <div class="value">@Model.Subtotal.ToString("N0") đ</div>
+                </div>
+
+                @if (Model.TaxTotal > 0)
+                {
+                    <div class="summary-row">
+                        <div class="label">Tax:</div>
+                        <div class="value">@Model.TaxTotal.ToString("N0") đ</div>
+                    </div>
+                }
+
+                @if (Model.ShippingFee > 0)
+                {
+                    <div class="summary-row">
+                        <div class="label">Shipping Fee:</div>
+                        <div class="value">@Model.ShippingFee.ToString("N0") đ</div>
+                    </div>
+                }
+
+                @if (Model.DiscountTotal > 0)
+                {
+                    <div class="summary-row discount">
+                        <div class="label">
+                            Discount
+                            @if (Model.Coupon != null)
+                            {
+                                <text>(@Model.Coupon.Code - @Model.Coupon.PercentOff%):</text>
+                            }
+                            else
+                            {
+                                <text>:</text>
+                            }
+                        </div>
+                        <div class="value">-@Model.DiscountTotal.ToString("N0") đ</div>
+                    </div>
+                }
+
+                <div class="summary-row total">
+                    <div class="label">GRAND TOTAL:</div>
+                    <div class="value">@Model.GrandTotal.ToString("N0") đ</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Information -->
+        @if (payment != null)
+        {
+            <div class="payment-section">
+                <h3>Payment Information</h3>
+                <div class="payment-details">
+                    <div class="payment-item">
+                        <strong>Payment Method:</strong>
+                        <span>
+                            @switch (payment.Method)
+                            {
+                                case "COD":
+                                    <text>Cash on Delivery</text>
+                                    break;
+                                case "Card":
+                                    <text>Credit/Debit Card</text>
+                                    break;
+                                case "VNPay":
+                                    <text>VNPay</text>
+                                    break;
+                                case "MoMo":
+                                    <text>MoMo Wallet</text>
+                                    break;
+                                case "Bank":
+                                    <text>Bank Transfer</text>
+                                    break;
+                                case "PayPal":
+                                    <text>PayPal</text>
+                                    break;
+                                default:
+                                    @payment.Method
+                                    break;
+                            }
+                        </span>
+                    </div>
+                    <div class="payment-item">
+                        <strong>Payment Status:</strong>
+                        <span class="status-badge @(payment.Status == "Captured" ? "status-captured" : "status-pending")">
+                            @payment.Status
+                        </span>
+                    </div>
+                    <div class="payment-item">
+                        <strong>Amount Paid:</strong>
+                        <span style="color: #28a745;">@payment.Amount.ToString("N0") @payment.Currency</span>
+                    </div>
+                    @if (!string.IsNullOrEmpty(payment.TransactionRef))
+                    {
+                        <div class="payment-item">
+                            <strong>Transaction Ref:</strong>
+                            <span style="font-size: 11px; font-family: monospace;">@payment.TransactionRef</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        <!-- Footer -->
+        <div class="invoice-footer">
+            <div class="terms">
+                <h4>Terms & Conditions:</h4>
+                <p>
+                    1. Payment is due within 7 days of invoice date.<br>
+                    2. All jewelry items come with a certificate of authenticity.<br>
+                    3. Returns accepted within 14 days with original receipt and packaging.<br>
+                    4. Custom orders are non-refundable.<br>
+                    5. For any questions, please contact our customer service.
+                </p>
+            </div>
+
+            <div class="thank-you">
+                <h3>Thank You For Your Business!</h3>
+                <p>We appreciate your trust in Luxury Jewelry Store. For any inquiries, please contact us at info@luxuryjewelry.com</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

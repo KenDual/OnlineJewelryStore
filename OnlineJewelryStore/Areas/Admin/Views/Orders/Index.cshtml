@@ -1,0 +1,562 @@
+﻿@model IEnumerable<OnlineJewelryStore.Models.Order>
+
+@{
+    ViewBag.Title = "Orders Management";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container-fluid">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="@Url.Action("Index", "Dashboard")">
+                    <i class="bi bi-house-door"></i> Dashboard
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                <i class="bi bi-bag-check"></i> Orders
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="bi bi-bag-check text-primary"></i> Orders Management
+        </h2>
+    </div>
+
+    <!-- Success/Error Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4">
+        <!-- Today's Orders -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted mb-1">Today's Orders</p>
+                            <h3 class="mb-0">@ViewBag.TodayOrdersCount</h3>
+                        </div>
+                        <div class="bg-primary bg-opacity-10 p-3 rounded">
+                            <i class="bi bi-calendar-check text-primary fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Orders -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted mb-1">Pending Orders</p>
+                            <h3 class="mb-0">@ViewBag.PendingOrdersCount</h3>
+                        </div>
+                        <div class="bg-warning bg-opacity-10 p-3 rounded">
+                            <i class="bi bi-clock-history text-warning fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Today's Revenue -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted mb-1">Today's Revenue</p>
+                            <h3 class="mb-0">@ViewBag.TodayRevenue.ToString("N0") đ</h3>
+                        </div>
+                        <div class="bg-success bg-opacity-10 p-3 rounded">
+                            <i class="bi bi-cash-stack text-success fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Need Processing -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted mb-1">Need Processing</p>
+                            <h3 class="mb-0">@ViewBag.NeedProcessingCount</h3>
+                        </div>
+                        <div class="bg-info bg-opacity-10 p-3 rounded">
+                            <i class="bi bi-gear text-info fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search & Filter Form -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+            <h5 class="mb-0">
+                <i class="bi bi-funnel"></i> Search & Filter
+            </h5>
+        </div>
+        <div class="card-body">
+            @using (Html.BeginForm("Index", "Orders", FormMethod.Get, new { @class = "row g-3" }))
+            {
+                <!-- Search Box -->
+                <div class="col-md-4">
+                    <label class="form-label">Search</label>
+                    <input type="text" name="searchTerm" class="form-control"
+                           placeholder="Order ID, Customer Name, Email..."
+                           value="@ViewBag.SearchTerm" />
+                </div>
+
+                <!-- Order Status Filter -->
+                <div class="col-md-2">
+                    <label class="form-label">Order Status</label>
+                    <select name="orderStatus" class="form-select">
+                        <option value="All" selected="@(ViewBag.OrderStatus == "All" || string.IsNullOrEmpty(ViewBag.OrderStatus))">All Statuses</option>
+                        <option value="Pending" selected="@(ViewBag.OrderStatus == "Pending")">Pending</option>
+                        <option value="Processing" selected="@(ViewBag.OrderStatus == "Processing")">Processing</option>
+                        <option value="Shipped" selected="@(ViewBag.OrderStatus == "Shipped")">Shipped</option>
+                        <option value="Delivered" selected="@(ViewBag.OrderStatus == "Delivered")">Delivered</option>
+                        <option value="Cancelled" selected="@(ViewBag.OrderStatus == "Cancelled")">Cancelled</option>
+                    </select>
+                </div>
+
+                <!-- Payment Status Filter -->
+                <div class="col-md-2">
+                    <label class="form-label">Payment Status</label>
+                    <select name="paymentStatus" class="form-select">
+                        <option value="All" selected="@(ViewBag.PaymentStatus == "All" || string.IsNullOrEmpty(ViewBag.PaymentStatus))">All Statuses</option>
+                        <option value="Pending" selected="@(ViewBag.PaymentStatus == "Pending")">Pending</option>
+                        <option value="Authorized" selected="@(ViewBag.PaymentStatus == "Authorized")">Authorized</option>
+                        <option value="Captured" selected="@(ViewBag.PaymentStatus == "Captured")">Captured</option>
+                        <option value="Failed" selected="@(ViewBag.PaymentStatus == "Failed")">Failed</option>
+                        <option value="Refunded" selected="@(ViewBag.PaymentStatus == "Refunded")">Refunded</option>
+                    </select>
+                </div>
+
+                <!-- Payment Method Filter -->
+                <div class="col-md-2">
+                    <label class="form-label">Payment Method</label>
+                    <select name="paymentMethod" class="form-select">
+                        <option value="All" selected="@(ViewBag.PaymentMethod == "All" || string.IsNullOrEmpty(ViewBag.PaymentMethod))">All Methods</option>
+                        <option value="COD" selected="@(ViewBag.PaymentMethod == "COD")">COD</option>
+                        <option value="Card" selected="@(ViewBag.PaymentMethod == "Card")">Card</option>
+                        <option value="PayPal" selected="@(ViewBag.PaymentMethod == "PayPal")">PayPal</option>
+                        <option value="VNPay" selected="@(ViewBag.PaymentMethod == "VNPay")">VNPay</option>
+                        <option value="MoMo" selected="@(ViewBag.PaymentMethod == "MoMo")">MoMo</option>
+                        <option value="Bank" selected="@(ViewBag.PaymentMethod == "Bank")">Bank Transfer</option>
+                    </select>
+                </div>
+
+                <!-- Sort By -->
+                <div class="col-md-2">
+                    <label class="form-label">Sort By</label>
+                    <select name="sortBy" class="form-select">
+                        <option value="OrderDate" selected="@(ViewBag.SortBy == "OrderDate")">Order Date</option>
+                        <option value="GrandTotal" selected="@(ViewBag.SortBy == "GrandTotal")">Grand Total</option>
+                        <option value="CustomerName" selected="@(ViewBag.SortBy == "CustomerName")">Customer Name</option>
+                    </select>
+                </div>
+
+                <!-- Date From -->
+                <div class="col-md-2">
+                    <label class="form-label">Date From</label>
+                    <input type="date" name="dateFrom" class="form-control"
+                           value="@(ViewBag.DateFrom?.ToString("yyyy-MM-dd"))" />
+                </div>
+
+                <!-- Date To -->
+                <div class="col-md-2">
+                    <label class="form-label">Date To</label>
+                    <input type="date" name="dateTo" class="form-control"
+                           value="@(ViewBag.DateTo?.ToString("yyyy-MM-dd"))" />
+                </div>
+
+                <!-- Sort Order -->
+                <div class="col-md-2">
+                    <label class="form-label">Order</label>
+                    <select name="sortOrder" class="form-select">
+                        <option value="desc" selected="@(ViewBag.SortOrder == "desc")">Descending</option>
+                        <option value="asc" selected="@(ViewBag.SortOrder == "asc")">Ascending</option>
+                    </select>
+                </div>
+
+                <!-- Page Size -->
+                <div class="col-md-2">
+                    <label class="form-label">Items per page</label>
+                    <select name="pageSize" class="form-select">
+                        <option value="10" selected="@(ViewBag.PageSize == 10)">10</option>
+                        <option value="25" selected="@(ViewBag.PageSize == 25)">25</option>
+                        <option value="50" selected="@(ViewBag.PageSize == 50)">50</option>
+                        <option value="100" selected="@(ViewBag.PageSize == 100)">100</option>
+                    </select>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="col-md-4">
+                    <label class="form-label d-block">&nbsp;</label>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search"></i> Search & Filter
+                    </button>
+                    <a href="@Url.Action("Index", "Orders")" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-clockwise"></i> Reset
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Orders Table -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-list-ul"></i> Orders List
+                </h5>
+                <span class="badge bg-secondary">@ViewBag.TotalOrders orders</span>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            @if (Model != null && Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="px-3">Order ID</th>
+                                <th>Order Date</th>
+                                <th>Customer</th>
+                                <th class="text-center">Items</th>
+                                <th class="text-end">Grand Total</th>
+                                <th class="text-center">Order Status</th>
+                                <th class="text-center">Payment Status</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var order in Model)
+                            {
+                                var payment = order.Payments.FirstOrDefault();
+                                <tr>
+                                    <td class="px-3">
+                                        <strong>#@order.OrderID</strong>
+                                    </td>
+                                    <td>
+                                        <small class="d-block">@order.OrderDate.ToString("dd/MM/yyyy")</small>
+                                        <small class="text-muted">@order.OrderDate.ToString("HH:mm")</small>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center"
+                                                 style="width: 36px; height: 36px; min-width: 36px;">
+                                                <span class="text-primary fw-bold">
+                                                    @order.User.FirstName.Substring(0, 1)@order.User.LastName.Substring(0, 1)
+                                                </span>
+                                            </div>
+                                            <div class="ms-2">
+                                                <div class="fw-semibold">@order.User.FirstName @order.User.LastName</div>
+                                                <small class="text-muted">@order.User.Email</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-secondary rounded-pill">
+                                            @order.OrderItems.Count item@(order.OrderItems.Count > 1 ? "s" : "")
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        <strong class="text-success">@order.GrandTotal.ToString("N0") đ</strong>
+                                    </td>
+                                    <td class="text-center">
+                                        @switch (order.Status)
+                                        {
+                                            case "Pending":
+                                                <span class="badge bg-warning text-dark">
+                                                    <i class="bi bi-clock"></i> Pending
+                                                </span>
+                                                break;
+                                            case "Processing":
+                                                <span class="badge bg-info">
+                                                    <i class="bi bi-gear"></i> Processing
+                                                </span>
+                                                break;
+                                            case "Shipped":
+                                                <span class="badge bg-primary">
+                                                    <i class="bi bi-truck"></i> Shipped
+                                                </span>
+                                                break;
+                                            case "Delivered":
+                                                <span class="badge bg-success">
+                                                    <i class="bi bi-check-circle"></i> Delivered
+                                                </span>
+                                                break;
+                                            case "Cancelled":
+                                                <span class="badge bg-danger">
+                                                    <i class="bi bi-x-circle"></i> Cancelled
+                                                </span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        @if (payment != null)
+                                        {
+                                            switch (payment.Status)
+                                            {
+                                                case "Pending":
+                                                    <span class="badge bg-secondary">
+                                                        <i class="bi bi-hourglass"></i> Pending
+                                                    </span>
+                                                    break;
+                                                case "Authorized":
+                                                    <span class="badge bg-info">
+                                                        <i class="bi bi-shield-check"></i> Authorized
+                                                    </span>
+                                                    break;
+                                                case "Captured":
+                                                    <span class="badge bg-success">
+                                                        <i class="bi bi-check-circle"></i> Captured
+                                                    </span>
+                                                    break;
+                                                case "Failed":
+                                                    <span class="badge bg-danger">
+                                                        <i class="bi bi-x-circle"></i> Failed
+                                                    </span>
+                                                    break;
+                                                case "Refunded":
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="bi bi-arrow-return-left"></i> Refunded
+                                                    </span>
+                                                    break;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">
+                                                <i class="bi bi-question-circle"></i> N/A
+                                            </span>
+                                        }
+                                    </td>
+                                    <td class="text-center px-3">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="@Url.Action("Details", "Orders", new { id = order.OrderID })"
+                                               class="btn btn-outline-primary"
+                                               title="View Details">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a href="@Url.Action("Edit", "Orders", new { id = order.OrderID })"
+                                               class="btn btn-outline-secondary"
+                                               title="Edit Status">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            @if (order.Status != "Delivered" && order.Status != "Cancelled")
+                                            {
+                                                <a href="@Url.Action("Cancel", "Orders", new { id = order.OrderID })"
+                                                   class="btn btn-outline-danger"
+                                                   title="Cancel Order">
+                                                    <i class="bi bi-x-lg"></i>
+                                                </a>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                if (ViewBag.TotalPages > 1)
+                {
+                    <div class="card-footer bg-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="text-muted">
+                                Showing @((ViewBag.CurrentPage - 1) * ViewBag.PageSize + 1) to
+                                @Math.Min(ViewBag.CurrentPage * ViewBag.PageSize, ViewBag.TotalOrders)
+                                of @ViewBag.TotalOrders orders
+                            </div>
+                            <nav>
+                                <ul class="pagination mb-0">
+                                    <!-- Previous Button -->
+                                    <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+                                        <a class="page-link" href="@Url.Action("Index", new {
+                                            page = ViewBag.CurrentPage - 1,
+                                            pageSize = ViewBag.PageSize,
+                                            searchTerm = ViewBag.SearchTerm,
+                                            orderStatus = ViewBag.OrderStatus,
+                                            paymentStatus = ViewBag.PaymentStatus,
+                                            paymentMethod = ViewBag.PaymentMethod,
+                                            dateFrom = ViewBag.DateFrom?.ToString("yyyy-MM-dd"),
+                                            dateTo = ViewBag.DateTo?.ToString("yyyy-MM-dd"),
+                                            sortBy = ViewBag.SortBy,
+                                            sortOrder = ViewBag.SortOrder
+                                        })">
+                                            <i class="bi bi-chevron-left"></i> Previous
+                                        </a>
+                                    </li>
+
+                                    @{
+                                        int startPage = Math.Max(1, ViewBag.CurrentPage - 2);
+                                        int endPage = Math.Min(ViewBag.TotalPages, ViewBag.CurrentPage + 2);
+                                    }
+
+                                    @if (startPage > 1)
+                                    {
+                                        <li class="page-item">
+                                            <a class="page-link" href="@Url.Action("Index", new {
+                                                page = 1,
+                                                pageSize = ViewBag.PageSize,
+                                                searchTerm = ViewBag.SearchTerm,
+                                                orderStatus = ViewBag.OrderStatus,
+                                                paymentStatus = ViewBag.PaymentStatus,
+                                                paymentMethod = ViewBag.PaymentMethod,
+                                                dateFrom = ViewBag.DateFrom?.ToString("yyyy-MM-dd"),
+                                                dateTo = ViewBag.DateTo?.ToString("yyyy-MM-dd"),
+                                                sortBy = ViewBag.SortBy,
+                                                sortOrder = ViewBag.SortOrder
+                                            })">1</a>
+                                        </li>
+                                        if (startPage > 2)
+                                        {
+                                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                                        }
+                                    }
+
+                                    @for (int i = startPage; i <= endPage; i++)
+                                    {
+                                        <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                                            <a class="page-link" href="@Url.Action("Index", new {
+                                                page = i,
+                                                pageSize = ViewBag.PageSize,
+                                                searchTerm = ViewBag.SearchTerm,
+                                                orderStatus = ViewBag.OrderStatus,
+                                                paymentStatus = ViewBag.PaymentStatus,
+                                                paymentMethod = ViewBag.PaymentMethod,
+                                                dateFrom = ViewBag.DateFrom?.ToString("yyyy-MM-dd"),
+                                                dateTo = ViewBag.DateTo?.ToString("yyyy-MM-dd"),
+                                                sortBy = ViewBag.SortBy,
+                                                sortOrder = ViewBag.SortOrder
+                                            })">@i</a>
+                                        </li>
+                                    }
+
+                                    @if (endPage < ViewBag.TotalPages)
+                                    {
+                                        if (endPage < ViewBag.TotalPages - 1)
+                                        {
+                                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                                        }
+                                        <li class="page-item">
+                                            <a class="page-link" href="@Url.Action("Index", new {
+                                                page = ViewBag.TotalPages,
+                                                pageSize = ViewBag.PageSize,
+                                                searchTerm = ViewBag.SearchTerm,
+                                                orderStatus = ViewBag.OrderStatus,
+                                                paymentStatus = ViewBag.PaymentStatus,
+                                                paymentMethod = ViewBag.PaymentMethod,
+                                                dateFrom = ViewBag.DateFrom?.ToString("yyyy-MM-dd"),
+                                                dateTo = ViewBag.DateTo?.ToString("yyyy-MM-dd"),
+                                                sortBy = ViewBag.SortBy,
+                                                sortOrder = ViewBag.SortOrder
+                                            })">@ViewBag.TotalPages</a>
+                                        </li>
+                                    }
+
+                                    <!-- Next Button -->
+                                    <li class="page-item @(ViewBag.CurrentPage >= ViewBag.TotalPages ? "disabled" : "")">
+                                        <a class="page-link" href="@Url.Action("Index", new {
+                                            page = ViewBag.CurrentPage + 1,
+                                            pageSize = ViewBag.PageSize,
+                                            searchTerm = ViewBag.SearchTerm,
+                                            orderStatus = ViewBag.OrderStatus,
+                                            paymentStatus = ViewBag.PaymentStatus,
+                                            paymentMethod = ViewBag.PaymentMethod,
+                                            dateFrom = ViewBag.DateFrom?.ToString("yyyy-MM-dd"),
+                                            dateTo = ViewBag.DateTo?.ToString("yyyy-MM-dd"),
+                                            sortBy = ViewBag.SortBy,
+                                            sortOrder = ViewBag.SortOrder
+                                        })">
+                                            Next <i class="bi bi-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
+                    <h5 class="text-muted mt-3">No orders found</h5>
+                    <p class="text-muted">Try adjusting your search or filter criteria</p>
+                    <a href="@Url.Action("Index", "Orders")" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-clockwise"></i> Reset Filters
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Custom Badge Styles */
+    .badge {
+        padding: 0.5rem 0.75rem;
+        font-weight: 500;
+        font-size: 0.75rem;
+    }
+
+    /* Table Hover Effect */
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 123, 255, 0.05);
+        cursor: pointer;
+    }
+
+    /* Summary Cards */
+    .card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+
+    /* Pagination */
+    .pagination .page-link {
+        color: #0d6efd;
+        border-radius: 0.25rem;
+        margin: 0 2px;
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+</style>

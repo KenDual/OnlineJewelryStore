@@ -1,0 +1,461 @@
+﻿@model OnlineJewelryStore.Models.Order
+
+@{
+    ViewBag.Title = "Edit Order Status #" + Model.OrderID;
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+    var payment = Model.Payments.FirstOrDefault();
+}
+
+<div class="container-fluid">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })">
+                    <i class="bi bi-house-door"></i> Dashboard
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="@Url.Action("Index", "Orders")">
+                    <i class="bi bi-bag-check"></i> Orders
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="@Url.Action("Details", "Orders", new { id = Model.OrderID })">
+                    Order #@Model.OrderID
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                Edit Status
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">
+                <i class="bi bi-pencil-square text-primary"></i> Edit Order Status
+            </h2>
+            <p class="text-muted mb-0">Order #@Model.OrderID</p>
+        </div>
+        <a href="@Url.Action("Details", "Orders", new { id = Model.OrderID })" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Details
+        </a>
+    </div>
+
+    <!-- Error Messages -->
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row g-4">
+        <!-- LEFT: Edit Form -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0">
+                        <i class="bi bi-gear"></i> Update Order Status
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @using (Html.BeginForm("Edit", "Orders", FormMethod.Post, new { @class = "needs-validation", novalidate = "novalidate" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.OrderID)
+
+                        <!-- Current Status Info -->
+                        <div class="alert alert-info mb-4">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-info-circle fs-4 me-3"></i>
+                                <div>
+                                    <strong>Current Status:</strong>
+                                    @switch (Model.Status)
+                                    {
+                                        case "Pending":
+                                            <span class="badge bg-warning text-dark ms-2">
+                                                <i class="bi bi-clock"></i> Pending
+                                            </span>
+                                            break;
+                                        case "Processing":
+                                            <span class="badge bg-info ms-2">
+                                                <i class="bi bi-gear"></i> Processing
+                                            </span>
+                                            break;
+                                        case "Shipped":
+                                            <span class="badge bg-primary ms-2">
+                                                <i class="bi bi-truck"></i> Shipped
+                                            </span>
+                                            break;
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status Selection -->
+                        <div class="mb-4">
+                            <label for="status" class="form-label fw-bold">
+                                <i class="bi bi-bookmark-check text-primary"></i> New Status *
+                            </label>
+                            <select name="status" id="status" class="form-select form-select-lg" required>
+                                @foreach (var s in ViewBag.AvailableStatuses)
+                                {
+                                    <option value="@s" selected="@(s == Model.Status)">@s</option>
+                                }
+                            </select>
+                            <div class="form-text">
+                                Select the new status for this order
+                            </div>
+                        </div>
+
+                        <!-- Status Transition Rules Info -->
+                        <div class="alert alert-light border mb-4">
+                            <h6 class="mb-2">
+                                <i class="bi bi-diagram-3"></i> Status Transition Rules:
+                            </h6>
+                            <ul class="mb-0 small">
+                                <li><strong>Pending</strong> → Processing or Cancelled</li>
+                                <li><strong>Processing</strong> → Shipped or Cancelled</li>
+                                <li><strong>Shipped</strong> → Delivered only (cannot cancel)</li>
+                                <li><strong>Delivered/Cancelled</strong> → Cannot be changed</li>
+                            </ul>
+                        </div>
+
+                        <!-- Conditional Fields -->
+
+                        <!-- Tracking Number (for Shipped) -->
+                        <div id="trackingNumberField" class="mb-4" style="display: none;">
+                            <label for="trackingNumber" class="form-label fw-bold">
+                                <i class="bi bi-truck text-primary"></i> Tracking Number *
+                            </label>
+                            <input type="text"
+                                   name="trackingNumber"
+                                   id="trackingNumber"
+                                   class="form-control form-control-lg"
+                                   placeholder="Enter tracking number (e.g., VN1234567890)"
+                                   maxlength="100" />
+                            <div class="form-text">
+                                Required when status is <strong>Shipped</strong>. Provide tracking number for customer.
+                            </div>
+                            <div class="invalid-feedback">
+                                Tracking number is required for Shipped status.
+                            </div>
+                        </div>
+
+                        <!-- Delivery Date (for Delivered) -->
+                        <div id="deliveryDateField" class="mb-4" style="display: none;">
+                            <label for="deliveryDate" class="form-label fw-bold">
+                                <i class="bi bi-calendar-check text-success"></i> Delivery Date
+                            </label>
+                            <input type="datetime-local"
+                                   name="deliveryDate"
+                                   id="deliveryDate"
+                                   class="form-control form-control-lg"
+                                   value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+                            <div class="form-text">
+                                Date and time when order was delivered. Defaults to current time.
+                            </div>
+                        </div>
+
+                        <!-- Cancellation Reason (for Cancelled) -->
+                        <div id="cancellationReasonField" class="mb-4" style="display: none;">
+                            <label for="cancellationReason" class="form-label fw-bold">
+                                <i class="bi bi-chat-left-text text-danger"></i> Cancellation Reason *
+                            </label>
+                            <textarea name="cancellationReason"
+                                      id="cancellationReason"
+                                      class="form-control"
+                                      rows="4"
+                                      placeholder="Enter reason for cancellation..."
+                                      maxlength="500"></textarea>
+                            <div class="form-text">
+                                Required when status is <strong>Cancelled</strong>. Explain why this order is cancelled.
+                            </div>
+                            <div id="charCount" class="form-text text-end">
+                                0 / 500 characters
+                            </div>
+                            <div class="invalid-feedback">
+                                Cancellation reason is required and must be at least 10 characters.
+                            </div>
+                        </div>
+
+                        <!-- Warning for Cancelled Status -->
+                        <div id="cancelWarning" class="alert alert-danger mb-4" style="display: none;">
+                            <h6 class="alert-heading">
+                                <i class="bi bi-exclamation-triangle-fill"></i> Warning: Cancelling Order
+                            </h6>
+                            <p class="mb-2">When you cancel this order, the following will happen:</p>
+                            <ul class="mb-0">
+                                <li><strong>Stock will be restored</strong> for all items in this order</li>
+                                <li><strong>Payment will be refunded</strong> (if already captured)</li>
+                                <li>Customer will be notified (optional)</li>
+                                <li>This action affects order analytics</li>
+                            </ul>
+                        </div>
+
+                        <!-- Info for Delivered Status -->
+                        <div id="deliverInfo" class="alert alert-success mb-4" style="display: none;">
+                            <h6 class="alert-heading">
+                                <i class="bi bi-check-circle-fill"></i> Marking as Delivered
+                            </h6>
+                            <p class="mb-0">When you mark this order as delivered:</p>
+                            <ul class="mb-0">
+                                <li>Payment status will be set to <strong>Captured</strong> (if not already)</li>
+                                <li>Customer can now <strong>review products</strong> in this order</li>
+                                <li>Delivery date will be recorded</li>
+                                <li>This order cannot be modified after delivery</li>
+                            </ul>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <hr class="my-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="@Url.Action("Details", "Orders", new { id = Model.OrderID })"
+                               class="btn btn-outline-secondary btn-lg">
+                                <i class="bi bi-x-lg"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg px-5">
+                                <i class="bi bi-check-lg"></i> Update Status
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Order Summary -->
+        <div class="col-lg-4">
+            <!-- Order Info Card -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">
+                        <i class="bi bi-receipt"></i> Order Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-1">Order ID</small>
+                        <strong class="fs-5">#@Model.OrderID</strong>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-1">Order Date</small>
+                        <span>@Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</span>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-1">Grand Total</small>
+                        <strong class="text-success fs-5">@Model.GrandTotal.ToString("N0") đ</strong>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block mb-1">Items Count</small>
+                        <span class="badge bg-secondary">@Model.OrderItems.Count item(s)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Info -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">
+                        <i class="bi bi-person"></i> Customer
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center"
+                             style="width: 40px; height: 40px;">
+                            <span class="text-primary fw-bold">
+                                @Model.User.FirstName.Substring(0, 1)@Model.User.LastName.Substring(0, 1)
+                            </span>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="mb-0">@Model.User.FirstName @Model.User.LastName</h6>
+                            <small class="text-muted">@Model.User.Email</small>
+                        </div>
+                    </div>
+                    <small class="text-muted">
+                        <i class="bi bi-telephone"></i> @Model.User.Phone
+                    </small>
+                </div>
+            </div>
+
+            <!-- Payment Info -->
+            @if (payment != null)
+            {
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0">
+                            <i class="bi bi-credit-card"></i> Payment
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Method:</span>
+                            <strong>@payment.Method</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Status:</span>
+                            @switch (payment.Status)
+                            {
+                                case "Pending":
+                                    <span class="badge bg-secondary">Pending</span>
+                                    break;
+                                case "Captured":
+                                    <span class="badge bg-success">Captured</span>
+                                    break;
+                                case "Refunded":
+                                    <span class="badge bg-warning text-dark">Refunded</span>
+                                    break;
+                            }
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Amount:</span>
+                            <strong>@payment.Amount.ToString("N0") đ</strong>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    // Show/Hide conditional fields based on selected status
+    document.addEventListener('DOMContentLoaded', function() {
+        const statusSelect = document.getElementById('status');
+        const trackingField = document.getElementById('trackingNumberField');
+        const trackingInput = document.getElementById('trackingNumber');
+        const deliveryField = document.getElementById('deliveryDateField');
+        const cancellationField = document.getElementById('cancellationReasonField');
+        const cancellationInput = document.getElementById('cancellationReason');
+        const cancelWarning = document.getElementById('cancelWarning');
+        const deliverInfo = document.getElementById('deliverInfo');
+        const charCount = document.getElementById('charCount');
+
+        function updateFieldsVisibility() {
+            const selectedStatus = statusSelect.value;
+
+            // Hide all conditional fields first
+            trackingField.style.display = 'none';
+            deliveryField.style.display = 'none';
+            cancellationField.style.display = 'none';
+            cancelWarning.style.display = 'none';
+            deliverInfo.style.display = 'none';
+
+            // Remove required attribute from all
+            trackingInput.removeAttribute('required');
+            cancellationInput.removeAttribute('required');
+
+            // Show relevant fields based on status
+            if (selectedStatus === 'Shipped') {
+                trackingField.style.display = 'block';
+                trackingInput.setAttribute('required', 'required');
+            } else if (selectedStatus === 'Delivered') {
+                deliveryField.style.display = 'block';
+                deliverInfo.style.display = 'block';
+            } else if (selectedStatus === 'Cancelled') {
+                cancellationField.style.display = 'block';
+                cancellationInput.setAttribute('required', 'required');
+                cancelWarning.style.display = 'block';
+            }
+        }
+
+        // Initial call
+        updateFieldsVisibility();
+
+        // Listen to changes
+        statusSelect.addEventListener('change', updateFieldsVisibility);
+
+        // Character counter for cancellation reason
+        cancellationInput.addEventListener('input', function() {
+            const length = this.value.length;
+            charCount.textContent = length + ' / 500 characters';
+
+            if (length > 0 && length < 10) {
+                charCount.classList.add('text-danger');
+                charCount.classList.remove('text-muted');
+            } else {
+                charCount.classList.remove('text-danger');
+                charCount.classList.add('text-muted');
+            }
+        });
+
+        // Form validation
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(event) {
+            const selectedStatus = statusSelect.value;
+            let isValid = true;
+
+            // Validate Tracking Number for Shipped
+            if (selectedStatus === 'Shipped') {
+                if (!trackingInput.value.trim()) {
+                    trackingInput.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    trackingInput.classList.remove('is-invalid');
+                }
+            }
+
+            // Validate Cancellation Reason for Cancelled
+            if (selectedStatus === 'Cancelled') {
+                if (!cancellationInput.value.trim() || cancellationInput.value.trim().length < 10) {
+                    cancellationInput.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    cancellationInput.classList.remove('is-invalid');
+                }
+            }
+
+            if (!isValid) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        });
+    });
+</script>
+
+<style>
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+
+    .form-control-lg,
+    .form-select-lg {
+        font-size: 1.1rem;
+        padding: 0.75rem 1rem;
+    }
+    .alert {
+        border-radius: 0.5rem;
+    }
+
+    .alert-heading {
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
+    }
+    .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+    .is-invalid {
+        border-color: #dc3545;
+    }
+
+    .invalid-feedback {
+        display: block;
+        margin-top: 0.25rem;
+        font-size: 0.875rem;
+        color: #dc3545;
+    }
+    .card {
+        transition: transform 0.2s;
+    }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+</style>
