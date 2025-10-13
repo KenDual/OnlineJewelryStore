@@ -2,7 +2,7 @@
 
 @{
     ViewBag.Title = "Review Details";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -131,7 +131,7 @@
                         </a>
                         <a href="@Url.Action("ProductReviews", new { id = Model.ProductID })"
                            class="btn btn-sm btn-outline-secondary">
-                            <i class="bi bi-chat-left-text me-1"></i>All Reviews (@(((dynamic)ViewBag.ProductStats).TotalReviews))
+                            <i class="bi bi-chat-left-text me-1"></i>All Reviews (@ViewBag.ProductTotalReviews)
                         </a>
                     </div>
                 </div>
@@ -143,16 +143,16 @@
                         <div class="col-6 col-md-3">
                             <div class="text-center">
                                 <div class="text-muted small mb-1">Total Reviews</div>
-                                <div class="fs-5 fw-bold text-primary">@(((dynamic)ViewBag.ProductStats).TotalReviews)</div>
+                                <div class="fs-5 fw-bold text-primary">@ViewBag.ProductTotalReviews</div>   
                             </div>
                         </div>
                         <div class="col-6 col-md-3">
                             <div class="text-center">
                                 <div class="text-muted small mb-1">Average Rating</div>
                                 <div class="fs-5 fw-bold text-warning">
-                                    @if (((dynamic)ViewBag.ProductStats).TotalReviews > 0)
+                                    @if (ViewBag.ProductTotalReviews > 0)
                                     {
-                                        <text>@string.Format("{0:F1}", ((dynamic)ViewBag.ProductStats).AverageRating)</text>
+                                        <text>@string.Format("{0:F1}", ViewBag.ProductAverageRating)</text>
                                         <i class="bi bi-star-fill"></i>
                                     }
                                     else
@@ -163,14 +163,14 @@
                             </div>
                         </div>
                         <div class="col-12 col-md-6">
-                            @if (((dynamic)ViewBag.ProductStats).TotalReviews > 0)
+                            @if (ViewBag.ProductTotalReviews > 0)
                             {
                                 <div class="d-flex gap-2 justify-content-center flex-wrap">
-                                    <span class="badge bg-success px-2">5★ @(((dynamic)ViewBag.ProductStats).Rating5Count)</span>
-                                    <span class="badge bg-info px-2">4★ @(((dynamic)ViewBag.ProductStats).Rating4Count)</span>
-                                    <span class="badge bg-primary px-2">3★ @(((dynamic)ViewBag.ProductStats).Rating3Count)</span>
-                                    <span class="badge bg-warning px-2">2★ @(((dynamic)ViewBag.ProductStats).Rating2Count)</span>
-                                    <span class="badge bg-danger px-2">1★ @(((dynamic)ViewBag.ProductStats).Rating1Count)</span>
+                                    <span class="badge bg-success px-2">5★ @ViewBag.ProductRating5Count</span>
+                                    <span class="badge bg-info px-2">4★ @ViewBag.ProductRating4Count</span>
+                                    <span class="badge bg-primary px-2">3★ @ViewBag.ProductRating3Count</span>
+                                    <span class="badge bg-warning px-2">2★ @ViewBag.ProductRating2Count</span>
+                                    <span class="badge bg-danger px-2">1★ @ViewBag.ProductRating1Count</span>
                                 </div>
                             }
                         </div>
@@ -196,7 +196,7 @@
                         </div>
                     </div>
 
-                    if (ViewBag.UserOrders != null && ((List<dynamic>)ViewBag.UserOrders).Any())
+                    if (ViewBag.UserOrders != null && ((IEnumerable<dynamic>)ViewBag.UserOrders).Any())
                     {
                         <h6 class="mb-2">Orders History</h6>
                         <div class="table-responsive">
@@ -210,18 +210,15 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (dynamic order in ViewBag.UserOrders)
+                                    @foreach (var order in ViewBag.UserOrders)
                                     {
-                                        var orderDate = (DateTime)order.OrderDate;
-                                        var deliveredAt = order.DeliveredAt != null ? (DateTime?)order.DeliveredAt : null;
-
                                         <tr>
                                             <td>
                                                 <a href="@Url.Action("Details", "Orders", new { id = order.OrderID })">
                                                     #@order.OrderID
                                                 </a>
                                             </td>
-                                            <td>@orderDate.ToString("MMM dd, yyyy")</td>
+                                            <td>@order.OrderDate.ToString("MMM dd, yyyy")</td>
                                             <td>
                                                 @{
                                                     var statusBadge = order.Status == "Delivered" ? "success" :
@@ -232,14 +229,11 @@
                                                 <span class="badge bg-@statusBadge">@order.Status</span>
                                             </td>
                                             <td>
-                                                @if (deliveredAt.HasValue)
-                                                {
-                                                    @deliveredAt.Value.ToString("MMM dd, yyyy")
-                                                }
-                                                else
-                                                {
-                                                    <span class="text-muted">-</span>
-                                                }
+                                                @(
+                                                    order.Status == "Delivered"
+                                                        ? order.DeliveredAt.ToString("MMM dd, yyyy")
+                                                        : Html.Raw("<span class=\"text-muted\">-</span>")
+                                                )
                                             </td>
                                         </tr>
                                     }
@@ -313,7 +307,7 @@
                 </a>
                 <a href="@Url.Action("CustomerReviews", new { id = Model.UserID })"
                    class="btn btn-sm btn-outline-secondary w-100">
-                    <i class="bi bi-chat-left-text me-1"></i>All Reviews (@(((dynamic)ViewBag.UserStats).TotalReviews))
+                    <i class="bi bi-chat-left-text me-1"></i>All Reviews (@ViewBag.UserTotalReviews)
                 </a>
             </div>
         </div>
@@ -328,7 +322,7 @@
                         <i class="bi bi-chat-left-text text-primary me-2"></i>
                         <span class="text-muted small">Total Reviews</span>
                     </div>
-                    <strong>@(((dynamic)ViewBag.UserStats).TotalReviews)</strong>
+                    <strong>@ViewBag.UserTotalReviews</strong>
                 </div>
 
                 <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
@@ -337,9 +331,9 @@
                         <span class="text-muted small">Average Rating</span>
                     </div>
                     <strong>
-                        @if (((dynamic)ViewBag.UserStats).TotalReviews > 0)
+                        @if (ViewBag.UserTotalReviews > 0)
                         {
-                            <text>@string.Format("{0:F1}", ((dynamic)ViewBag.UserStats).AverageRating)</text>
+                            <text>@string.Format("{0:F1}", ViewBag.UserAverageRating)</text>
                             <i class="bi bi-star-fill text-warning small"></i>
                         }
                         else
@@ -354,7 +348,7 @@
                         <i class="bi bi-box-seam text-info me-2"></i>
                         <span class="text-muted small">Total Orders</span>
                     </div>
-                    <strong>@(((dynamic)ViewBag.UserStats).TotalOrders)</strong>
+                    <strong>@ViewBag.UserTotalOrders</strong>
                 </div>
 
                 <div class="d-flex justify-content-between align-items-center">
@@ -362,7 +356,7 @@
                         <i class="bi bi-check-circle-fill text-success me-2"></i>
                         <span class="text-muted small">Delivered Orders</span>
                     </div>
-                    <strong>@(((dynamic)ViewBag.UserStats).DeliveredOrders)</strong>
+                    <strong>@ViewBag.UserDeliveredOrders</strong>
                 </div>
             </div>
         </div>

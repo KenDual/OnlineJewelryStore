@@ -304,6 +304,9 @@
     <Content Include="Areas\Admin\Views\Coupons\Details.cshtml" />
     <Content Include="Areas\Admin\Views\Reviews\Index.cshtml" />
     <Content Include="Areas\Admin\Views\Reviews\Details.cshtml" />
+    <Content Include="Areas\Admin\Views\Reviews\ProductReviews.cshtml" />
+    <Content Include="Areas\Admin\Views\Reviews\CustomerReviews.cshtml" />
+    <Content Include="Areas\Admin\Views\Reviews\Delete.cshtml" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />

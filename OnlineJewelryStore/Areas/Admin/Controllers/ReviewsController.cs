@@ -170,47 +170,30 @@ namespace OnlineJewelryStore.Areas.Admin.Controllers
             // Get all orders of this user for this product
             var userOrders = db.Orders
                 .Where(o => o.UserID == review.UserID)
-                .Join(db.OrderItems, o => o.OrderID, oi => oi.OrderID, (o, oi) => new { Order = o, OrderItem = oi })
-                .Join(db.ProductVariants, x => x.OrderItem.VariantID, pv => pv.VariantID, (x, pv) => new { x.Order, x.OrderItem, pv })
-                .Where(x => x.pv.ProductID == review.ProductID)
-                .Select(x => new
-                {
-                    x.Order.OrderID,
-                    x.Order.OrderDate,
-                    x.Order.Status,
-                    x.Order.DeliveredAt
-                })
-                .OrderByDescending(x => x.OrderDate)
+                .Where(o => o.OrderItems.Any(oi => oi.ProductVariant.ProductID == review.ProductID))
+                .OrderByDescending(o => o.OrderDate)
                 .ToList();
 
             ViewBag.UserOrders = userOrders;
 
-            // Get user's statistics
-            var userStats = new
-            {
-                TotalReviews = db.Reviews.Count(r => r.UserID == review.UserID),
-                TotalOrders = db.Orders.Count(o => o.UserID == review.UserID),
-                DeliveredOrders = db.Orders.Count(o => o.UserID == review.UserID && o.Status == "Delivered"),
-                AverageRating = db.Reviews.Where(r => r.UserID == review.UserID).Any()
-                    ? db.Reviews.Where(r => r.UserID == review.UserID).Average(r => (double)r.Rating)
-                    : 0
-            };
-            ViewBag.UserStats = userStats;
+            // Get user's statistics - FIXED: Pass individual properties instead of anonymous object
+            ViewBag.UserTotalReviews = db.Reviews.Count(r => r.UserID == review.UserID);
+            ViewBag.UserTotalOrders = db.Orders.Count(o => o.UserID == review.UserID);
+            ViewBag.UserDeliveredOrders = db.Orders.Count(o => o.UserID == review.UserID && o.Status == "Delivered");
+            ViewBag.UserAverageRating = db.Reviews.Where(r => r.UserID == review.UserID).Any()
+                ? db.Reviews.Where(r => r.UserID == review.UserID).Average(r => (double)r.Rating)
+                : 0;
 
-            // Get product's review statistics
-            var productStats = new
-            {
-                TotalReviews = db.Reviews.Count(r => r.ProductID == review.ProductID),
-                AverageRating = db.Reviews.Where(r => r.ProductID == review.ProductID).Any()
-                    ? db.Reviews.Where(r => r.ProductID == review.ProductID).Average(r => (double)r.Rating)
-                    : 0,
-                Rating5Count = db.Reviews.Count(r => r.ProductID == review.ProductID && r.Rating == 5),
-                Rating4Count = db.Reviews.Count(r => r.ProductID == review.ProductID && r.Rating == 4),
-                Rating3Count = db.Reviews.Count(r => r.ProductID == review.ProductID && r.Rating == 3),
-                Rating2Count = db.Reviews.Count(r => r.ProductID == review.ProductID && r.Rating == 2),
-                Rating1Count = db.Reviews.Count(r => r.ProductID == review.ProductID && r.Rating == 1)
-            };
-            ViewBag.ProductStats = productStats;
+            // Get product's review statistics - FIXED: Pass individual properties instead of anonymous object
+            ViewBag.ProductTotalReviews = db.Reviews.Count(r => r.ProductID == review.ProductID);
+            ViewBag.ProductAverageRating = db.Reviews.Where(r => r.ProductID == review.ProductID).Any()
+                ? db.Reviews.Where(r => r.ProductID == review.ProductID).Average(r => (double)r.Rating)
+                : 0;
+            ViewBag.ProductRating5Count = db.Reviews.Count(r => r.ProductID == review.ProductID && r.Rating == 5);
+            ViewBag.ProductRating4Count = db.Reviews.Count(r => r.ProductID == review.ProductID && r.Rating == 4);
+            ViewBag.ProductRating3Count = db.Reviews.Count(r => r.ProductID == review.ProductID && r.Rating == 3);
+            ViewBag.ProductRating2Count = db.Reviews.Count(r => r.ProductID == review.ProductID && r.Rating == 2);
+            ViewBag.ProductRating1Count = db.Reviews.Count(r => r.ProductID == review.ProductID && r.Rating == 1);
 
             return View(review);
         }
@@ -330,6 +313,7 @@ namespace OnlineJewelryStore.Areas.Admin.Controllers
             var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
 
             ViewBag.CurrentPage = page;
+            ViewBag.PageSize = pageSize;
             ViewBag.TotalPages = totalPages;
             ViewBag.TotalItems = totalItems;
 
@@ -406,6 +390,7 @@ namespace OnlineJewelryStore.Areas.Admin.Controllers
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = totalPages;
             ViewBag.TotalItems = totalItems;
+            ViewBag.PageSize = pageSize;
 
             var pagedReviews = reviews
                 .Skip((page - 1) * pageSize)

@@ -1,0 +1,232 @@
+﻿@model OnlineJewelryStore.Models.Review
+
+@{
+    ViewBag.Title = "Delete Review";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">
+            <i class="bi bi-trash text-danger me-2"></i>Delete Review
+        </h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">@Html.ActionLink("Dashboard", "Index", "Dashboard")</li>
+                <li class="breadcrumb-item">@Html.ActionLink("Reviews", "Index")</li>
+                <li class="breadcrumb-item active">Delete</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+@* Warning Alert *@
+<div class="alert alert-danger border-0 shadow-sm d-flex align-items-start mb-4" role="alert">
+    <i class="bi bi-exclamation-triangle-fill fs-4 me-3 mt-1"></i>
+    <div>
+        <h5 class="alert-heading mb-2">Are you sure you want to delete this review?</h5>
+        <p class="mb-0">
+            This action cannot be undone. The review will be permanently removed from the system.
+        </p>
+    </div>
+</div>
+
+<div class="row g-4">
+    @* Left Column - Review Information *@
+    <div class="col-lg-8">
+        @* Review Card *@
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0">
+                    <i class="bi bi-chat-left-text text-primary me-2"></i>Review Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <small class="text-muted d-block mb-1">Review ID</small>
+                        <strong>#@Model.ReviewID</strong>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block mb-1">Rating</small>
+                        @{
+                            var ratingClass = Model.Rating >= 4 ? "success" :
+                                            Model.Rating == 3 ? "warning" : "danger";
+                        }
+                        <span class="badge bg-@ratingClass bg-opacity-10 text-@ratingClass px-2 py-1">
+                            @Model.Rating <i class="bi bi-star-fill"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <small class="text-muted d-block mb-1">Created Date</small>
+                        <strong>@Model.CreatedAt.ToString("MMMM dd, yyyy")</strong>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block mb-1">Created Time</small>
+                        <strong>@Model.CreatedAt.ToString("hh:mm tt")</strong>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(Model.Title))
+                {
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-1">Review Title</small>
+                        <h6 class="mb-0">@Model.Title</h6>
+                    </div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(Model.Body))
+                {
+                    <div>
+                        <small class="text-muted d-block mb-1">Review Content</small>
+                        <div class="bg-light rounded p-3">
+                            <p class="mb-0" style="white-space: pre-wrap;">@Model.Body</p>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-muted fst-italic small">No review content provided.</div>
+                }
+            </div>
+        </div>
+
+        @* Product Information *@
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0">
+                    <i class="bi bi-box-seam text-primary me-2"></i>Product Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        @if (Model.Product.ProductMedias.Any(pm => pm.IsMain))
+                        {
+                            var mainImage = Model.Product.ProductMedias.First(pm => pm.IsMain);
+                            <img src="@Url.Content(mainImage.URL)"
+                                 alt="@Model.Product.ProductName"
+                                 class="rounded shadow-sm"
+                                 style="width: 80px; height: 80px; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <div class="bg-light rounded d-flex align-items-center justify-content-center"
+                                 style="width: 80px; height: 80px;">
+                                <i class="bi bi-image text-muted fs-2"></i>
+                            </div>
+                        }
+                    </div>
+                    <div class="col">
+                        <h6 class="mb-2">@Model.Product.ProductName</h6>
+                        <div class="mb-2">
+                            <span class="badge bg-primary bg-opacity-10 text-primary">
+                                @Model.Product.Category.CategoryName
+                            </span>
+                            <span class="badge bg-@(Model.Product.IsActive ? "success" : "secondary") bg-opacity-10 text-@(Model.Product.IsActive ? "success" : "secondary")">
+                                @(Model.Product.IsActive ? "Active" : "Inactive")
+                            </span>
+                        </div>
+                        <div class="small text-muted">
+                            <strong>Product ID:</strong> #@Model.Product.ProductID |
+                            <strong>Base Price:</strong> @Model.Product.BasePrice.ToString("N0") VND
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Right Column - Customer Information *@
+    <div class="col-lg-4">
+        @* Customer Card *@
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0">
+                    <i class="bi bi-person text-primary me-2"></i>Customer Information
+                </h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                     style="width: 80px; height: 80px;">
+                    <span class="text-primary fw-bold fs-2">
+                        @Model.User.FirstName.Substring(0, 1)@Model.User.LastName.Substring(0, 1)
+                    </span>
+                </div>
+                <h5 class="mb-1">@Model.User.FirstName @Model.User.LastName</h5>
+                <p class="text-muted small mb-1">@Model.User.Email</p>
+                <p class="text-muted small mb-3">@Model.User.Phone</p>
+
+                <div class="d-flex justify-content-center gap-2 mb-3">
+                    <span class="badge bg-@(Model.User.Role == "Administrator" ? "danger" : "primary") bg-opacity-10 text-@(Model.User.Role == "Administrator" ? "danger" : "primary")">
+                        @Model.User.Role
+                    </span>
+                </div>
+
+                <div class="bg-light rounded p-2 mb-3">
+                    <div class="row g-2">
+                        <div class="col-6 text-start">
+                            <small class="text-muted d-block">Registered</small>
+                            <strong class="small">@Model.User.RegistrationDate.ToString("MMM dd, yyyy")</strong>
+                        </div>
+                        <div class="col-6 text-start">
+                            <small class="text-muted d-block">Last Login</small>
+                            <strong class="small">
+                                @if (Model.User.LastLogin.HasValue)
+                                {
+                                    @Model.User.LastLogin.Value.ToString("MMM dd, yyyy")
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Never</span>
+                                }
+                            </strong>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="@Url.Action("Details", "Users", new { id = Model.UserID })"
+                   class="btn btn-sm btn-outline-primary w-100">
+                    <i class="bi bi-person me-1"></i>View Customer Profile
+                </a>
+            </div>
+        </div>
+
+        @* Action Buttons *@
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h6 class="mb-3">Confirm Action</h6>
+                <p class="small text-muted mb-3">
+                    Please confirm that you want to permanently delete this review. This action cannot be undone.
+                </p>
+
+                @using (Html.BeginForm("Delete", "Reviews", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.Hidden("id", Model.ReviewID)
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash me-1"></i>Yes, Delete Review
+                        </button>
+                        <a href="@Url.Action("Details", new { id = Model.ReviewID })" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-lg me-1"></i>No, Keep Review
+                        </a>
+                        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Back to Reviews List
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .alert-danger {
+        background-color: #fee;
+    }
+</style>
