@@ -1,9 +1,982 @@
-﻿@model IEnumerable<OnlineJewelryStore.Models.User>
+﻿@model OnlineJewelryStore.Areas.Admin.Dashboard.DashboardViewModel
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Dashboard";
     Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
 }
 
-<h2>Index</h2>
+@using Newtonsoft.Json
 
+@* Inline CSS for Dashboard *@
+<style>
+    .stats-card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+        height: 100%;
+    }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .stats-card .card-body {
+            padding: 1.5rem;
+        }
+
+    .stats-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+    }
+
+    .stats-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0.5rem 0;
+        color: #2c3e50;
+    }
+
+    .stats-label {
+        color: #6c757d;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .stats-change {
+        font-size: 0.875rem;
+        font-weight: 600;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        display: inline-block;
+    }
+
+        .stats-change.positive {
+            color: #28a745;
+            background-color: #d4edda;
+        }
+
+        .stats-change.negative {
+            color: #dc3545;
+            background-color: #f8d7da;
+        }
+
+        .stats-change.neutral {
+            color: #6c757d;
+            background-color: #e9ecef;
+        }
+
+    .chart-card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 1.5rem;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 300px;
+        padding: 1rem;
+    }
+
+    .table-card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 1.5rem;
+    }
+
+        .table-card .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 600;
+            padding: 1rem 1.5rem;
+        }
+
+    .month-badge {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+    .stock-badge {
+        padding: 0.35rem 0.75rem;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+    .stock-critical {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .stock-low {
+        background-color: #ffc107;
+        color: #000;
+    }
+
+    .stock-warning {
+        background-color: #fd7e14;
+        color: white;
+    }
+</style>
+
+@* Breadcrumb *@
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })">
+                <i class="bi bi-house-door"></i> Home
+            </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+    </ol>
+</nav>
+
+@* Page Header *@
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">
+            <i class="bi bi-speedometer2 text-primary"></i> Dashboard
+        </h2>
+        <p class="text-muted mb-0">Welcome back! Here's what's happening with your store.</p>
+    </div>
+    <div>
+        <span class="month-badge">
+            <i class="bi bi-calendar3"></i> @Model.CurrentMonthName
+        </span>
+    </div>
+</div>
+
+@* ========================================
+     ROW 1: MAIN METRICS (4 Cards)
+    ======================================== *@
+<div class="row g-3 mb-4">
+    @* Card 1: This Month Revenue *@
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="stats-label mb-2">This Month Revenue</p>
+                        <h3 class="stats-value">@Model.OverviewStats.ThisMonthRevenue.ToString("N0") ₫</h3>
+                        @{
+                            var revenueChange = Model.OverviewStats.RevenueChangePercent;
+                            var revenueClass = revenueChange > 0 ? "positive" : (revenueChange < 0 ? "negative" : "neutral");
+                            var revenueIcon = revenueChange > 0 ? "bi-arrow-up" : (revenueChange < 0 ? "bi-arrow-down" : "bi-dash");
+                        }
+                        <span class="stats-change @revenueClass">
+                            <i class="bi @revenueIcon"></i> @Math.Abs(revenueChange)%
+                        </span>
+                    </div>
+                    <div class="stats-icon" style="background-color: #e3f2fd; color: #1976d2;">
+                        <i class="bi bi-currency-dollar"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Card 2: This Month Orders *@
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="stats-label mb-2">This Month Orders</p>
+                        <h3 class="stats-value">@Model.OverviewStats.ThisMonthOrders</h3>
+                        @{
+                            var ordersChange = Model.OverviewStats.OrdersChangePercent;
+                            var ordersClass = ordersChange > 0 ? "positive" : (ordersChange < 0 ? "negative" : "neutral");
+                            var ordersIcon = ordersChange > 0 ? "bi-arrow-up" : (ordersChange < 0 ? "bi-arrow-down" : "bi-dash");
+                        }
+                        <span class="stats-change @ordersClass">
+                            <i class="bi @ordersIcon"></i> @Math.Abs(ordersChange)%
+                        </span>
+                    </div>
+                    <div class="stats-icon" style="background-color: #e8f5e9; color: #388e3c;">
+                        <i class="bi bi-bag-check"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Card 3: New Customers *@
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="stats-label mb-2">New Customers</p>
+                        <h3 class="stats-value">@Model.OverviewStats.NewCustomersThisMonth</h3>
+                        @{
+                            var customersChange = Model.OverviewStats.CustomersChangePercent;
+                            var customersClass = customersChange > 0 ? "positive" : (customersChange < 0 ? "negative" : "neutral");
+                            var customersIcon = customersChange > 0 ? "bi-arrow-up" : (customersChange < 0 ? "bi-arrow-down" : "bi-dash");
+                        }
+                        <span class="stats-change @customersClass">
+                            <i class="bi @customersIcon"></i> @Math.Abs(customersChange)%
+                        </span>
+                    </div>
+                    <div class="stats-icon" style="background-color: #e1f5fe; color: #0288d1;">
+                        <i class="bi bi-people"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Card 4: Pending Orders (Clickable) *@
+    <div class="col-12 col-sm-6 col-lg-3">
+        <a href="@Url.Action("Index", "Orders", new { area = "Admin", status = "Pending" })"
+           class="text-decoration-none">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="stats-label mb-2">Pending Orders</p>
+                            <h3 class="stats-value">@Model.OverviewStats.PendingOrdersCount</h3>
+                            <span class="text-muted small">
+                                <i class="bi bi-arrow-right"></i> View Orders
+                            </span>
+                        </div>
+                        <div class="stats-icon" style="background-color: #fff3e0; color: #f57c00;">
+                            <i class="bi bi-hourglass-split"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+@* ========================================
+     ROW 2: SECONDARY METRICS (4 Cards)
+    ======================================== *@
+<div class="row g-3 mb-4">
+    @* Card 5: Low Stock Alerts (Clickable) *@
+    <div class="col-12 col-sm-6 col-lg-3">
+        <a href="#lowStockSection" class="text-decoration-none">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="stats-label mb-2">Low Stock Alerts</p>
+                            <h3 class="stats-value text-danger">@Model.OverviewStats.LowStockCount</h3>
+                            <span class="text-muted small">
+                                <i class="bi bi-arrow-down"></i> View Items
+                            </span>
+                        </div>
+                        <div class="stats-icon" style="background-color: #ffebee; color: #c62828;">
+                            <i class="bi bi-exclamation-triangle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    @* Card 6: Average Order Value *@
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="stats-label mb-2">Average Order Value</p>
+                        <h3 class="stats-value">@Model.OverviewStats.AverageOrderValue.ToString("N0") ₫</h3>
+                        @{
+                            var aovChange = Model.OverviewStats.AOVChangePercent;
+                            var aovClass = aovChange > 0 ? "positive" : (aovChange < 0 ? "negative" : "neutral");
+                            var aovIcon = aovChange > 0 ? "bi-arrow-up" : (aovChange < 0 ? "bi-arrow-down" : "bi-dash");
+                        }
+                        <span class="stats-change @aovClass">
+                            <i class="bi @aovIcon"></i> @Math.Abs(aovChange)%
+                        </span>
+                    </div>
+                    <div class="stats-icon" style="background-color: #f3e5f5; color: #7b1fa2;">
+                        <i class="bi bi-calculator"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Card 7: Total Products *@
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="stats-label mb-2">Active Products</p>
+                        <h3 class="stats-value">@Model.OverviewStats.TotalActiveProducts</h3>
+                        <span class="text-muted small">
+                            @Model.OverviewStats.TotalVariants variants
+                        </span>
+                    </div>
+                    <div class="stats-icon" style="background-color: #e0e0e0; color: #424242;">
+                        <i class="bi bi-gem"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Card 8: Total Customers *@
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="stats-label mb-2">Total Customers</p>
+                        <h3 class="stats-value">@Model.OverviewStats.TotalCustomers</h3>
+                        <span class="text-muted small">
+                            @Model.OverviewStats.ActiveCustomers active (30d)
+                        </span>
+                    </div>
+                    <div class="stats-icon" style="background-color: #e0f2f1; color: #00796b;">
+                        <i class="bi bi-person-check"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* ========================================
+     ROW 3: REVENUE CHART (Full Width)
+    ======================================== *@
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card chart-card">
+            <div class="card-header">
+                <i class="bi bi-graph-up"></i> Revenue Trend (Last 30 Days)
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* ========================================
+     ROW 4: CATEGORY & TOP PRODUCTS (2 Columns)
+    ======================================== *@
+<div class="row g-3 mb-4">
+    @* Category Revenue Pie Chart *@
+    <div class="col-12 col-lg-6">
+        <div class="card chart-card">
+            <div class="card-header">
+                <i class="bi bi-pie-chart"></i> Revenue by Category
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Top Selling Products Bar Chart *@
+    <div class="col-12 col-lg-6">
+        <div class="card chart-card">
+            <div class="card-header">
+                <i class="bi bi-bar-chart"></i> Top 10 Selling Products
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="topProductsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* ========================================
+     ROW 5: ORDER STATUS & PAYMENT METHODS (2 Columns)
+    ======================================== *@
+<div class="row g-3 mb-4">
+    @* Order Status Donut Chart *@
+    <div class="col-12 col-lg-6">
+        <div class="card chart-card">
+            <div class="card-header">
+                <i class="bi bi-circle"></i> Order Status Distribution
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="orderStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Payment Methods Pie Chart *@
+    <div class="col-12 col-lg-6">
+        <div class="card chart-card">
+            <div class="card-header">
+                <i class="bi bi-credit-card"></i> Payment Methods
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="paymentMethodsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* ========================================
+     ROW 6: RECENT ORDERS TABLE
+    ======================================== *@
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card table-card">
+            <div class="card-header">
+                <i class="bi bi-clock-history"></i> Recent Orders (Latest 10)
+            </div>
+            <div class="card-body">
+                @if (Model.RecentOrders != null && Model.RecentOrders.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Items</th>
+                                    <th class="text-end">Total</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in Model.RecentOrders)
+                                {
+                                    <tr>
+                                        <td>
+                                            <strong>#@order.OrderID</strong>
+                                        </td>
+                                        <td>
+                                            <div>@order.CustomerName</div>
+                                            <small class="text-muted">@order.CustomerEmail</small>
+                                        </td>
+                                        <td>
+                                            <small>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</small>
+                                        </td>
+                                        <td>
+                                            @{
+                                                string statusClass;
+                                                switch (order.Status)
+                                                {
+                                                    case "Pending":
+                                                        statusClass = "bg-warning text-dark";
+                                                        break;
+                                                    case "Processing":
+                                                        statusClass = "bg-info text-white";
+                                                        break;
+                                                    case "Shipped":
+                                                        statusClass = "bg-primary text-white";
+                                                        break;
+                                                    case "Delivered":
+                                                        statusClass = "bg-success text-white";
+                                                        break;
+                                                    case "Cancelled":
+                                                        statusClass = "bg-danger text-white";
+                                                        break;
+                                                    default:
+                                                        statusClass = "bg-secondary text-white";
+                                                        break;
+                                                }
+                                            }
+                                            <span class="badge @statusClass">@order.Status</span>
+                                        </td>
+                                        <td>@order.ItemsCount</td>
+                                        <td class="text-end">
+                                            <strong>@order.GrandTotal.ToString("N0") ₫</strong>
+                                        </td>
+                                        <td class="text-center">
+                                            <a href="@Url.Action("Details", "Orders", new { area = "Admin", id = order.OrderID })"
+                                               class="btn btn-sm btn-outline-primary"
+                                               title="View Details">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <i class="bi bi-inbox display-1 text-muted"></i>
+                        <p class="text-muted mt-3">No recent orders found.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@* ========================================
+     ROW 7: LOW STOCK ALERTS TABLE
+    ======================================== *@
+<div class="row mb-4" id="lowStockSection">
+    <div class="col-12">
+        <div class="card table-card">
+            <div class="card-header">
+                <i class="bi bi-exclamation-triangle text-danger"></i> Low Stock Alerts (Stock &lt; 10)
+            </div>
+            <div class="card-body">
+                @if (Model.LowStockProducts != null && Model.LowStockProducts.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Product</th>
+                                    <th>SKU</th>
+                                    <th>Variant</th>
+                                    <th class="text-center">Stock</th>
+                                    <th class="text-end">Price</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.LowStockProducts)
+                                {
+                                    <tr>
+                                        <td>
+                                            <strong>@item.ProductName</strong>
+                                        </td>
+                                        <td>
+                                            <code>@item.SKU</code>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">@item.VariantInfo</small>
+                                        </td>
+                                        <td class="text-center">
+                                            @{
+                                                var stockClass = item.StockQuantity <= 3 ? "stock-critical" :
+                                                                item.StockQuantity <= 5 ? "stock-warning" : "stock-low";
+                                            }
+                                            <span class="stock-badge @stockClass">
+                                                <i class="bi bi-box-seam"></i> @item.StockQuantity
+                                            </span>
+                                        </td>
+                                        <td class="text-end">
+                                            @item.FinalPrice.ToString("N0") ₫
+                                        </td>
+                                        <td class="text-center">
+                                            <a href="@Url.Action("Edit", "ProductVariants", new { area = "Admin", id = item.VariantID })"
+                                               class="btn btn-sm btn-outline-warning"
+                                               title="Update Stock">
+                                                <i class="bi bi-pencil"></i> Update
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <i class="bi bi-check-circle display-1 text-success"></i>
+                        <p class="text-muted mt-3">All products are well stocked!</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+@* JavaScript Section - Will be used in Phase 2B for Chart.js *@
+@section Scripts {
+    <script>
+        // ==========================================
+        // CHART.JS CONFIGURATION & DATA
+        // ==========================================
+
+        // Default Chart.js font
+        Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+        Chart.defaults.font.size = 12;
+
+        // ==========================================
+        // 1. REVENUE CHART (Line Chart - Last 30 Days)
+        // ==========================================
+        const revenueChartData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.RevenueChartData));
+
+        if (revenueChartData && revenueChartData.length > 0) {
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+
+            const revenueChart = new Chart(revenueCtx, {
+                type: 'line',
+                data: {
+                    labels: revenueChartData.map(d => {
+                        const date = new Date(d.Date);
+                        return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit' });
+                    }),
+                    datasets: [{
+                        label: 'Revenue (VND)',
+                        data: revenueChartData.map(d => d.Revenue),
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: '#667eea',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#667eea',
+                        pointHoverBorderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { size: 13 },
+                            callbacks: {
+                                label: function(context) {
+                                    const revenue = context.parsed.y;
+                                    const orderCount = revenueChartData[context.dataIndex].OrderCount;
+                                    return [
+                                        'Revenue: ' + revenue.toLocaleString('vi-VN') + ' ₫',
+                                        'Orders: ' + orderCount
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return (value / 1000000).toFixed(0) + 'M ₫';
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+        } else {
+            document.getElementById('revenueChart').parentElement.innerHTML =
+                '<div class="text-center py-5 text-muted"><i class="bi bi-graph-up display-4"></i><p class="mt-3">No revenue data available</p></div>';
+        }
+
+        // ==========================================
+        // 2. CATEGORY REVENUE CHART (Pie Chart)
+        // ==========================================
+        const categoryData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.CategoryRevenueData));
+
+        if (categoryData && categoryData.length > 0) {
+            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+
+            const categoryColors = [
+                '#667eea', '#764ba2', '#f093fb', '#4facfe',
+                '#43e97b', '#fa709a', '#feca57', '#ee5a6f',
+                '#c471ed', '#12c2e9'
+            ];
+
+            const categoryChart = new Chart(categoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: categoryData.map(d => d.CategoryName),
+                    datasets: [{
+                        data: categoryData.map(d => d.Revenue),
+                        backgroundColor: categoryColors.slice(0, categoryData.length),
+                        borderWidth: 3,
+                        borderColor: '#fff',
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                                font: { size: 11 }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed;
+                                    const percentage = categoryData[context.dataIndex].Percentage;
+                                    return [
+                                        label,
+                                        'Revenue: ' + value.toLocaleString('vi-VN') + ' ₫',
+                                        'Percentage: ' + percentage + '%'
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    cutout: '60%'
+                }
+            });
+        } else {
+            document.getElementById('categoryChart').parentElement.innerHTML =
+                '<div class="text-center py-5 text-muted"><i class="bi bi-pie-chart display-4"></i><p class="mt-3">No category data available</p></div>';
+        }
+
+        // ==========================================
+        // 3. TOP SELLING PRODUCTS (Horizontal Bar Chart)
+        // ==========================================
+        const topProductsData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.TopProductsData));
+
+        if (topProductsData && topProductsData.length > 0) {
+            const topProductsCtx = document.getElementById('topProductsChart').getContext('2d');
+
+            const gradient = topProductsCtx.createLinearGradient(0, 0, 400, 0);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(1, '#764ba2');
+
+            const topProductsChart = new Chart(topProductsCtx, {
+                type: 'bar',
+                data: {
+                    labels: topProductsData.map(d => {
+                        const name = d.ProductName;
+                        return name.length > 25 ? name.substring(0, 25) + '...' : name;
+                    }),
+                    datasets: [{
+                        label: 'Quantity Sold',
+                        data: topProductsData.map(d => d.TotalSold),
+                        backgroundColor: gradient,
+                        borderRadius: 6,
+                        barThickness: 20
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            callbacks: {
+                                title: function(context) {
+                                    return topProductsData[context[0].dataIndex].ProductName;
+                                },
+                                label: function(context) {
+                                    const item = topProductsData[context.dataIndex];
+                                    return [
+                                        'Quantity: ' + item.TotalSold + ' units',
+                                        'Revenue: ' + item.Revenue.toLocaleString('vi-VN') + ' ₫'
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                precision: 0
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            document.getElementById('topProductsChart').parentElement.innerHTML =
+                '<div class="text-center py-5 text-muted"><i class="bi bi-bar-chart display-4"></i><p class="mt-3">No product sales data available</p></div>';
+        }
+
+        // ==========================================
+        // 4. ORDER STATUS DISTRIBUTION (Donut Chart)
+        // ==========================================
+        const orderStatusData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.OrderStatusData));
+
+        if (orderStatusData && orderStatusData.length > 0) {
+            const orderStatusCtx = document.getElementById('orderStatusChart').getContext('2d');
+
+            const statusColors = {
+                'Pending': '#ffc107',
+                'Processing': '#17a2b8',
+                'Shipped': '#007bff',
+                'Delivered': '#28a745',
+                'Cancelled': '#dc3545'
+            };
+
+            const orderStatusChart = new Chart(orderStatusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: orderStatusData.map(d => d.Status),
+                    datasets: [{
+                        data: orderStatusData.map(d => d.Count),
+                        backgroundColor: orderStatusData.map(d => statusColors[d.Status] || '#6c757d'),
+                        borderWidth: 3,
+                        borderColor: '#fff',
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                                font: { size: 11 }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            callbacks: {
+                                label: function(context) {
+                                    const item = orderStatusData[context.dataIndex];
+                                    return [
+                                        item.Status,
+                                        'Orders: ' + item.Count,
+                                        'Revenue: ' + item.Revenue.toLocaleString('vi-VN') + ' ₫',
+                                        'Percentage: ' + item.Percentage + '%'
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    cutout: '60%'
+                }
+            });
+        } else {
+            document.getElementById('orderStatusChart').parentElement.innerHTML =
+                '<div class="text-center py-5 text-muted"><i class="bi bi-circle display-4"></i><p class="mt-3">No order status data available</p></div>';
+        }
+
+        // ==========================================
+        // 5. PAYMENT METHODS DISTRIBUTION (Pie Chart)
+        // ==========================================
+        const paymentMethodsData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.PaymentMethodsData));
+
+        if (paymentMethodsData && paymentMethodsData.length > 0) {
+            const paymentMethodsCtx = document.getElementById('paymentMethodsChart').getContext('2d');
+
+            const paymentColors = {
+                'COD': '#ffc107',
+                'Card': '#007bff',
+                'PayPal': '#0070ba',
+                'VNPay': '#dc3545',
+                'MoMo': '#a50064',
+                'Bank': '#28a745'
+            };
+
+            const paymentMethodsChart = new Chart(paymentMethodsCtx, {
+                type: 'pie',
+                data: {
+                    labels: paymentMethodsData.map(d => d.Method),
+                    datasets: [{
+                        data: paymentMethodsData.map(d => d.Count),
+                        backgroundColor: paymentMethodsData.map(d => paymentColors[d.Method] || '#6c757d'),
+                        borderWidth: 3,
+                        borderColor: '#fff',
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                                font: { size: 11 }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            callbacks: {
+                                label: function(context) {
+                                    const item = paymentMethodsData[context.dataIndex];
+                                    return [
+                                        item.Method,
+                                        'Transactions: ' + item.Count,
+                                        'Amount: ' + item.TotalAmount.toLocaleString('vi-VN') + ' ₫',
+                                        'Percentage: ' + item.Percentage + '%'
+                                    ];
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            document.getElementById('paymentMethodsChart').parentElement.innerHTML =
+                '<div class="text-center py-5 text-muted"><i class="bi bi-credit-card display-4"></i><p class="mt-3">No payment data available</p></div>';
+        }
+
+        console.log('✅ Dashboard loaded successfully!');
+        console.log('📊 All charts initialized with Chart.js v4.4.0');
+    </script>
+}

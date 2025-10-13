@@ -1,0 +1,482 @@
+﻿@model IEnumerable<OnlineJewelryStore.Models.Review>
+
+@{
+    ViewBag.Title = "Reviews Management";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@* Success/Error Messages *@
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>@TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">
+            <i class="bi bi-star-fill text-warning me-2"></i>Reviews Management
+        </h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">@Html.ActionLink("Dashboard", "Index", "Dashboard")</li>
+                <li class="breadcrumb-item active">Reviews</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+@* Statistics Cards *@
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-muted mb-1 small">Total Reviews</p>
+                        <h3 class="mb-0">@ViewBag.TotalReviews.ToString("N0")</h3>
+                    </div>
+                    <div class="bg-primary bg-opacity-10 rounded p-3">
+                        <i class="bi bi-chat-left-text text-primary fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-muted mb-1 small">Average Rating</p>
+                        <h3 class="mb-0">
+                            @if (ViewBag.TotalReviews > 0)
+                            {
+                                <text>@string.Format("{0:F1}", ViewBag.AverageRating)</text>
+                                <span class="fs-6 text-warning">★</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">N/A</span>
+                            }
+                        </h3>
+                    </div>
+                    <div class="bg-warning bg-opacity-10 rounded p-3">
+                        <i class="bi bi-star-fill text-warning fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <p class="text-muted mb-2 small">Rating Distribution</p>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    @if (ViewBag.TotalReviews > 0)
+                    {
+                        <span class="badge bg-success px-2 py-1">
+                            5★ @ViewBag.Rating5Count (<text>@string.Format("{0:F0}%", (ViewBag.Rating5Count / (double)ViewBag.TotalReviews * 100))</text>)
+                        </span>
+                        <span class="badge bg-info px-2 py-1">
+                            4★ @ViewBag.Rating4Count (<text>@string.Format("{0:F0}%", (ViewBag.Rating4Count / (double)ViewBag.TotalReviews * 100))</text>)
+                        </span>
+                        <span class="badge bg-primary px-2 py-1">
+                            3★ @ViewBag.Rating3Count (<text>@string.Format("{0:F0}%", (ViewBag.Rating3Count / (double)ViewBag.TotalReviews * 100))</text>)
+                        </span>
+                        <span class="badge bg-warning px-2 py-1">
+                            2★ @ViewBag.Rating2Count (<text>@string.Format("{0:F0}%", (ViewBag.Rating2Count / (double)ViewBag.TotalReviews * 100))</text>)
+                        </span>
+                        <span class="badge bg-danger px-2 py-1">
+                            1★ @ViewBag.Rating1Count (<text>@string.Format("{0:F0}%", (ViewBag.Rating1Count / (double)ViewBag.TotalReviews * 100))</text>)
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="text-muted">No data available</span>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Search & Filter Form *@
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" action="@Url.Action("Index")" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label small text-muted mb-1">Search</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-search text-muted"></i>
+                    </span>
+                    <input type="text"
+                           name="searchTerm"
+                           class="form-control border-start-0 ps-0"
+                           placeholder="Product, customer, or review content..."
+                           value="@ViewBag.CurrentSearch">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small text-muted mb-1">Rating</label>
+                <select name="rating" class="form-select">
+                    <option value="">All Ratings</option>
+                    <option value="5" @(ViewBag.CurrentRating == 5 ? "selected" : "")>5 Stars ★★★★★</option>
+                    <option value="4" @(ViewBag.CurrentRating == 4 ? "selected" : "")>4 Stars ★★★★</option>
+                    <option value="3" @(ViewBag.CurrentRating == 3 ? "selected" : "")>3 Stars ★★★</option>
+                    <option value="2" @(ViewBag.CurrentRating == 2 ? "selected" : "")>2 Stars ★★</option>
+                    <option value="1" @(ViewBag.CurrentRating == 1 ? "selected" : "")>1 Star ★</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small text-muted mb-1">From Date</label>
+                <input type="date"
+                       name="fromDate"
+                       class="form-control"
+                       value="@(ViewBag.CurrentFromDate?.ToString("yyyy-MM-dd"))">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small text-muted mb-1">To Date</label>
+                <input type="date"
+                       name="toDate"
+                       class="form-control"
+                       value="@(ViewBag.CurrentToDate?.ToString("yyyy-MM-dd"))">
+            </div>
+            <div class="col-md-2 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-primary flex-fill">
+                    <i class="bi bi-funnel me-1"></i>Filter
+                </button>
+                @if (!string.IsNullOrEmpty(ViewBag.CurrentSearch as string) ||
+                     ViewBag.CurrentRating != null ||
+                     ViewBag.CurrentFromDate != null ||
+                     ViewBag.CurrentToDate != null)
+                {
+                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                }
+            </div>
+        </form>
+    </div>
+</div>
+
+@* Reviews Table *@
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 5%">
+                                <a href="@Url.Action("Index", new {
+                                    searchTerm = ViewBag.CurrentSearch,
+                                    rating = ViewBag.CurrentRating,
+                                    fromDate = ViewBag.CurrentFromDate,
+                                    toDate = ViewBag.CurrentToDate,
+                                    sortOrder = ViewBag.RatingSort
+                                })" class="text-decoration-none text-dark">
+                                    Rating
+                                    @if (ViewBag.CurrentSort == "rating")
+                                    {
+                                        <i class="bi bi-arrow-down"></i>
+                                    }
+                                    else if (ViewBag.CurrentSort == "rating_desc")
+                                    {
+                                        <i class="bi bi-arrow-up"></i>
+                                    }
+                                </a>
+                            </th>
+                            <th style="width: 25%">
+                                <a href="@Url.Action("Index", new {
+                                    searchTerm = ViewBag.CurrentSearch,
+                                    rating = ViewBag.CurrentRating,
+                                    fromDate = ViewBag.CurrentFromDate,
+                                    toDate = ViewBag.CurrentToDate,
+                                    sortOrder = ViewBag.ProductSort
+                                })" class="text-decoration-none text-dark">
+                                    Product
+                                    @if (ViewBag.CurrentSort == "product")
+                                    {
+                                        <i class="bi bi-arrow-down"></i>
+                                    }
+                                    else if (ViewBag.CurrentSort == "product_desc")
+                                    {
+                                        <i class="bi bi-arrow-up"></i>
+                                    }
+                                </a>
+                            </th>
+                            <th style="width: 15%">
+                                <a href="@Url.Action("Index", new {
+                                    searchTerm = ViewBag.CurrentSearch,
+                                    rating = ViewBag.CurrentRating,
+                                    fromDate = ViewBag.CurrentFromDate,
+                                    toDate = ViewBag.CurrentToDate,
+                                    sortOrder = ViewBag.CustomerSort
+                                })" class="text-decoration-none text-dark">
+                                    Customer
+                                    @if (ViewBag.CurrentSort == "customer")
+                                    {
+                                        <i class="bi bi-arrow-down"></i>
+                                    }
+                                    else if (ViewBag.CurrentSort == "customer_desc")
+                                    {
+                                        <i class="bi bi-arrow-up"></i>
+                                    }
+                                </a>
+                            </th>
+                            <th style="width: 30%">Review</th>
+                            <th style="width: 15%">
+                                <a href="@Url.Action("Index", new {
+                                    searchTerm = ViewBag.CurrentSearch,
+                                    rating = ViewBag.CurrentRating,
+                                    fromDate = ViewBag.CurrentFromDate,
+                                    toDate = ViewBag.CurrentToDate,
+                                    sortOrder = ViewBag.DateSort
+                                })" class="text-decoration-none text-dark">
+                                    Date
+                                    @if (string.IsNullOrEmpty(ViewBag.CurrentSort as string))
+                                    {
+                                        <i class="bi bi-arrow-down"></i>
+                                    }
+                                    else if (ViewBag.CurrentSort == "date_asc")
+                                    {
+                                        <i class="bi bi-arrow-up"></i>
+                                    }
+                                </a>
+                            </th>
+                            <th style="width: 10%" class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var review in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        @{
+                                            var ratingClass = review.Rating >= 4 ? "text-success" :
+                                                            review.Rating == 3 ? "text-warning" : "text-danger";
+                                        }
+                                        <span class="@ratingClass fw-bold fs-5">@review.Rating</span>
+                                        <span class="text-warning ms-1">★</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        @if (review.Product.ProductMedias.Any(pm => pm.IsMain))
+                                        {
+                                            var mainImage = review.Product.ProductMedias.First(pm => pm.IsMain);
+                                            <img src="@Url.Content(mainImage.URL)"
+                                                 alt="@review.Product.ProductName"
+                                                 class="rounded"
+                                                 style="width: 40px; height: 40px; object-fit: cover;">
+                                        }
+                                        else
+                                        {
+                                            <div class="bg-light rounded d-flex align-items-center justify-content-center"
+                                                 style="width: 40px; height: 40px;">
+                                                <i class="bi bi-image text-muted"></i>
+                                            </div>
+                                        }
+                                        <div class="flex-grow-1">
+                                            <div class="fw-medium">@review.Product.ProductName</div>
+                                            <small class="text-muted">@review.Product.Category.CategoryName</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center"
+                                             style="width: 35px; height: 35px;">
+                                            <span class="text-primary fw-bold small">
+                                                @review.User.FirstName.Substring(0, 1)@review.User.LastName.Substring(0, 1)
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <div class="fw-medium">@review.User.FirstName @review.User.LastName</div>
+                                            <small class="text-muted">@review.User.Email</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(review.Title))
+                                    {
+                                        <div class="fw-medium mb-1">@review.Title</div>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(review.Body))
+                                    {
+                                        <div class="text-muted small">
+                                            @(review.Body.Length > 80 ? review.Body.Substring(0, 80) + "..." : review.Body)
+                                        </div>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="small">
+                                        <i class="bi bi-calendar3 text-muted me-1"></i>
+                                        @review.CreatedAt.ToString("MMM dd, yyyy")
+                                    </div>
+                                    <div class="small text-muted">
+                                        @review.CreatedAt.ToString("hh:mm tt")
+                                    </div>
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="@Url.Action("Details", new { id = review.ReviewID })"
+                                           class="btn btn-outline-primary"
+                                           title="View Details">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="@Url.Action("Delete", new { id = review.ReviewID })"
+                                           class="btn btn-outline-danger"
+                                           title="Delete Review">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @* Pagination *@
+            if (ViewBag.TotalPages > 1)
+            {
+                <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                    <div class="text-muted small">
+                        Showing @((ViewBag.CurrentPage - 1) * ViewBag.PageSize + 1) to @(Math.Min(ViewBag.CurrentPage * ViewBag.PageSize, ViewBag.TotalItems)) of @ViewBag.TotalItems reviews
+                    </div>
+                    <nav>
+                        <ul class="pagination pagination-sm mb-0">
+                            @if (ViewBag.CurrentPage > 1)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("Index", new {
+                                        searchTerm = ViewBag.CurrentSearch,
+                                        rating = ViewBag.CurrentRating,
+                                        fromDate = ViewBag.CurrentFromDate,
+                                        toDate = ViewBag.CurrentToDate,
+                                        sortOrder = ViewBag.CurrentSort,
+                                        page = ViewBag.CurrentPage - 1
+                                    })">Previous</a>
+                                </li>
+                            }
+
+                            @{
+                                var startPage = Math.Max(1, ViewBag.CurrentPage - 2);
+                                var endPage = Math.Min(ViewBag.TotalPages, ViewBag.CurrentPage + 2);
+                            }
+
+                            @if (startPage > 1)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("Index", new {
+                                        searchTerm = ViewBag.CurrentSearch,
+                                        rating = ViewBag.CurrentRating,
+                                        fromDate = ViewBag.CurrentFromDate,
+                                        toDate = ViewBag.CurrentToDate,
+                                        sortOrder = ViewBag.CurrentSort,
+                                        page = 1
+                                    })">1</a>
+                                </li>
+                                if (startPage > 2)
+                                {
+                                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                                }
+                            }
+
+                            @for (int i = startPage; i <= endPage; i++)
+                            {
+                                <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                                    <a class="page-link" href="@Url.Action("Index", new {
+                                        searchTerm = ViewBag.CurrentSearch,
+                                        rating = ViewBag.CurrentRating,
+                                        fromDate = ViewBag.CurrentFromDate,
+                                        toDate = ViewBag.CurrentToDate,
+                                        sortOrder = ViewBag.CurrentSort,
+                                        page = i
+                                    })">@i</a>
+                                </li>
+                            }
+
+                            @if (endPage < ViewBag.TotalPages)
+                            {
+                                if (endPage < ViewBag.TotalPages - 1)
+                                {
+                                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                                }
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("Index", new {
+                                        searchTerm = ViewBag.CurrentSearch,
+                                        rating = ViewBag.CurrentRating,
+                                        fromDate = ViewBag.CurrentFromDate,
+                                        toDate = ViewBag.CurrentToDate,
+                                        sortOrder = ViewBag.CurrentSort,
+                                        page = ViewBag.TotalPages
+                                    })">@ViewBag.TotalPages</a>
+                                </li>
+                            }
+
+                            @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("Index", new {
+                                        searchTerm = ViewBag.CurrentSearch,
+                                        rating = ViewBag.CurrentRating,
+                                        fromDate = ViewBag.CurrentFromDate,
+                                        toDate = ViewBag.CurrentToDate,
+                                        sortOrder = ViewBag.CurrentSort,
+                                        page = ViewBag.CurrentPage + 1
+                                    })">Next</a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="bi bi-chat-left-text text-muted" style="font-size: 4rem;"></i>
+                <h5 class="text-muted mt-3">No Reviews Found</h5>
+                <p class="text-muted">
+                    @if (!string.IsNullOrEmpty(ViewBag.CurrentSearch as string) ||
+                         ViewBag.CurrentRating != null ||
+                         ViewBag.CurrentFromDate != null ||
+                         ViewBag.CurrentToDate != null)
+                    {
+                        <span>Try adjusting your filters.</span>
+                    }
+                    else
+                    {
+                        <span>There are no reviews yet.</span>
+                    }
+                </p>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .table > :not(caption) > * > * {
+        padding: 1rem 0.75rem;
+    }
+
+    .btn-group-sm > .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+</style>
