@@ -119,7 +119,6 @@
                                         <th>Size</th>
                                         <th class="text-end">Additional Price</th>
                                         <th class="text-center">Stock</th>
-                                        <th class="text-center">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -149,9 +148,6 @@
                                                 {
                                                     <span class="badge bg-danger">0</span>
                                                 }
-                                            </td>
-                                            <td class="text-center">
-                                                <button class="btn btn-sm btn-warning" disabled title="Feature coming soon">Edit</button>
                                             </td>
                                         </tr>
                                     }
@@ -322,13 +318,8 @@
                     <div class="d-grid gap-2">
                         @Html.ActionLink("Add Variants", "Index", "ProductVariants", new { productId = Model.ProductID }, new { @class = "btn btn-outline-primary w-100" })
                         @Html.ActionLink(" Upload Media", "Index", "ProductMedias", new { productId = Model.ProductID }, new { @class = "btn btn-outline-primary w-100 bi bi-upload" })
-                        <button class="btn btn-outline-primary" disabled title="Feature coming soon">
-                            <i class="bi bi-gem"></i> Add Gemstone Info
-                        </button>
-                        <button class="btn btn-outline-primary" disabled title="Feature coming soon">
-                            <i class="bi bi-patch-check"></i> Add Certification
-                        </button>
-                        <hr />
+                        @Html.ActionLink(" Add Gemstone Info", "Index", "ProductVariants", new { productId = Model.ProductID }, new { @class = "btn btn-outline-primary w-100 bi bi-gem" })
+                        @Html.ActionLink(" Add Certification", "Index", "ProductVariants", new { productId = Model.ProductID }, new { @class = "btn btn-outline-primary w-100 bi bi-award" })
                         @Html.ActionLink("Edit Product", "Edit", new { id = Model.ProductID }, new { @class = "btn btn-warning w-100" })
                         @Html.ActionLink("Delete Product", "Delete", new { id = Model.ProductID }, new { @class = "btn btn-danger w-100" })
                     </div>

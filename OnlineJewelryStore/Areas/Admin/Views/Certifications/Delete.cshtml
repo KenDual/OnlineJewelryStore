@@ -1,0 +1,478 @@
+﻿@model OnlineJewelryStore.Models.Certification
+
+@{
+    ViewBag.Title = "Delete Certification";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@* Custom CSS for Delete Page *@
+<style>
+    .delete-header {
+        background: linear-gradient(135deg, #ff6b6b 0%, #c92a2a 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(255, 107, 107, 0.3);
+    }
+
+    .warning-badge {
+        background: rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(10px);
+        padding: 0.5rem 1.5rem;
+        border-radius: 25px;
+        font-weight: 600;
+        display: inline-block;
+        margin-top: 0.5rem;
+    }
+
+    .variant-context {
+        background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .details-container {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        color: #c92a2a;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 3px solid #ff6b6b;
+        display: flex;
+        align-items: center;
+    }
+
+        .section-title i {
+            font-size: 1.5rem;
+            margin-right: 0.5rem;
+        }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid #ff6b6b;
+    }
+
+        .detail-row:hover {
+            background: #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+    .detail-label {
+        font-weight: 600;
+        color: #495057;
+        display: flex;
+        align-items: center;
+    }
+
+        .detail-label i {
+            color: #ff6b6b;
+            margin-right: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+    .detail-value {
+        color: #212529;
+        font-weight: 500;
+        text-align: right;
+        max-width: 60%;
+        word-break: break-word;
+    }
+
+    .certifier-display {
+        background: linear-gradient(135deg, #ff6b6b 0%, #c92a2a 100%);
+        color: white;
+        padding: 0.5rem 1.5rem;
+        border-radius: 25px;
+        font-weight: 600;
+        display: inline-block;
+        box-shadow: 0 2px 4px rgba(255, 107, 107, 0.3);
+    }
+
+    .cert-number-display {
+        font-family: 'Courier New', monospace;
+        background: #212529;
+        color: #00ff00;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+    .url-display {
+        color: #ff6b6b;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+        .url-display:hover {
+            color: #c92a2a;
+            text-decoration: underline;
+        }
+
+    .warning-box {
+        background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+        border-left: 5px solid #ffc107;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+        .warning-box i {
+            color: #ffc107;
+            font-size: 2rem;
+            margin-right: 1rem;
+        }
+
+    .danger-zone {
+        background: linear-gradient(135deg, #ffe0e0 0%, #ffcccc 100%);
+        border: 2px solid #ff6b6b;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-top: 2rem;
+    }
+
+        .danger-zone h5 {
+            color: #c92a2a;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+    .btn-delete-confirm {
+        background: linear-gradient(135deg, #ff6b6b 0%, #c92a2a 100%);
+        border: none;
+        color: white;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(255, 107, 107, 0.3);
+        transition: all 0.3s ease;
+    }
+
+        .btn-delete-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(255, 107, 107, 0.5);
+            background: linear-gradient(135deg, #ff5252 0%, #b71c1c 100%);
+            color: white;
+        }
+
+    .btn-cancel-safe {
+        background: #28a745;
+        border: none;
+        color: white;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(40, 167, 69, 0.3);
+        transition: all 0.3s ease;
+    }
+
+        .btn-cancel-safe:hover {
+            background: #218838;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(40, 167, 69, 0.5);
+        }
+
+    .pulse-animation {
+        animation: pulse 2s infinite;
+    }
+
+    @@keyframes pulse {
+        0% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.7;
+        }
+
+        100% {
+            opacity: 1;
+        }
+    }
+</style>
+
+@* Breadcrumb *@
+<nav aria-label="breadcrumb" style="margin-bottom: 1.5rem;">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a href="@Url.Action("Index", "Products")">Products</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="@Url.Action("Details", "Products", new { id = ViewBag.ProductID })">@ViewBag.ProductName</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="@Url.Action("Index", "ProductVariants", new { productId = ViewBag.ProductID })">Variants</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="@Url.Action("Index", "Certifications", new { variantId = ViewBag.VariantID })">SKU: @ViewBag.SKU</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Delete Certification</li>
+    </ol>
+</nav>
+
+@* Header *@
+<div class="delete-header">
+    <div class="d-flex align-items-center justify-content-between flex-wrap">
+        <div>
+            <h2 class="mb-2">
+                <i class="bi bi-exclamation-triangle-fill me-2 pulse-animation"></i>
+                Delete Certification
+            </h2>
+            <p class="mb-2 opacity-75">
+                Are you sure you want to permanently delete this certification?
+            </p>
+            <div class="warning-badge">
+                <i class="bi bi-trash me-2"></i>Certification ID: @Model.CertificationID
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Warning Box *@
+<div class="warning-box">
+    <div class="d-flex align-items-center">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <div>
+            <h5 class="mb-2 text-warning">
+                <strong>Warning: This action cannot be undone!</strong>
+            </h5>
+            <p class="mb-0">
+                Once deleted, this certification record will be permanently removed from the database.
+                However, this will NOT affect any orders or customer data.
+            </p>
+        </div>
+    </div>
+</div>
+
+@* Variant Context Info *@
+<div class="variant-context">
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="d-flex align-items-center mb-2">
+                <i class="bi bi-box-seam text-dark me-2" style="font-size: 1.2rem;"></i>
+                <strong>Product:</strong>
+                <span class="ms-2">@ViewBag.ProductName</span>
+            </div>
+            <div class="d-flex align-items-center">
+                <i class="bi bi-tag text-dark me-2" style="font-size: 1.2rem;"></i>
+                <strong>Category:</strong>
+                <span class="ms-2">@ViewBag.CategoryName</span>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="d-flex align-items-center mb-2">
+                <i class="bi bi-upc-scan text-dark me-2" style="font-size: 1.2rem;"></i>
+                <strong>SKU:</strong>
+                <span class="ms-2">@ViewBag.SKU</span>
+            </div>
+            <div class="d-flex align-items-center">
+                <i class="bi bi-gem text-dark me-2" style="font-size: 1.2rem;"></i>
+                <strong>Metal:</strong>
+                <span class="ms-2">
+                    @(ViewBag.MetalType ?? "N/A")
+                    @(ViewBag.Purity != null ? $"({ViewBag.Purity})" : "")
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Certification Details *@
+<div class="details-container">
+    @* Section 1: Basic Information *@
+    <div class="mb-4">
+        <h5 class="section-title">
+            <i class="bi bi-info-circle"></i>
+            Basic Information
+        </h5>
+
+        <div class="detail-row">
+            <div class="detail-label">
+                <i class="bi bi-fingerprint"></i>
+                Certification ID
+            </div>
+            <div class="detail-value">
+                <span class="badge bg-dark fs-6">@Model.CertificationID</span>
+            </div>
+        </div>
+
+        <div class="detail-row">
+            <div class="detail-label">
+                <i class="bi bi-upc-scan"></i>
+                Product Variant ID
+            </div>
+            <div class="detail-value">
+                <span class="badge bg-secondary fs-6">@Model.VariantID</span>
+            </div>
+        </div>
+    </div>
+
+    @* Section 2: Certification Details *@
+    <div class="mb-4">
+        <h5 class="section-title">
+            <i class="bi bi-award"></i>
+            Certification Details
+        </h5>
+
+        <div class="detail-row">
+            <div class="detail-label">
+                <i class="bi bi-shield-check"></i>
+                Certifier
+            </div>
+            <div class="detail-value">
+                <span class="certifier-display">
+                    @Model.Certifier
+                    @if (Model.Certifier == "GIA")
+                    {
+                        <span class="ms-1">(Gemological Institute of America)</span>
+                    }
+                    else if (Model.Certifier == "AGS")
+                    {
+                        <span class="ms-1">(American Gem Society)</span>
+                    }
+                </span>
+            </div>
+        </div>
+
+        <div class="detail-row">
+            <div class="detail-label">
+                <i class="bi bi-hash"></i>
+                Certificate Number
+            </div>
+            <div class="detail-value">
+                @if (!string.IsNullOrEmpty(Model.CertificateNumber))
+                {
+                    <span class="cert-number-display">@Model.CertificateNumber</span>
+                }
+                else
+                {
+                    <span class="text-muted fst-italic">Not Provided</span>
+                }
+            </div>
+        </div>
+    </div>
+
+    @* Section 3: Verification Details *@
+    <div class="mb-4">
+        <h5 class="section-title">
+            <i class="bi bi-link-45deg"></i>
+            Verification Details
+        </h5>
+
+        <div class="detail-row">
+            <div class="detail-label">
+                <i class="bi bi-globe"></i>
+                Verification URL
+            </div>
+            <div class="detail-value">
+                @if (!string.IsNullOrEmpty(Model.VerificationURL))
+                {
+                    <a href="@Model.VerificationURL"
+                       target="_blank"
+                       class="url-display">
+                        @Model.VerificationURL
+                        <i class="bi bi-box-arrow-up-right ms-1"></i>
+                    </a>
+                }
+                else
+                {
+                    <span class="text-muted fst-italic">No URL Provided</span>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Danger Zone - Delete Confirmation *@
+<div class="danger-zone">
+    <h5 class="text-center mb-3">
+        <i class="bi bi-exclamation-octagon-fill me-2"></i>
+        DANGER ZONE
+    </h5>
+    <p class="text-center mb-4" style="color: #c92a2a;">
+        You are about to delete certification <strong>ID @Model.CertificationID</strong>
+        from certifier <strong>@Model.Certifier</strong>.
+        @if (!string.IsNullOrEmpty(Model.CertificateNumber))
+        {
+            <br />
+            <span>Certificate Number: <strong>@Model.CertificateNumber</strong></span>
+        }
+    </p>
+
+
+    @using (Html.BeginForm("DeleteConfirmed", "Certifications", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        @Html.Hidden("id", Model.CertificationID)
+
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="@Url.Action("Index", new { variantId = Model.VariantID })"
+               class="btn btn-cancel-safe btn-lg">
+                <i class="bi bi-shield-check me-2"></i>
+                No, Keep This Certification
+            </a>
+            <button type="submit"
+                    class="btn btn-delete-confirm btn-lg"
+                    onclick="return confirm('Are you ABSOLUTELY SURE you want to delete this certification? This cannot be undone!');">
+                <i class="bi bi-trash-fill me-2"></i>
+                Yes, Delete Permanently
+            </button>
+        </div>
+    }
+</div>
+
+@* Info Alert *@
+<div class="alert alert-info mt-4" role="alert">
+    <i class="bi bi-info-circle-fill me-2"></i>
+    <strong>Safe to Delete:</strong> Deleting this certification will NOT affect any orders, sales, or customer data.
+    It only removes the certificate record from this product variant.
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Confirm dialog on submit
+            $('form').on('submit', function (e) {
+                const certId = @Model.CertificationID;
+                const certifier = '@Model.Certifier';
+                const certNumber = '@(Model.CertificateNumber ?? "N/A")';
+
+                if (!confirm(`⚠️ FINAL CONFIRMATION ⚠️\n\nYou are about to permanently delete:\n\n` +
+                    `• Certification ID: ${certId}\n` +
+                    `• Certifier: ${certifier}\n` +
+                    `• Certificate Number: ${certNumber}\n\n` +
+                    `This action CANNOT be reversed!\n\n` +
+                    `Click OK to DELETE PERMANENTLY or Cancel to go back.`)) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+
+            // Add warning shake animation on hover
+            $('.btn-delete-confirm').on('mouseenter', function () {
+                $(this).addClass('animate__animated animate__headShake');
+                setTimeout(() => {
+                    $(this).removeClass('animate__animated animate__headShake');
+                }, 1000);
+            });
+        });
+    </script>
+}

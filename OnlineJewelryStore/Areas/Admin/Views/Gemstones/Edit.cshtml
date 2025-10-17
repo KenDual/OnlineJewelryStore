@@ -1,0 +1,356 @@
+﻿@model OnlineJewelryStore.Models.Gemstone
+@{
+    ViewBag.Title = "Edit Gemstone";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+    var variant = ViewBag.Variant as OnlineJewelryStore.Models.ProductVariant;
+    var product = ViewBag.Product as OnlineJewelryStore.Models.Product;
+}
+
+@section styles {
+    <style>
+        .form-header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px 10px 0 0;
+            margin-bottom: 0;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 0 0 10px 10px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .variant-info-banner {
+            background: #f8f9fa;
+            border-left: 4px solid #f093fb;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border-radius: 4px;
+        }
+
+        .gemstone-id-badge {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+            .form-section:last-child {
+                border-bottom: none;
+            }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+            .section-title i {
+                margin-right: 0.5rem;
+                color: #f093fb;
+            }
+
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #f093fb;
+            box-shadow: 0 0 0 0.2rem rgba(240, 147, 251, 0.25);
+        }
+
+        .required-asterisk {
+            color: #dc3545;
+            margin-left: 0.25rem;
+        }
+
+        .form-text {
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border: none;
+            color: white;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+        }
+
+            .btn-warning:hover {
+                background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+                color: white;
+            }
+
+        .breadcrumb {
+            background: transparent;
+            padding: 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .breadcrumb-item a {
+            color: #f093fb;
+            text-decoration: none;
+        }
+
+            .breadcrumb-item a:hover {
+                color: #f5576c;
+                text-decoration: underline;
+            }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-item {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 3px solid #f093fb;
+        }
+
+        .info-item-label {
+            font-size: 0.875rem;
+            color: #6c757d;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .info-item-value {
+            font-size: 1rem;
+            color: #212529;
+            font-weight: 600;
+        }
+    </style>
+}
+
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard")"><i class="bi bi-house-door"></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="@Url.Action("Index", "Products")"><i class="bi bi-box-seam"></i> Products</a></li>
+        @if (product != null)
+        {
+            <li class="breadcrumb-item"><a href="@Url.Action("Index", "ProductVariants", new { productId = product.ProductID })"><i class="bi bi-layers"></i> Variants</a></li>
+            <li class="breadcrumb-item"><a href="@Url.Action("Index", "Gemstones", new { variantId = variant.VariantID })"><i class="bi bi-gem"></i> Gemstones</a></li>
+        }
+        <li class="breadcrumb-item active" aria-current="page">Edit</li>
+    </ol>
+</nav>
+
+<!-- Form Header -->
+<div class="form-header">
+    <h2 class="mb-0">
+        <i class="bi bi-pencil-square me-2"></i>
+        Edit Gemstone
+    </h2>
+    <p class="mb-0 mt-2 opacity-75">
+        Update gemstone details for variant: <strong>@(variant?.SKU ?? "N/A")</strong>
+    </p>
+</div>
+
+<!-- Form Container -->
+<div class="form-container">
+    <!-- Gemstone ID Badge -->
+    <div class="gemstone-id-badge">
+        <i class="bi bi-hash"></i> Gemstone ID: @Model.GemstoneID
+    </div>
+
+    <!-- Variant & Product Info -->
+    @if (variant != null && product != null)
+    {
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-item-label">Product</div>
+                <div class="info-item-value">@product.ProductName</div>
+            </div>
+            <div class="info-item">
+                <div class="info-item-label">SKU</div>
+                <div class="info-item-value">@variant.SKU</div>
+            </div>
+            <div class="info-item">
+                <div class="info-item-label">Metal Type</div>
+                <div class="info-item-value">@(variant.MetalType ?? "N/A") @(variant.Purity ?? "")</div>
+            </div>
+            <div class="info-item">
+                <div class="info-item-label">Size</div>
+                <div class="info-item-value">
+                    @if (!string.IsNullOrEmpty(variant.RingSize))
+                    {
+                        <span><i class="bi bi-circle"></i> @variant.RingSize</span>
+                    }
+                    else if (!string.IsNullOrEmpty(variant.ChainLength))
+                    {
+                        <span><i class="bi bi-rulers"></i> @variant.ChainLength</span>
+                    }
+                    else
+                    {
+                        <span class="text-muted">N/A</span>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+    @using (Html.BeginForm("Edit", "Gemstones", FormMethod.Post, new { @class = "needs-validation", novalidate = "novalidate" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(model => model.GemstoneID)
+        @Html.HiddenFor(model => model.VariantID)
+
+        <div class="form-sections">
+            <!-- Section 1: The 4 C's (Cut, Clarity, Color, Carat) -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="bi bi-gem"></i>
+                    The 4 C's (Cut, Clarity, Color, Carat)
+                </h3>
+
+                <div class="row">
+                    <!-- Cut -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Cut</label>
+                        @Html.DropDownListFor(model => model.Cut,
+                            (SelectList)ViewBag.CutList,
+                            new { @class = "form-select" })
+                        @Html.ValidationMessageFor(model => model.Cut, "", new { @class = "text-danger" })
+                        <div class="form-text">
+                            <i class="bi bi-info-circle"></i> The shape and faceting style of the gemstone
+                        </div>
+                    </div>
+
+                    <!-- Clarity -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Clarity</label>
+                        @Html.DropDownListFor(model => model.Clarity,
+                            (SelectList)ViewBag.ClarityList,
+                            new { @class = "form-select" })
+                        @Html.ValidationMessageFor(model => model.Clarity, "", new { @class = "text-danger" })
+                        <div class="form-text">
+                            <i class="bi bi-info-circle"></i> The presence of inclusions and blemishes
+                        </div>
+                    </div>
+
+                    <!-- Color -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Color</label>
+                        @Html.DropDownListFor(model => model.Color,
+                            (SelectList)ViewBag.ColorList,
+                            new { @class = "form-select" })
+                        @Html.ValidationMessageFor(model => model.Color, "", new { @class = "text-danger" })
+                        <div class="form-text">
+                            <i class="bi bi-info-circle"></i> Color grade from D (colorless) to Z (light yellow)
+                        </div>
+                    </div>
+
+                    <!-- Carat -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Carat Weight</label>
+                        <div class="input-group">
+                            @Html.TextBoxFor(model => model.Carat,
+                                new { @class = "form-control", type = "number", step = "0.01", min = "0.01", max = "99.99", placeholder = "e.g., 1.25" })
+                            <span class="input-group-text">ct</span>
+                        </div>
+                        @Html.ValidationMessageFor(model => model.Carat, "", new { @class = "text-danger" })
+                        <div class="form-text">
+                            <i class="bi bi-info-circle"></i> Weight of the gemstone (1 carat = 200 milligrams)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Origin & Treatment -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="bi bi-globe"></i>
+                    Origin & Treatment
+                </h3>
+
+                <div class="row">
+                    <!-- Origin -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Origin</label>
+                        @Html.TextBoxFor(model => model.Origin,
+                            new { @class = "form-control", placeholder = "e.g., Colombia, Myanmar, Brazil, Sri Lanka" })
+                        @Html.ValidationMessageFor(model => model.Origin, "", new { @class = "text-danger" })
+                        <div class="form-text">
+                            <i class="bi bi-info-circle"></i> Geographic origin of the gemstone
+                        </div>
+                    </div>
+
+                    <!-- Treatment -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Treatment</label>
+                        @Html.DropDownListFor(model => model.Treatment,
+                            (SelectList)ViewBag.TreatmentList,
+                            new { @class = "form-select" })
+                        @Html.ValidationMessageFor(model => model.Treatment, "", new { @class = "text-danger" })
+                        <div class="form-text">
+                            <i class="bi bi-info-circle"></i> Enhancement or treatment applied to the gemstone
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <a href="@Url.Action("Index", new { variantId = Model.VariantID })" class="btn btn-secondary btn-lg">
+                <i class="bi bi-arrow-left me-2"></i>Cancel
+            </a>
+            <button type="submit" class="btn btn-warning btn-lg">
+                <i class="bi bi-check-circle me-2"></i>Update Gemstone
+            </button>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script>
+        // Bootstrap validation
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms).forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })()
+
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(function () {
+            $('.alert').fadeOut('slow');
+        }, 5000);
+    </script>
+}

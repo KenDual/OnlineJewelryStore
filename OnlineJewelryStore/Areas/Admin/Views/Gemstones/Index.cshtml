@@ -1,0 +1,401 @@
+﻿@model IEnumerable<OnlineJewelryStore.Models.Gemstone>
+@{
+    ViewBag.Title = "Gemstones Management";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+    var variant = ViewBag.Variant as OnlineJewelryStore.Models.ProductVariant;
+    var product = ViewBag.Product as OnlineJewelryStore.Models.Product;
+}
+
+@section styles {
+    <style>
+        .gemstone-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+
+        .variant-info-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .product-thumbnail {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+        }
+
+        .info-label {
+            font-size: 0.875rem;
+            color: #6c757d;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            font-size: 1rem;
+            color: #212529;
+            font-weight: 600;
+            margin-top: 0.25rem;
+        }
+
+        .gemstone-table {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+            .gemstone-table thead {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+            }
+
+                .gemstone-table thead th {
+                    border: none;
+                    font-weight: 600;
+                    padding: 1rem;
+                }
+
+            .gemstone-table tbody tr {
+                border-bottom: 1px solid #e9ecef;
+                transition: background-color 0.2s;
+            }
+
+                .gemstone-table tbody tr:hover {
+                    background-color: #f8f9fa;
+                }
+
+            .gemstone-table tbody td {
+                padding: 1rem;
+                vertical-align: middle;
+            }
+
+        .badge-cut {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .badge-clarity {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .badge-color {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .empty-state-icon {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        .empty-state-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state-message {
+            color: #adb5bd;
+            margin-bottom: 2rem;
+        }
+
+        .price-display {
+            font-size: 1.25rem;
+            color: #28a745;
+            font-weight: 700;
+        }
+
+        .breadcrumb {
+            background: transparent;
+            padding: 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .breadcrumb-item a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+            .breadcrumb-item a:hover {
+                color: #764ba2;
+                text-decoration: underline;
+            }
+    </style>
+}
+
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard")"><i class="bi bi-house-door"></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="@Url.Action("Index", "Products")"><i class="bi bi-box-seam"></i> Products</a></li>
+        @if (product != null)
+        {
+            <li class="breadcrumb-item"><a href="@Url.Action("Index", "ProductVariants", new { productId = product.ProductID })"><i class="bi bi-layers"></i> Variants</a></li>
+        }
+        <li class="breadcrumb-item active" aria-current="page"><i class="bi bi-gem"></i> Gemstones</li>
+    </ol>
+</nav>
+
+<!-- Header -->
+<div class="gemstone-header">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h2 class="mb-0">
+                <i class="bi bi-gem me-2"></i>
+                Gemstones Management
+            </h2>
+            <p class="mb-0 mt-2 opacity-75">
+                Manage gemstone details for variant: <strong>@(variant?.SKU ?? "N/A")</strong>
+            </p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <a href="@Url.Action("Create", new { variantId = ViewBag.VariantID })" class="btn btn-light btn-lg">
+                <i class="bi bi-plus-circle me-2"></i>Add New Gemstone
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Success/Error Messages -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- Variant & Product Info Card -->
+@if (variant != null && product != null)
+{
+    <div class="variant-info-card">
+        <div class="row align-items-center">
+            <!-- Product Image -->
+            <div class="col-md-1 text-center">
+                @{
+                    var mainMedia = product.ProductMedias?.FirstOrDefault(m => m.IsMain);
+                    var imageUrl = mainMedia != null ? Url.Content(mainMedia.URL) : Url.Content("~/Content/images/no-image.png");
+                }
+                <img src="@imageUrl" alt="@product.ProductName" class="product-thumbnail" />
+            </div>
+
+            <!-- Product Info -->
+            <div class="col-md-3">
+                <div class="info-label">Product</div>
+                <div class="info-value">@product.ProductName</div>
+                <small class="text-muted">
+                    <i class="bi bi-tag"></i> @(product.Category?.CategoryName ?? "N/A")
+                </small>
+            </div>
+
+            <!-- Variant SKU -->
+            <div class="col-md-2">
+                <div class="info-label">SKU</div>
+                <div class="info-value">
+                    <span class="badge bg-primary">@variant.SKU</span>
+                </div>
+            </div>
+
+            <!-- Metal Type -->
+            <div class="col-md-2">
+                <div class="info-label">Metal Type</div>
+                <div class="info-value">@(variant.MetalType ?? "N/A")</div>
+                @if (!string.IsNullOrEmpty(variant.Purity))
+                {
+                    <small class="text-muted">Purity: @variant.Purity</small>
+                }
+            </div>
+
+            <!-- Size -->
+            <div class="col-md-2">
+                <div class="info-label">Size</div>
+                <div class="info-value">
+                    @if (!string.IsNullOrEmpty(variant.RingSize))
+                    {
+                        <span><i class="bi bi-circle"></i> @variant.RingSize</span>
+                    }
+                    else if (!string.IsNullOrEmpty(variant.ChainLength))
+                    {
+                        <span><i class="bi bi-rulers"></i> @variant.ChainLength</span>
+                    }
+                    else
+                    {
+                        <span class="text-muted">N/A</span>
+                    }
+                </div>
+            </div>
+
+            <!-- Price -->
+            <div class="col-md-2 text-end">
+                <div class="info-label">Final Price</div>
+                <div class="price-display">
+                    @{
+                        decimal basePrice = product?.BasePrice ?? 0m;
+                        decimal addPrice = variant?.AdditionalPrice ?? 0m;
+                        decimal finalPrice = basePrice + addPrice;
+                    }
+                    @finalPrice.ToString("N0") ₫
+
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Gemstones Table -->
+@if (Model != null && Model.Any())
+{
+    <div class="gemstone-table">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th style="width: 5%;">#</th>
+                    <th style="width: 15%;">Cut</th>
+                    <th style="width: 15%;">Clarity</th>
+                    <th style="width: 10%;">Color</th>
+                    <th style="width: 10%;">Carat</th>
+                    <th style="width: 15%;">Origin</th>
+                    <th style="width: 15%;">Treatment</th>
+                    <th style="width: 15%;" class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int rowNumber = 1;
+                }
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@rowNumber</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(item.Cut))
+                            {
+                                <span class="badge-cut">@item.Cut</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">N/A</span>
+                            }
+                        </td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(item.Clarity))
+                            {
+                                <span class="badge-clarity">@item.Clarity</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">N/A</span>
+                            }
+                        </td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(item.Color))
+                            {
+                                <span class="badge-color">@item.Color</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">N/A</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.Carat.HasValue)
+                            {
+                                <strong>@item.Carat.Value.ToString("0.00") ct</strong>
+                            }
+                            else
+                            {
+                                <span class="text-muted">N/A</span>
+                            }
+                        </td>
+                        <td>@(item.Origin ?? "N/A")</td>
+                        <td>@(item.Treatment ?? "N/A")</td>
+                        <td class="text-center">
+                            <div class="btn-group" role="group">
+                                <a href="@Url.Action("Edit", new { id = item.GemstoneID })"
+                                   class="btn btn-sm btn-warning"
+                                   title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="@Url.Action("Delete", new { id = item.GemstoneID })"
+                                   class="btn btn-sm btn-danger"
+                                   title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    rowNumber++;
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Summary -->
+    <div class="mt-3 text-muted">
+        <small>
+            <i class="bi bi-info-circle"></i>
+            Showing <strong>@Model.Count()</strong> gemstone(s) for this variant
+        </small>
+    </div>
+}
+else
+{
+    <!-- Empty State -->
+    <div class="empty-state">
+        <div class="empty-state-icon">💎</div>
+        <h3 class="empty-state-title">No Gemstones Found</h3>
+        <p class="empty-state-message">
+            This variant doesn't have any gemstones yet. Add your first gemstone to get started!
+        </p>
+        <a href="@Url.Action("Create", new { variantId = ViewBag.VariantID })" class="btn btn-primary btn-lg">
+            <i class="bi bi-plus-circle me-2"></i>Add First Gemstone
+        </a>
+    </div>
+}
+
+<!-- Back Button -->
+<div class="mt-4">
+    <a href="@Url.Action("Index", "ProductVariants", new { productId = product?.ProductID })" class="btn btn-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Back to Variants
+    </a>
+</div>

@@ -1,0 +1,393 @@
+﻿@model OnlineJewelryStore.Models.Gemstone
+@{
+    ViewBag.Title = "Delete Gemstone";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+    var variant = ViewBag.Variant as OnlineJewelryStore.Models.ProductVariant;
+    var product = ViewBag.Product as OnlineJewelryStore.Models.Product;
+}
+
+@section styles {
+    <style>
+        .delete-header {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px 10px 0 0;
+            margin-bottom: 0;
+        }
+
+        .delete-container {
+            background: white;
+            border-radius: 0 0 10px 10px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .warning-banner {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+        }
+
+            .warning-banner i {
+                font-size: 3rem;
+                color: #ffc107;
+                margin-right: 1rem;
+            }
+
+        .warning-banner-content h4 {
+            color: #856404;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .warning-banner-content p {
+            color: #856404;
+            margin-bottom: 0;
+        }
+
+        .gemstone-details-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 2px solid #dee2e6;
+        }
+
+        .detail-section {
+            margin-bottom: 2rem;
+        }
+
+            .detail-section:last-child {
+                margin-bottom: 0;
+            }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+            .section-title i {
+                margin-right: 0.5rem;
+                color: #ff6b6b;
+            }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .detail-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 6px;
+            border-left: 3px solid #ff6b6b;
+        }
+
+        .detail-label {
+            font-size: 0.875rem;
+            color: #6c757d;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-value {
+            font-size: 1.125rem;
+            color: #212529;
+            font-weight: 600;
+        }
+
+        .product-info {
+            display: flex;
+            align-items: center;
+            background: white;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+
+        .product-thumbnail {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #dee2e6;
+            margin-right: 1rem;
+        }
+
+        .product-info-details h5 {
+            margin-bottom: 0.25rem;
+            color: #212529;
+        }
+
+        .product-info-details p {
+            margin-bottom: 0.25rem;
+            color: #6c757d;
+            font-size: 0.875rem;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            border: none;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+        }
+
+            .btn-danger:hover {
+                background: linear-gradient(135deg, #ee5a6f 0%, #ff6b6b 100%);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            }
+
+        .breadcrumb {
+            background: transparent;
+            padding: 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .breadcrumb-item a {
+            color: #ff6b6b;
+            text-decoration: none;
+        }
+
+            .breadcrumb-item a:hover {
+                color: #ee5a6f;
+                text-decoration: underline;
+            }
+
+        .badge-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+    </style>
+}
+
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard")"><i class="bi bi-house-door"></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="@Url.Action("Index", "Products")"><i class="bi bi-box-seam"></i> Products</a></li>
+        @if (product != null)
+        {
+            <li class="breadcrumb-item"><a href="@Url.Action("Index", "ProductVariants", new { productId = product.ProductID })"><i class="bi bi-layers"></i> Variants</a></li>
+            <li class="breadcrumb-item"><a href="@Url.Action("Index", "Gemstones", new { variantId = variant.VariantID })"><i class="bi bi-gem"></i> Gemstones</a></li>
+        }
+        <li class="breadcrumb-item active" aria-current="page">Delete</li>
+    </ol>
+</nav>
+
+<!-- Delete Header -->
+<div class="delete-header">
+    <h2 class="mb-0">
+        <i class="bi bi-trash me-2"></i>
+        Delete Gemstone
+    </h2>
+    <p class="mb-0 mt-2 opacity-75">
+        Confirm deletion of gemstone #@Model.GemstoneID
+    </p>
+</div>
+
+<!-- Delete Container -->
+<div class="delete-container">
+    <!-- Warning Banner -->
+    <div class="warning-banner">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <div class="warning-banner-content">
+            <h4>Are you sure you want to delete this gemstone?</h4>
+            <p>This action cannot be undone. The gemstone information will be permanently removed from the system.</p>
+        </div>
+    </div>
+
+    <!-- Gemstone Details Card -->
+    <div class="gemstone-details-card">
+        <!-- Product & Variant Info -->
+        @if (variant != null && product != null)
+        {
+            <div class="detail-section">
+                <h3 class="section-title">
+                    <i class="bi bi-box-seam"></i>
+                    Product & Variant Information
+                </h3>
+
+                <div class="product-info">
+                    @{
+                        var mainMedia = product.ProductMedias?.FirstOrDefault(m => m.IsMain);
+                        var imageUrl = mainMedia != null ? Url.Content(mainMedia.URL) : Url.Content("~/Content/images/no-image.png");
+                    }
+                    <img src="@imageUrl" alt="@product.ProductName" class="product-thumbnail" />
+                    <div class="product-info-details">
+                        <h5><i class="bi bi-box-seam"></i> @product.ProductName</h5>
+                        <p><i class="bi bi-tag"></i> Category: @(product.Category?.CategoryName ?? "N/A")</p>
+                        <p>
+                            <i class="bi bi-upc-scan"></i> SKU: <span class="badge-info">@variant.SKU</span> |
+                            <i class="bi bi-gem"></i> Metal: @(variant.MetalType ?? "N/A") @(variant.Purity ?? "")
+                            @if (!string.IsNullOrEmpty(variant.RingSize))
+                            {
+                                <span>| <i class="bi bi-circle"></i> Size: @variant.RingSize</span>
+                            }
+                            else if (!string.IsNullOrEmpty(variant.ChainLength))
+                            {
+                                <span>| <i class="bi bi-rulers"></i> Length: @variant.ChainLength</span>
+                            }
+                        </p>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- The 4 C's -->
+        <div class="detail-section">
+            <h3 class="section-title">
+                <i class="bi bi-gem"></i>
+                The 4 C's (Cut, Clarity, Color, Carat)
+            </h3>
+
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <div class="detail-label">Cut</div>
+                    <div class="detail-value">
+                        @if (!string.IsNullOrEmpty(Model.Cut))
+                        {
+                            <span>@Model.Cut</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Not specified</span>
+                        }
+                    </div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="detail-label">Clarity</div>
+                    <div class="detail-value">
+                        @if (!string.IsNullOrEmpty(Model.Clarity))
+                        {
+                            <span>@Model.Clarity</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Not specified</span>
+                        }
+                    </div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="detail-label">Color</div>
+                    <div class="detail-value">
+                        @if (!string.IsNullOrEmpty(Model.Color))
+                        {
+                            <span>@Model.Color</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Not specified</span>
+                        }
+                    </div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="detail-label">Carat Weight</div>
+                    <div class="detail-value">
+                        @if (Model.Carat.HasValue)
+                        {
+                            <span>@Model.Carat.Value.ToString("0.00") ct</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Not specified</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Origin & Treatment -->
+        <div class="detail-section">
+            <h3 class="section-title">
+                <i class="bi bi-globe"></i>
+                Origin & Treatment
+            </h3>
+
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <div class="detail-label">Origin</div>
+                    <div class="detail-value">
+                        @if (!string.IsNullOrEmpty(Model.Origin))
+                        {
+                            <span><i class="bi bi-geo-alt"></i> @Model.Origin</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Not specified</span>
+                        }
+                    </div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="detail-label">Treatment</div>
+                    <div class="detail-value">
+                        @if (!string.IsNullOrEmpty(Model.Treatment))
+                        {
+                            <span><i class="bi bi-shield-check"></i> @Model.Treatment</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Not specified</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Actions -->
+    @using (Html.BeginForm("Delete", "Gemstones", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(model => model.GemstoneID)
+
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <a href="@Url.Action("Index", new { variantId = Model.VariantID })" class="btn btn-secondary btn-lg">
+                <i class="bi bi-arrow-left me-2"></i>Cancel
+            </a>
+            <button type="submit" class="btn btn-danger btn-lg">
+                <i class="bi bi-trash me-2"></i>Yes, Delete This Gemstone
+            </button>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(function () {
+            $('.alert').fadeOut('slow');
+        }, 5000);
+
+        // Confirm delete on submit
+        $('form').on('submit', function (e) {
+            if (!confirm('Are you absolutely sure you want to delete this gemstone? This action cannot be undone.')) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    </script>
+}

@@ -1,0 +1,387 @@
+﻿@model OnlineJewelryStore.Models.Certification
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<style>
+    .create-header {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(17, 153, 142, 0.2);
+    }
+
+    .variant-context {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-container {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .section-title {
+        color: #11998e;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 3px solid #38ef7d;
+        display: flex;
+        align-items: center;
+    }
+
+        .section-title i {
+            font-size: 1.5rem;
+            margin-right: 0.5rem;
+        }
+
+    .form-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+
+        .form-label .required {
+            color: #dc3545;
+            margin-left: 0.25rem;
+        }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #11998e;
+        box-shadow: 0 0 0 0.2rem rgba(17, 153, 142, 0.25);
+    }
+
+    .help-text {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+        display: block;
+    }
+
+        .help-text i {
+            color: #11998e;
+        }
+
+    .btn-save {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        border: none;
+        color: white;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(17, 153, 142, 0.3);
+        transition: all 0.3s ease;
+    }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(17, 153, 142, 0.4);
+            background: linear-gradient(135deg, #0f8a7e 0%, #32d96f 100%);
+            color: white;
+        }
+
+    .btn-cancel {
+        background: #6c757d;
+        border: none;
+        color: white;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-cancel:hover {
+            background: #5a6268;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+    .certifier-option {
+        padding: 0.75rem;
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+        .certifier-option:hover {
+            background: #f8f9fa;
+        }
+
+    .info-box {
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        border-left: 4px solid #2196f3;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-top: 1.5rem;
+    }
+
+        .info-box i {
+            color: #2196f3;
+            font-size: 1.2rem;
+        }
+</style>
+
+@* Breadcrumb *@
+<nav aria-label="breadcrumb" style="margin-bottom: 1.5rem;">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a href="@Url.Action("Index", "Products")">Products</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="@Url.Action("Details", "Products", new { id = ViewBag.ProductID })">@ViewBag.ProductName</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="@Url.Action("Index", "ProductVariants", new { productId = ViewBag.ProductID })">Variants</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="@Url.Action("Index", "Certifications", new { variantId = ViewBag.VariantID })">SKU: @ViewBag.SKU</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Add Certification</li>
+    </ol>
+</nav>
+
+
+@* Header *@
+<div class="create-header">
+    <h2 class="mb-2">
+        <i class="bi bi-plus-circle-fill me-2"></i>Add New Certification
+    </h2>
+    <p class="mb-0 opacity-75">
+        Add a gemstone certificate or authenticity document for this product variant
+    </p>
+</div>
+
+@* Variant Context Info *@
+<div class="variant-context">
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="d-flex align-items-center mb-2">
+                <i class="bi bi-box-seam text-primary me-2"></i>
+                <strong>Product:</strong>
+                <span class="ms-2">@ViewBag.ProductName</span>
+            </div>
+            <div class="d-flex align-items-center">
+                <i class="bi bi-tag text-success me-2"></i>
+                <strong>Category:</strong>
+                <span class="ms-2">@ViewBag.CategoryName</span>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="d-flex align-items-center mb-2">
+                <i class="bi bi-upc-scan text-info me-2"></i>
+                <strong>SKU:</strong>
+                <span class="ms-2">@ViewBag.SKU</span>
+            </div>
+            <div class="d-flex align-items-center">
+                <i class="bi bi-gem text-warning me-2"></i>
+                <strong>Metal:</strong>
+                <span class="ms-2">
+                    @(ViewBag.MetalType ?? "N/A")
+                    @(ViewBag.Purity != null ? $"({ViewBag.Purity})" : "")
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Form *@
+<div class="form-container">
+    @using (Html.BeginForm("Create", "Certifications", FormMethod.Post, new { @class = "needs-validation", novalidate = "novalidate" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(model => model.VariantID)
+
+        @* Validation Summary *@
+        if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <strong>Please fix the following errors:</strong>
+                @Html.ValidationSummary(true, "", new { @class = "mb-0 mt-2" })
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        @* Section 1: Certification Details *@
+        <div class="mb-4">
+            <h5 class="section-title">
+                <i class="bi bi-award"></i>
+                Certification Information
+            </h5>
+
+            <div class="row g-3">
+                @* Certifier *@
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Certifier
+                        <span class="required">*</span>
+                    </label>
+                    @Html.DropDownListFor(model => model.Certifier,
+                        (SelectList)ViewBag.CertifierList,
+                        "-- Select Certifier --",
+                        new { @class = "form-select", required = "required" })
+                    @Html.ValidationMessageFor(model => model.Certifier, "", new { @class = "text-danger small" })
+                    <small class="help-text">
+                        <i class="bi bi-info-circle"></i>
+                        Choose the organization that issued the certificate
+                    </small>
+                </div>
+
+                @* Certificate Number *@
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Certificate Number
+                        <span class="text-muted">(Optional)</span>
+                    </label>
+                    @Html.TextBoxFor(model => model.CertificateNumber,
+                        new
+                             {
+                            @class = "form-control",
+                            placeholder = "e.g., GIA-1234567890",
+                            maxlength = "100"
+                        })
+                    @Html.ValidationMessageFor(model => model.CertificateNumber, "", new { @class = "text-danger small" })
+                    <small class="help-text">
+                        <i class="bi bi-info-circle"></i>
+                        Unique identifier for this certificate (must be unique across all certifications)
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        @* Section 2: Verification Details *@
+        <div class="mb-4">
+            <h5 class="section-title">
+                <i class="bi bi-link-45deg"></i>
+                Verification Details
+            </h5>
+
+            <div class="row g-3">
+                @* Verification URL *@
+                <div class="col-12">
+                    <label class="form-label">
+                        Verification URL
+                        <span class="text-muted">(Optional)</span>
+                    </label>
+                    @Html.TextBoxFor(model => model.VerificationURL,
+                        new
+                             {
+                            @class = "form-control",
+                            type = "url",
+                            placeholder = "https://www.gia.edu/report-check?reportno=1234567890",
+                            maxlength = "255"
+                        })
+                    @Html.ValidationMessageFor(model => model.VerificationURL, "", new { @class = "text-danger small" })
+                    <small class="help-text">
+                        <i class="bi bi-info-circle"></i>
+                        Website URL where customers can verify the certificate online (must start with http:// or https://)
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        @* Info Box *@
+        <div class="info-box">
+            <div class="d-flex">
+                <div class="me-3">
+                    <i class="bi bi-lightbulb-fill"></i>
+                </div>
+                <div>
+                    <strong>Tips for adding certifications:</strong>
+                    <ul class="mb-0 mt-2" style="font-size: 0.9rem;">
+                        <li><strong>GIA Example:</strong> Certificate Number: 1234567890, URL: https://www.gia.edu/report-check</li>
+                        <li><strong>AGS Example:</strong> Certificate Number: 104123456789, URL: https://www.americangemsociety.org/verify</li>
+                        <li>Certificate numbers must be <strong>unique</strong> - you cannot add the same number twice</li>
+                        <li>Verification URLs allow customers to check authenticity directly on the certifier's website</li>
+                        <li>All fields except Certifier are optional, but providing details increases customer trust</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        @* Action Buttons *@
+        <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+            <a href="@Url.Action("Index", new { variantId = Model.VariantID })"
+               class="btn btn-cancel">
+                <i class="bi bi-x-circle me-2"></i>Cancel
+            </a>
+            <button type="submit" class="btn btn-save">
+                <i class="bi bi-check-circle me-2"></i>Save Certification
+            </button>
+        </div>
+    }
+</div>
+
+@* Additional Info Alert *@
+<div class="alert alert-warning mt-4" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    <strong>Important:</strong> Make sure the certificate number is correct. Once saved, it cannot be duplicated in other certifications.
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script>
+        $(document).ready(function () {
+            // Bootstrap 5 form validation
+            const forms = document.querySelectorAll('.needs-validation');
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+
+            // Auto-dismiss alerts
+            setTimeout(function () {
+                $('.alert-dismissible').alert('close');
+            }, 5000);
+
+            // Certifier dropdown change event - show helpful info
+            $('#Certifier').on('change', function () {
+                const certifier = $(this).val();
+                let placeholder = 'e.g., 1234567890';
+                let urlPlaceholder = 'https://example.com/verify';
+
+                if (certifier === 'GIA') {
+                    placeholder = 'e.g., GIA-1234567890';
+                    urlPlaceholder = 'https://www.gia.edu/report-check?reportno=1234567890';
+                } else if (certifier === 'AGS') {
+                    placeholder = 'e.g., AGS-104123456789';
+                    urlPlaceholder = 'https://www.americangemsociety.org/verify';
+                }
+
+                $('#CertificateNumber').attr('placeholder', placeholder);
+                $('#VerificationURL').attr('placeholder', urlPlaceholder);
+            });
+
+            // URL validation helper
+            $('#VerificationURL').on('blur', function () {
+                const url = $(this).val().trim();
+                if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
+                    $(this).addClass('is-invalid');
+                    if (!$(this).next('.invalid-feedback').length) {
+                        $(this).after('<div class="invalid-feedback">URL must start with http:// or https://</div>');
+                    }
+                } else {
+                    $(this).removeClass('is-invalid');
+                    $(this).next('.invalid-feedback').remove();
+                }
+            });
+        });
+    </script>
+}
