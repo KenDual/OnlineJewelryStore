@@ -137,6 +137,7 @@
     <Compile Include="Areas\Admin\Controllers\CouponsController.cs" />
     <Compile Include="Areas\Admin\Controllers\DashboardController.cs" />
     <Compile Include="Areas\Admin\Controllers\GemstonesController.cs" />
+    <Compile Include="Areas\Admin\Controllers\InventoryController.cs" />
     <Compile Include="Areas\Admin\Controllers\OrdersController.cs" />
     <Compile Include="Areas\Admin\Controllers\PaymentsController.cs" />
     <Compile Include="Areas\Admin\Controllers\ProductMediasController.cs" />
@@ -317,6 +318,8 @@
     <Content Include="Areas\Admin\Views\Certifications\Create.cshtml" />
     <Content Include="Areas\Admin\Views\Certifications\Edit.cshtml" />
     <Content Include="Areas\Admin\Views\Certifications\Delete.cshtml" />
+    <Content Include="Areas\Admin\Views\Inventory\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\Inventory\StockAlert.cshtml" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />

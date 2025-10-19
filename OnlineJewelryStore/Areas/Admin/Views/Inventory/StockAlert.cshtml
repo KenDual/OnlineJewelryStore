@@ -1,0 +1,390 @@
+﻿@model IEnumerable<OnlineJewelryStore.Models.ProductVariant>
+
+@{
+    ViewBag.Title = ViewBag.Title ?? "Stock Alert";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+    var alertType = ViewBag.AlertType; // "low" or "out"
+    var isLowStock = alertType == "low";
+}
+
+@section Styles {
+    <style>
+    .alert-header {
+        background: linear-gradient(135deg,
+            @(isLowStock ? "#f59e0b 0%, #d97706 100%" : "#dc2626 0%, #991b1b 100%"));
+        color: white;
+        padding: 2rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+    }
+
+    .product-img {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .alert-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        background: rgba(255, 255, 255, 0.2);
+        margin: 0 auto 1rem;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .stock-badge {
+        font-size: 0.9rem;
+        padding: 0.35rem 0.6rem;
+    }
+    </style>
+}
+
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">@Html.ActionLink("Dashboard", "Index", "Dashboard")</li>
+        <li class="breadcrumb-item">@Html.ActionLink("Inventory", "Index", "Inventory")</li>
+        <li class="breadcrumb-item active" aria-current="page">@ViewBag.Title</li>
+    </ol>
+</nav>
+
+<!-- Alert Header -->
+<div class="alert-header">
+    <div class="text-center">
+        <div class="alert-icon">
+            <i class="bi bi-@(isLowStock ? "exclamation-triangle" : "x-circle")"></i>
+        </div>
+        <h2 class="mb-2">
+            @(isLowStock ? "Low Stock Alert" : "Out of Stock Alert")
+        </h2>
+        <p class="mb-0 opacity-75">
+            @if (isLowStock)
+            {
+                <text>These products have less than 10 units in stock</text>
+            }
+            else
+            {
+                <text>These products are currently unavailable</text>
+            }
+        </p>
+        <h1 class="mt-3 mb-0" style="font-size: 3rem;">@Model.Count()</h1>
+        <p class="mb-0 opacity-75">
+            @(isLowStock ? "products need attention" : "products out of stock")
+        </p>
+    </div>
+</div>
+
+<!-- Alert Message -->
+@if (Model.Any())
+{
+    <div class="alert alert-@(isLowStock ? "warning" : "danger") d-flex align-items-center mb-4">
+        <i class="bi bi-@(isLowStock ? "exclamation-triangle" : "x-circle") me-2" style="font-size: 1.5rem;"></i>
+        <div>
+            <strong>Action Required:</strong>
+            @if (isLowStock)
+            {
+                <text>Consider restocking these items to prevent stockouts.</text>
+            }
+            else
+            {
+                <text>These products are unavailable for purchase. Restock immediately!</text>
+            }
+        </div>
+    </div>
+}
+
+<!-- Products Table -->
+<div class="card shadow-sm">
+    <div class="card-header bg-white py-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="bi bi-list-ul"></i> @ViewBag.Title
+            </h5>
+            <a href="@Url.Action("Index")" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-arrow-left"></i> Back to Inventory
+            </a>
+        </div>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 80px;">Image</th>
+                        <th>Product Name</th>
+                        <th>SKU</th>
+                        <th>Category</th>
+                        <th>Metal Type</th>
+                        <th style="width: 100px;" class="text-center">Stock</th>
+                        <th style="width: 130px;" class="text-center">Status</th>
+                        <th style="width: 150px;" class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var variant in Model)
+                    {
+                        <tr id="row-@variant.VariantID">
+                            <td>
+                                @if (variant.Product.ProductMedias.Any(m => m.IsMain))
+                                {
+                                    var mainImage = variant.Product.ProductMedias.FirstOrDefault(m => m.IsMain);
+                                    <img src="@Url.Content(mainImage.URL)"
+                                         alt="@variant.Product.ProductName"
+                                         class="product-img">
+                                }
+                                else
+                                {
+                                    <div class="product-img bg-light d-flex align-items-center justify-content-center">
+                                        <i class="bi bi-image text-muted"></i>
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                <strong>@variant.Product.ProductName</strong>
+                            </td>
+                            <td>
+                                <code class="text-dark">@variant.SKU</code>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">@variant.Product.Category.CategoryName</span>
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(variant.MetalType))
+                                {
+                                    <span class="badge bg-info">@variant.MetalType @variant.Purity</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">-</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <span class="stock-quantity-@variant.VariantID fw-bold text-@(variant.StockQuantity == 0 ? "danger" : "warning")"
+                                      style="font-size: 1.2rem;">
+                                    @variant.StockQuantity
+                                </span>
+                            </td>
+                            <td class="text-center stock-status-@variant.VariantID">
+                                @if (variant.StockQuantity == 0)
+                                {
+                                    <span class="badge bg-danger stock-badge">
+                                        <i class="bi bi-x-circle"></i> Out of Stock
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark stock-badge">
+                                        <i class="bi bi-exclamation-triangle"></i> Low Stock
+                                    </span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <button type="button"
+                                        class="btn btn-sm btn-primary"
+                                        onclick="editStock(@variant.VariantID, @variant.StockQuantity, '@variant.Product.ProductName', '@variant.SKU')">
+                                    <i class="bi bi-pencil-square"></i> Restock
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="card-body text-center py-5">
+            <i class="bi bi-@(isLowStock ? "check-circle" : "inbox")"
+               style="font-size: 4rem; color: #10b981;"></i>
+            <h5 class="mt-3 text-success">
+                @(isLowStock ? "All Good!" : "Everything In Stock!")
+            </h5>
+            <p class="text-muted">
+                @(isLowStock
+                    ? "No products with low stock at the moment."
+                    : "All products are currently in stock.")
+            </p>
+            <a href="@Url.Action("Index")" class="btn btn-primary">
+                <i class="bi bi-arrow-left"></i> Back to Inventory
+            </a>
+        </div>
+    }
+</div>
+
+<!-- Edit Stock Modal (Same as Index) -->
+<div class="modal fade" id="editStockModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-@(isLowStock ? "warning" : "danger") text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-box-seam"></i> Restock Product
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Product:</label>
+                    <p id="modalProductName" class="mb-1"></p>
+                    <p class="text-muted small mb-0">SKU: <code id="modalSKU"></code></p>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Current Stock:</label>
+                    <p class="mb-0">
+                        <span id="modalCurrentStock" class="badge bg-@(isLowStock ? "warning text-dark" : "danger")"
+                              style="font-size: 1.2rem;"></span>
+                    </p>
+                </div>
+
+                <div class="mb-3">
+                    <label for="newStockInput" class="form-label fw-bold">New Stock Quantity:</label>
+                    <input type="number"
+                           class="form-control form-control-lg text-center"
+                           id="newStockInput"
+                           min="0"
+                           step="1"
+                           placeholder="Enter new stock quantity">
+                    <div class="form-text">
+                        <i class="bi bi-info-circle"></i>
+                        Recommended: Set to 10 or more to maintain healthy stock levels
+                    </div>
+                </div>
+
+                <div id="stockAlert" class="alert d-none"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="saveStock()">
+                    <i class="bi bi-check-lg"></i> Update Stock
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+    let currentVariantId = 0;
+
+    function editStock(variantId, currentStock, productName, sku) {
+        currentVariantId = variantId;
+
+        $('#modalProductName').text(productName);
+        $('#modalSKU').text(sku);
+        $('#modalCurrentStock').text(currentStock);
+        $('#newStockInput').val(currentStock);
+
+        $('#stockAlert').addClass('d-none');
+
+        $('#editStockModal').modal('show');
+
+        setTimeout(() => {
+            $('#newStockInput').focus().select();
+        }, 500);
+    }
+
+    $('#newStockInput').on('input', function() {
+        let newStock = parseInt($(this).val());
+        let alertDiv = $('#stockAlert');
+        let currentStock = parseInt($('#modalCurrentStock').text());
+
+        if (isNaN(newStock) || newStock < 0) {
+            alertDiv.removeClass('d-none alert-info alert-warning alert-danger')
+                    .addClass('alert-danger')
+                    .html('<i class="bi bi-x-circle"></i> Please enter a valid stock quantity (0 or higher)');
+        } else if (newStock === 0) {
+            alertDiv.removeClass('d-none alert-info alert-warning')
+                    .addClass('alert-danger')
+                    .html('<i class="bi bi-x-circle"></i> This will mark the product as OUT OF STOCK');
+        } else if (newStock < 10) {
+            alertDiv.removeClass('d-none alert-info alert-danger')
+                    .addClass('alert-warning')
+                    .html('<i class="bi bi-exclamation-triangle"></i> This stock level is still considered LOW STOCK');
+        } else if (newStock >= 10 && currentStock < 10) {
+            alertDiv.removeClass('d-none alert-warning alert-danger')
+                    .addClass('alert-success')
+                    .html('<i class="bi bi-check-circle"></i> Great! This will bring stock to healthy levels');
+        } else {
+            alertDiv.addClass('d-none');
+        }
+    });
+
+    function saveStock() {
+        let newStock = parseInt($('#newStockInput').val());
+
+        if (isNaN(newStock) || newStock < 0) {
+            alert('Please enter a valid stock quantity!');
+            return;
+        }
+
+        $.ajax({
+            url: '@Url.Action("UpdateStock", "Inventory")',
+            type: 'POST',
+            data: {
+                variantId: currentVariantId,
+                newStock: newStock
+            },
+            success: function(response) {
+                if (response.success) {
+                    $('#editStockModal').modal('hide');
+                    showToast('success', response.message);
+
+                    // Reload after 1.5s
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    alert('Error: ' + response.message);
+                }
+            },
+            error: function() {
+                alert('An error occurred while updating stock!');
+            }
+        });
+    }
+
+    function showToast(type, message) {
+        let bgClass = type === 'success' ? 'bg-success' : 'bg-danger';
+        let icon = type === 'success' ? 'check-circle' : 'x-circle';
+
+        let toast = `
+            <div class="toast align-items-center text-white ${bgClass} border-0" role="alert"
+                 style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="bi bi-${icon}"></i> ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                            data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+        `;
+
+        $('body').append(toast);
+        let toastEl = $('.toast').last();
+        let bsToast = new bootstrap.Toast(toastEl[0], { delay: 3000 });
+        bsToast.show();
+
+        toastEl.on('hidden.bs.toast', function() {
+            $(this).remove();
+        });
+    }
+
+    $('#newStockInput').on('keypress', function(e) {
+        if (e.which === 13) {
+            saveStock();
+        }
+    });
+    </script>
+}

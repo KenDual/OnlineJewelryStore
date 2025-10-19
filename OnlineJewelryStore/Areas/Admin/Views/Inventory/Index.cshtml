@@ -1,0 +1,616 @@
+﻿@model IEnumerable<OnlineJewelryStore.Models.ProductVariant>
+
+@{
+    ViewBag.Title = "Inventory Management";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@section Styles {
+    <style>
+        .inventory-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            border: none;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .stock-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+        }
+
+        .product-img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .filter-card {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stock-input {
+            width: 80px;
+            text-align: center;
+        }
+
+        .stock-value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .pagination-info {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .clickable-card {
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+
+            .clickable-card:hover {
+                color: inherit;
+                text-decoration: none;
+            }
+    </style>
+}
+
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">@Html.ActionLink("Dashboard", "Index", "Dashboard")</li>
+        <li class="breadcrumb-item active" aria-current="page">Inventory</li>
+    </ol>
+</nav>
+
+<!-- Header -->
+<div class="inventory-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="mb-1">
+                <i class="bi bi-box-seam"></i> Inventory Management
+            </h2>
+            <p class="mb-0 opacity-75">Monitor and manage your product stock levels</p>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-3 mb-4">
+    <!-- Total Products -->
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-primary bg-opacity-10 text-primary me-3">
+                        <i class="bi bi-box-seam"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <p class="text-muted mb-1 small">Total Products</p>
+                        <h3 class="mb-0">@ViewBag.TotalVariants</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Low Stock -->
+    <div class="col-md-3">
+        <a href="@Url.Action("LowStock")" class="clickable-card">
+            <div class="card stat-card shadow-sm border-warning">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon bg-warning bg-opacity-10 text-warning me-3">
+                            <i class="bi bi-exclamation-triangle"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <p class="text-muted mb-1 small">Low Stock (&lt;10)</p>
+                            <h3 class="mb-0 text-warning">@ViewBag.LowStockCount</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Out of Stock -->
+    <div class="col-md-3">
+        <a href="@Url.Action("OutOfStock")" class="clickable-card">
+            <div class="card stat-card shadow-sm border-danger">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon bg-danger bg-opacity-10 text-danger me-3">
+                            <i class="bi bi-x-circle"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <p class="text-muted mb-1 small">Out of Stock</p>
+                            <h3 class="mb-0 text-danger">@ViewBag.OutOfStockCount</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Total Stock Value -->
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-success bg-opacity-10 text-success me-3">
+                        <i class="bi bi-currency-dollar"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <p class="text-muted mb-1 small">Total Stock Value</p>
+                        <h3 class="mb-0 text-success">@string.Format("{0:N0}", ViewBag.TotalStockValue) đ</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="filter-card">
+    <form method="get" action="@Url.Action("Index")" id="filterForm">
+        <div class="row g-3">
+            <!-- Search -->
+            <div class="col-md-3">
+                <label class="form-label small text-muted">
+                    <i class="bi bi-search"></i> Search
+                </label>
+                <input type="text"
+                       name="search"
+                       class="form-control"
+                       placeholder="Product name or SKU..."
+                       value="@ViewBag.CurrentSearch">
+            </div>
+
+            <!-- Category Filter -->
+            <div class="col-md-3">
+                <label class="form-label small text-muted">
+                    <i class="bi bi-tag"></i> Category
+                </label>
+                <select name="categoryId" class="form-select">
+                    <option value="">All Categories</option>
+                    @foreach (var category in ViewBag.Categories)
+                    {
+                        <option value="@category.CategoryID"
+                                @(ViewBag.CurrentCategoryId == category.CategoryID ? "selected" : "")>
+                            @category.CategoryName
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <!-- Stock Status Filter -->
+            <div class="col-md-2">
+                <label class="form-label small text-muted">
+                    <i class="bi bi-filter"></i> Stock Status
+                </label>
+                <select name="stockStatus" class="form-select">
+                    <option value="" @(ViewBag.CurrentStockStatus == null ? "selected" : "")>All</option>
+                    <option value="in" @(ViewBag.CurrentStockStatus == "in" ? "selected" : "")>In Stock (≥10)</option>
+                    <option value="low" @(ViewBag.CurrentStockStatus == "low" ? "selected" : "")>Low Stock (&lt;10)</option>
+                    <option value="out" @(ViewBag.CurrentStockStatus == "out" ? "selected" : "")>Out of Stock</option>
+                </select>
+            </div>
+
+            <!-- Sort -->
+            <div class="col-md-2">
+                <label class="form-label small text-muted">
+                    <i class="bi bi-sort-down"></i> Sort By
+                </label>
+                <select name="sortBy" class="form-select">
+                    <option value="name_asc" @(ViewBag.CurrentSortBy == "name_asc" ? "selected" : "")>Name A-Z</option>
+                    <option value="name_desc" @(ViewBag.CurrentSortBy == "name_desc" ? "selected" : "")>Name Z-A</option>
+                    <option value="stock_asc" @(ViewBag.CurrentSortBy == "stock_asc" ? "selected" : "")>Stock Low-High</option>
+                    <option value="stock_desc" @(ViewBag.CurrentSortBy == "stock_desc" ? "selected" : "")>Stock High-Low</option>
+                    <option value="sku" @(ViewBag.CurrentSortBy == "sku" ? "selected" : "")>SKU</option>
+                </select>
+            </div>
+
+            <!-- Buttons -->
+            <div class="col-md-2">
+                <label class="form-label small text-muted d-block">&nbsp;</label>
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-funnel"></i> Apply
+                </button>
+            </div>
+        </div>
+
+        <div class="mt-2">
+            <a href="@Url.Action("Index")" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-arrow-counterclockwise"></i> Reset Filters
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Products Table -->
+<div class="card shadow-sm">
+    <div class="card-header bg-white py-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="bi bi-list-ul"></i> Products List
+            </h5>
+            <div class="pagination-info">
+                Showing @((ViewBag.CurrentPage - 1) * ViewBag.PageSize + 1) -
+                @(Math.Min(ViewBag.CurrentPage * ViewBag.PageSize, ViewBag.TotalVariants))
+                of @ViewBag.TotalVariants items
+            </div>
+        </div>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 80px;">Image</th>
+                        <th>Product Name</th>
+                        <th>SKU</th>
+                        <th>Category</th>
+                        <th>Metal Type</th>
+                        <th style="width: 120px;" class="text-center">Stock</th>
+                        <th style="width: 140px;" class="text-center">Status</th>
+                        <th style="width: 150px;" class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var variant in Model)
+                    {
+                        <tr id="row-@variant.VariantID">
+                            <td>
+                                @{
+                                    var mainImage = variant.Product.ProductMedias
+                                        .Where(m => m.IsMain == true)
+                                        .FirstOrDefault();
+                                }
+
+                                @if (mainImage != null)
+                                {
+                                    <img src="@Url.Content(mainImage.URL)"
+                                         alt="@variant.Product.ProductName"
+                                         class="product-img">
+                                }
+                                else
+                                {
+                                    <div class="product-img bg-light d-flex align-items-center justify-content-center">
+                                        <i class="bi bi-image text-muted"></i>
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                <strong>@variant.Product.ProductName</strong>
+                            </td>
+                            <td>
+                                <code class="text-dark">@variant.SKU</code>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">@variant.Product.Category.CategoryName</span>
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(variant.MetalType))
+                                {
+                                    <span class="badge bg-info">@variant.MetalType @variant.Purity</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">-</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <span class="stock-quantity-@variant.VariantID fw-bold"
+                                      style="font-size: 1.1rem;">
+                                    @variant.StockQuantity
+                                </span>
+                            </td>
+                            <td class="text-center stock-status-@variant.VariantID">
+                                @if (variant.StockQuantity == 0)
+                                {
+                                    <span class="badge bg-danger stock-badge">Out of Stock</span>
+                                }
+                                else if (variant.StockQuantity < 10)
+                                {
+                                    <span class="badge bg-warning text-dark stock-badge">Low Stock</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success stock-badge">In Stock</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <button type="button"
+                                        class="btn btn-sm btn-primary"
+                                        onclick="editStock(@variant.VariantID, @variant.StockQuantity, '@variant.Product.ProductName', '@variant.SKU')">
+                                    <i class="bi bi-pencil-square"></i> Edit Stock
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        if (ViewBag.TotalPages > 1)
+        {
+            <div class="card-footer bg-white">
+                <nav>
+                    <ul class="pagination justify-content-center mb-0">
+                        @* Previous *@
+                        <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+                            <a class="page-link"
+                               href="@Url.Action("Index", new {
+                                   search = ViewBag.CurrentSearch,
+                                   categoryId = ViewBag.CurrentCategoryId,
+                                   stockStatus = ViewBag.CurrentStockStatus,
+                                   sortBy = ViewBag.CurrentSortBy,
+                                   page = ViewBag.CurrentPage - 1
+                               })">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                        </li>
+
+                        @* Page Numbers *@
+                        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                                <a class="page-link"
+                                   href="@Url.Action("Index", new {
+                                       search = ViewBag.CurrentSearch,
+                                       categoryId = ViewBag.CurrentCategoryId,
+                                       stockStatus = ViewBag.CurrentStockStatus,
+                                       sortBy = ViewBag.CurrentSortBy,
+                                       page = i
+                                   })">
+                                    @i
+                                </a>
+                            </li>
+                        }
+
+                        @* Next *@
+                        <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
+                            <a class="page-link"
+                               href="@Url.Action("Index", new {
+                                   search = ViewBag.CurrentSearch,
+                                   categoryId = ViewBag.CurrentCategoryId,
+                                   stockStatus = ViewBag.CurrentStockStatus,
+                                   sortBy = ViewBag.CurrentSortBy,
+                                   page = ViewBag.CurrentPage + 1
+                               })">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="card-body text-center py-5">
+            <i class="bi bi-inbox" style="font-size: 4rem; color: #dee2e6;"></i>
+            <h5 class="mt-3 text-muted">No Products Found</h5>
+            <p class="text-muted">Try adjusting your filters or search criteria.</p>
+            <a href="@Url.Action("Index")" class="btn btn-primary">
+                <i class="bi bi-arrow-counterclockwise"></i> Reset Filters
+            </a>
+        </div>
+    }
+</div>
+
+<!-- Edit Stock Modal -->
+<div class="modal fade" id="editStockModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-pencil-square"></i> Edit Stock Quantity
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Product:</label>
+                    <p id="modalProductName" class="mb-1"></p>
+                    <p class="text-muted small mb-0">SKU: <code id="modalSKU"></code></p>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Current Stock:</label>
+                    <p class="mb-0">
+                        <span id="modalCurrentStock" class="badge bg-primary" style="font-size: 1.2rem;"></span>
+                    </p>
+                </div>
+
+                <div class="mb-3">
+                    <label for="newStockInput" class="form-label fw-bold">New Stock Quantity:</label>
+                    <input type="number"
+                           class="form-control form-control-lg text-center"
+                           id="newStockInput"
+                           min="0"
+                           step="1"
+                           placeholder="Enter new stock quantity">
+                    <div class="form-text">Enter 0 for out of stock</div>
+                </div>
+
+                <div id="stockAlert" class="alert alert-warning d-none">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <span id="stockAlertText"></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveStock()">
+                    <i class="bi bi-check-lg"></i> Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+    let currentVariantId = 0;
+
+    function editStock(variantId, currentStock, productName, sku) {
+        currentVariantId = variantId;
+
+        $('#modalProductName').text(productName);
+        $('#modalSKU').text(sku);
+        $('#modalCurrentStock').text(currentStock);
+        $('#newStockInput').val(currentStock);
+
+        $('#stockAlert').addClass('d-none');
+
+        $('#editStockModal').modal('show');
+
+        // Focus on input after modal opens
+        setTimeout(() => {
+            $('#newStockInput').focus().select();
+        }, 500);
+    }
+
+    // Show alert when stock is low or out
+    $('#newStockInput').on('input', function() {
+        let newStock = parseInt($(this).val());
+        let alertDiv = $('#stockAlert');
+        let alertText = $('#stockAlertText');
+
+        if (isNaN(newStock) || newStock < 0) {
+            alertDiv.removeClass('d-none alert-warning alert-danger')
+                    .addClass('alert-danger');
+            alertText.text('Please enter a valid stock quantity (0 or higher)');
+        } else if (newStock === 0) {
+            alertDiv.removeClass('d-none alert-warning')
+                    .addClass('alert-danger');
+            alertText.text('This will mark the product as OUT OF STOCK');
+        } else if (newStock < 10) {
+            alertDiv.removeClass('d-none alert-danger')
+                    .addClass('alert-warning');
+            alertText.text('This stock level is considered LOW STOCK');
+        } else {
+            alertDiv.addClass('d-none');
+        }
+    });
+
+    function saveStock() {
+        let newStock = parseInt($('#newStockInput').val());
+
+        if (isNaN(newStock) || newStock < 0) {
+            alert('Please enter a valid stock quantity!');
+            return;
+        }
+
+        $.ajax({
+            url: '@Url.Action("UpdateStock", "Inventory")',
+            type: 'POST',
+            data: {
+                variantId: currentVariantId,
+                newStock: newStock
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Update stock quantity in table
+                    $('.stock-quantity-' + currentVariantId).text(newStock);
+
+                    // Update status badge
+                    $('.stock-status-' + currentVariantId).html(response.statusBadge);
+
+                    // Close modal
+                    $('#editStockModal').modal('hide');
+
+                    // Show success toast
+                    showToast('success', response.message);
+
+                    // Reload page after 1.5s to update summary cards
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    alert('Error: ' + response.message);
+                }
+            },
+            error: function() {
+                alert('An error occurred while updating stock!');
+            }
+        });
+    }
+
+    function showToast(type, message) {
+        let bgClass = type === 'success' ? 'bg-success' : 'bg-danger';
+        let icon = type === 'success' ? 'check-circle' : 'x-circle';
+
+        let toast = `
+            <div class="toast align-items-center text-white ${bgClass} border-0" role="alert"
+                 style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="bi bi-${icon}"></i> ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                            data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+        `;
+
+        $('body').append(toast);
+        let toastEl = $('.toast').last();
+        let bsToast = new bootstrap.Toast(toastEl[0], { delay: 3000 });
+        bsToast.show();
+
+        toastEl.on('hidden.bs.toast', function() {
+            $(this).remove();
+        });
+    }
+
+    // Allow Enter key to save
+    $('#newStockInput').on('keypress', function(e) {
+        if (e.which === 13) {
+            saveStock();
+        }
+    });
+
+    // Auto-submit form when filter changes (optional)
+    $('select[name="categoryId"], select[name="stockStatus"], select[name="sortBy"]').on('change', function() {
+        $('#filterForm').submit();
+    });
+    </script>
+}

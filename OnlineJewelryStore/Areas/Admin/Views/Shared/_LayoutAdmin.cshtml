@@ -99,6 +99,36 @@
             font-weight: 500;
             letter-spacing: 0.5px;
         }
+
+        .sidebar .submenu {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0;
+        }
+
+            .sidebar .submenu .nav-link {
+                padding: 10px 20px 10px 50px;
+                font-size: 0.9rem;
+            }
+
+        .sidebar .nav-link .dropdown-icon {
+            margin-left: auto;
+            transition: transform 0.3s;
+            font-size: 14px;
+        }
+
+        .sidebar .nav-link[aria-expanded="true"] .dropdown-icon {
+            transform: rotate(180deg);
+        }
+
+        .sidebar .submenu .nav-link.active {
+            background: rgba(52, 152, 219, 0.3);
+        }
+
+        .sidebar .badge {
+            margin-left: auto;
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+        }
     </style>
 </head>
 
@@ -133,11 +163,34 @@
                 <span>Products</span>
             </a>
 
-            <!-- 4. Quản lý Kho/Tồn kho - MỚI THÊM -->
-            <a class="nav-link @(ViewBag.ActiveMenu == "Inventory" ? "active" : "")" href="/Admin/Inventory">
+            <!-- 4. Quản lý Kho/Tồn kho - DROPDOWN -->
+            <a class="nav-link @(ViewBag.ActiveMenu == "Inventory" ? "active" : "")"
+               data-bs-toggle="collapse"
+               href="#inventorySubmenu"
+               role="button"
+               aria-expanded="@(ViewBag.ActiveMenu == "Inventory" ? "true" : "false")">
                 <i class="bi bi-box-seam"></i>
                 <span>Inventory</span>
+                <i class="bi bi-chevron-down dropdown-icon"></i>
             </a>
+            <div class="collapse submenu @(ViewBag.ActiveMenu == "Inventory" ? "show" : "")" id="inventorySubmenu">
+                <nav class="nav flex-column">
+                    <a class="nav-link" href="/Admin/Inventory">
+                        <i class="bi bi-list-ul"></i>
+                        <span>All Products</span>
+                    </a>
+                    <a class="nav-link" href="/Admin/Inventory/LowStock">
+                        <i class="bi bi-exclamation-triangle text-warning"></i>
+                        <span>Low Stock</span>
+                        <span class="badge bg-warning text-dark" id="lowStockBadge"></span>
+                    </a>
+                    <a class="nav-link" href="/Admin/Inventory/OutOfStock">
+                        <i class="bi bi-x-circle text-danger"></i>
+                        <span>Out of Stock</span>
+                        <span class="badge bg-danger" id="outStockBadge"></span>
+                    </a>
+                </nav>
+            </div>
 
             <!-- DIVIDER: Bán hàng -->
             <div class="nav-divider">
@@ -287,6 +340,48 @@
     </script>
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <script>
+        // Load stock counts for badges
+        fetch('/Admin/Inventory/GetStockCounts')
+            .then(response => response.json())
+            .then(data => {
+                const lowBadge = document.getElementById('lowStockBadge');
+                const outBadge = document.getElementById('outStockBadge');
+
+                if (data.lowStockCount > 0) {
+                    lowBadge.textContent = data.lowStockCount;
+                    lowBadge.style.display = 'inline-block';
+                } else {
+                    lowBadge.style.display = 'none';
+                }
+
+                if (data.outOfStockCount > 0) {
+                    outBadge.textContent = data.outOfStockCount;
+                    outBadge.style.display = 'inline-block';
+                } else {
+                    outBadge.style.display = 'none';
+                }
+            })
+            .catch(error => console.error('Error loading stock counts:', error));
+        const currentPath = window.location.pathname;
+        document.querySelectorAll('.submenu .nav-link').forEach(link => {
+            if (link.getAttribute('href') === currentPath) {
+                link.classList.add('active');
+                const parentCollapse = link.closest('.collapse');
+                if (parentCollapse) {
+                    parentCollapse.classList.add('show');
+                    const parentToggle = document.querySelector(`[href="#${parentCollapse.id}"]`);
+                    if (parentToggle) {
+                        parentToggle.setAttribute('aria-expanded', 'true');
+                        parentToggle.classList.add('active');
+                    }
+                }
+            }
+        });
+    </script>
 
     @RenderSection("Scripts", required: false)
     @RenderSection("styles", required: false)
