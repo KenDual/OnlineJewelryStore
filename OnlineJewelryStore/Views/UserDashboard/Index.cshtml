@@ -63,24 +63,48 @@
                     <!-- My Account Tab Menu Start -->
                     <div class="row">
                         <div class="col-lg-3">
+                            @*<div class="myaccount-tab-menu nav" role="tablist">
+                                    <a href="#dashboad" class="active"
+                                       data-toggle="tab"> <i class="fa fa-dashboard"></i> Dashboard </a> <a href="#orders"
+                                    <a href="#payment-method" data-toggle="tab">
+                                        <i class="fa fa-credit-card"></i> Payment
+                                        Method
+                                    </a> <a href="#address" data-toggle="tab">
+                                        <i class="fa fa-map-marker"></i>
+                                        address
+                                    </a> <a href="#account-info" data-toggle="tab">
+                                        <i class="fa fa-user"></i>
+                                        Account Details
+                                    </a> <a href="login-register.html">
+                                        <i class="fa fa-sign-out"></i>
+                                        Logout
+                                    </a>
+                                </div>*@
+
                             <div class="myaccount-tab-menu nav" role="tablist">
-                                <a href="#dashboad" class="active"
-                                   data-toggle="tab"> <i class="fa fa-dashboard"></i> Dashboard </a> <a href="#orders"
-                                                                                                        data-toggle="tab"><i class="fa fa-cart-arrow-down"></i> Orders</a> <a href="#download" data-toggle="tab"><i class="fa fa-cloud-download"></i> Download</a>
-                                <a href="#payment-method" data-toggle="tab">
-                                    <i class="fa fa-credit-card"></i> Payment
-                                    Method
-                                </a> <a href="#address" data-toggle="tab">
-                                    <i class="fa fa-map-marker"></i>
-                                    address
-                                </a> <a href="#account-info" data-toggle="tab">
-                                    <i class="fa fa-user"></i>
-                                    Account Details
-                                </a> <a href="login-register.html">
-                                    <i class="fa fa-sign-out"></i>
-                                    Logout
+                                <a href="@Url.Action("Index","UserDashboard")" class="active">
+                                    <i class="fa fa-dashboard"></i> Dashboard
                                 </a>
+
+                                <a href="@Url.Action("Orders","UserDashboard")">
+                                    <i class="fa fa-cart-arrow-down"></i> Orders
+                                </a>
+
+                                <a href="@Url.Action("PaymentMethod","UserDashboard")">
+                                    <i class="fa fa-credit-card"></i> Payment Method
+                                </a>
+
+                                <a href="@Url.Action("Address","UserDashboard")">
+                                    <i class="fa fa-map-marker"></i> Address
+                                </a>
+
+                                <a href="@Url.Action("AccountDetails","UserDashboard")">
+                                    <i class="fa fa-user"></i> Account Details
+                                </a>
+
+                                <a href="@Url.Action("Login","Account")"><i class="fa fa-sign-out"></i> Logout</a>
                             </div>
+
                         </div> <!-- My Account Tab Menu End --> <!-- My Account Tab Content Start -->
                         <div class="col-lg-9 mt-5 mt-lg-0">
                             <div class="tab-content" id="myaccountContent">

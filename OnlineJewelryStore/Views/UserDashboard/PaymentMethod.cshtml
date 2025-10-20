@@ -1,4 +1,7 @@
-﻿@{ ViewBag.Title = "Orders"; Layout = "~/Views/Shared/_Layout.cshtml"; }
+﻿
+@{
+    ViewBag.Title = "PaymentMethod";
+}
 
 <head>
     <meta charset="utf-8">
@@ -19,18 +22,17 @@
     <link href="~/Resources/css/style.css" rel="stylesheet"> <!-- Modernizer JS -->
     <script src="~/Resources/js/vendor/modernizr-2.8.3.min.js"></script>
     <!--[if lt IE 9]> <script src="//oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script> <script src="//oss.maxcdn.com/respond/1.4.2/respond.min.js"></script> <![endif]-->
-</head>
+</head> <!--== Search Box Area Start ==-->
 <div class="body-popup-modal-area">
     <span class="modal-close">
-        <img src="~Resources/img/cancel.png" alt="Close"
+        <img src="Resources/img/cancel.png" alt="Close"
              class="img-fluid" />
     </span>
     <div class="modal-container d-flex">
         <div class="search-box-area">
             <div class="search-box-form">
                 <form action="#" method="post">
-                    <input type="search" placeholder="type keyword and hit enter" />
-                    <button class="btn" type="button">
+                    <input type="search" placeholder="type keyword and hit enter" /> <button class="btn" type="button">
                         <i class="fa fa-search"></i>
                     </button>
                 </form>
@@ -63,31 +65,28 @@
                     <div class="row">
                         <div class="col-lg-3">
                             @*<div class="myaccount-tab-menu nav" role="tablist">
-                                    <a href="#dashboard"
-                                       data-toggle="tab"><i class="fa fa-cart-arrow-down"></i> Dashboard</a> <a href="#orders" class="active" data-toggle="tab">
-                                        <i class="fa fa-order"></i> Orders
-                                    </a> <a href="#download" data-toggle="tab">
-                                        <i class="fa fa-cloud-download"></i>
-                                        Download
-                                    </a> <a href="#payment-method" data-toggle="tab">
-                                        <i class="fa fa-credit-card"></i> Payment Method
-                                    </a> <a href="#address"
-                                            data-toggle="tab"><i class="fa fa-map-marker"></i> address</a> <a href="#account-info" data-toggle="tab">
-                                        <i class="fa fa-user"></i> Account
-                                        Details
-                                    </a> <a href="login-register.html"><i class="fa fa-sign-out"></i> Logout</a>
-                                </div>*@
-
+                                <a href="#dashboad" data-toggle="tab">
+                                    <i class="fa fa-dashboard"></i> Dashboard
+                                </a> <a href="#orders"
+                                        data-toggle="tab"><i class="fa fa-cart-arrow-down"></i> Orders</a> <a href="#download" data-toggle="tab"><i class="fa fa-cloud-download"></i> Download</a>
+                                <a href="#payment-method" class="active" data-toggle="tab">
+                                    <i class="fa fa-credit-card"></i> Payment Method
+                                </a> <a href="#address"
+                                        data-toggle="tab"><i class="fa fa-map-marker"></i> address</a> <a href="#account-info" data-toggle="tab">
+                                    <i class="fa fa-user"></i> Account
+                                    Details
+                                </a> <a href="login-register.html"><i class="fa fa-sign-out"></i> Logout</a>
+                            </div>*@
                             <div class="myaccount-tab-menu nav" role="tablist">
                                 <a href="@Url.Action("Index","UserDashboard")">
                                     <i class="fa fa-dashboard"></i> Dashboard
                                 </a>
 
-                                <a href="@Url.Action("Orders","UserDashboard")" class="active">
+                                <a href="@Url.Action("Orders","UserDashboard")">
                                     <i class="fa fa-cart-arrow-down"></i> Orders
                                 </a>
 
-                                <a href="@Url.Action("PaymentMethod","UserDashboard")">
+                                <a href="@Url.Action("PaymentMethod","UserDashboard")" class="active">
                                     <i class="fa fa-credit-card"></i> Payment Method
                                 </a>
 
@@ -106,47 +105,12 @@
                         <div class="col-lg-9 mt-5 mt-lg-0">
                             <div class="tab-content" id="myaccountContent">
                                 <!-- Single Tab Content Start -->
-                                <div class="tab-pane fade show active" id="orders" role="tabpanel">
+                                <div class="tab-pane fade show active" id="payment-method" role="tabpanel">
                                     <div class="myaccount-content">
-                                        <h3>Orders</h3>
-                                        <div class="myaccount-table table-responsive text-center">
-                                            <table class="table table-bordered">
-                                                <thead class="thead-light">
-                                                    <tr>
-                                                        <th>Order</th>
-                                                        <th>Date</th>
-                                                        <th>Status</th>
-                                                        <th>Total</th>
-                                                        <th>Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td>1</td>
-                                                        <td>Aug 22, 2018</td>
-                                                        <td>Pending</td>
-                                                        <td>$3000</td>
-                                                        <td><a href="cart.html" class="btn-add-to-cart">View</a></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>2</td>
-                                                        <td>July 22, 2018</td>
-                                                        <td>Approved</td>
-                                                        <td>$200</td>
-                                                        <td><a href="cart.html" class="btn-add-to-cart">View</a></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>3</td>
-                                                        <td>June 12, 2017</td>
-                                                        <td>On Hold</td>
-                                                        <td>$990</td>
-                                                        <td><a href="cart.html" class="btn-add-to-cart">View</a></td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                        <h3>Payment Method</h3>
+                                        <p class="saved-message">You Can't Saved Your Payment Method yet.</p>
                                     </div>
-                                </div> <!-- Single Tab Content End -->
+                                </div> <!-- Single Tab Content End --> <!-- Single Tab Content End -->
                             </div>
                         </div> <!-- My Account Tab Content End -->
                     </div>
@@ -154,4 +118,4 @@
             </div>
         </div>
     </div>
-</div>
+</div> <!--== Page Content Wrapper End ==-->

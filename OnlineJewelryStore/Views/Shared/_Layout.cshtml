@@ -10,7 +10,7 @@
     <title>DNX - Jewelry Store eCommerce</title>
 
     <!--=== Favicon ===-->
-    <link rel="shortcut icon" href="assets/img/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="~/Resources/img/favicon.ico" type="image/x-icon" />
 
     <!--== Google Fonts ==-->
     <link rel="stylesheet" type="text/css"
@@ -20,16 +20,16 @@
           href="https://fonts.googleapis.com/css?family=Playfair+Display:400,400i,700,700i" />
 
     <!--=== Bootstrap CSS ===-->
-    <link href="assets/css/vendor/bootstrap.min.css" rel="stylesheet">
+    <link href="~/Resources/css/vendor/bootstrap.min.css" rel="stylesheet">
     <!--=== Font-Awesome CSS ===-->
-    <link href="assets/css/vendor/font-awesome.css" rel="stylesheet">
+    <link href="~/Resources/css/vendor/font-awesome.css" rel="stylesheet">
     <!--=== Plugins CSS ===-->
-    <link href="assets/css/plugins.css" rel="stylesheet">
+    <link href="~/Resources/css/plugins.css" rel="stylesheet">
     <!--=== Main Style CSS ===-->
-    <link href="assets/css/style.css" rel="stylesheet">
+    <link href="~/Resources/css/style.css" rel="stylesheet">
 
     <!-- Modernizer JS -->
-    <script src="assets/js/vendor/modernizr-2.8.3.min.js"></script>
+    <script src="~/Resources/js/vendor/modernizr-2.8.3.min.js"></script>
 
 
     <!--[if lt IE 9]>
@@ -47,7 +47,7 @@
                 <!-- Logo Area Start -->
                 <div class="col-3 col-lg-1 col-xl-2 m-auto">
                     <a href="index.html" class="logo-area">
-                        <img src="assets/img/7.png" alt="Logo" class="img-fluid" />
+                        <img src="~/Resources/img/7.png" alt="Logo" class="img-fluid" />
                     </a>
                 </div> <!-- Logo Area End -->
                 <!-- Navigation Area Start -->
@@ -56,56 +56,15 @@
                         <nav id="mainmenu">
                             <ul>
                                 <li>
-                                    <a href="index.html">Home</a>
-                                    <!-- Products.CreationDate DESC -->
-                                <li><a href="bestsellers.html">Bestsellers</a></li>
+                                    <a href="@Url.Action("Home","Feature")">HOME</a>
+                                </li>
+                                <!-- Products.CreationDate DESC -->
+                                <li><a href="@Url.Action("shop","Feature")">SHOP</a></li>
                                 <!-- Analytics.BestsellerProductID -->
-                                </li>
-                                <li class="dropdown-show">
-                                    <a href="#">Categories</a>
-                                    <ul class="mega-menu-wrap dropdown-nav" id="mega-categories">
-                                        <!-- Lặp cho từng Category cha: ParentCategoryID IS NULL -->
-                                        <li class="mega-menu-item"
-                                            data-category-id="{{ParentCategoryID_NULL_Row.CategoryID}}">
-                                            <a href="shop.html?category={{ParentCategoryID_NULL_Row.CategoryID}}"
-                                               class="mega-item-title">
-                                                {{ParentCategoryID_NULL_Row.CategoryName}}
-                                            </a>
-                                            <ul>
-                                                <!-- Lặp category con: WHERE ParentCategoryID = {{ParentCategoryID_NULL_Row.CategoryID}} -->
-                                                <li>
-                                                    <a href="shop.html?category={{Child.CategoryID}}">{{Child.CategoryName}}</a>
-                                                </li>
-                                                <!-- ... -->
-                                            </ul>
-                                        </li>
-                                        <!-- Lặp tiếp cho các category cha khác -->
-                                    </ul>
-
-                                </li>
-                                <li class="dropdown-show">
-                                    <a href="#">Pages</a>
-                                    <ul class="dropdown-nav">
-                                        <li><a href="cart.html">Shopping Cart</a></li>
-                                        <li><a href="checkout.html">Checkout</a></li>
-                                        <li><a href="compare.html">Compare</a></li>
-                                        <li><a href="wishlist.html">Wis hlist</a></li>
-                                        <li><a href="login-register.html">Login & Register</a></li>
-                                        <li><a href="my-account.html">My Account</a></li>
-                                        <li><a href="404.html">404 Error</a></li>
-                                    </ul>
-                                </li>
-
-                                <li class="dropdown-show">
-                                    <a href="#">Blog</a>
-                                    <ul class="dropdown-nav">
-                                        <li><a href="blog.html">Blog Right Sidebar</a></li>
-                                        <li><a href="blog-left-sidebar.html">Blog Left Sidebar</a></li>
-                                        <li><a href="blog-grid.html">Blog Grid Layout</a></li>
-                                        <li><a href="single-blog.html">Blog Details</a></li>
-                                    </ul>
-                                </li>
-                                <li><a href="contact.html">Contact Us</a></li>
+                                <li><a href="@Url.Action("wishlist","Feature")">WISHLIST</a></li>
+                                <li><a href="@Url.Action("blog","feature")">BLOG</a></li>
+                                <li><a href="@Url.Action("contact_us","feature")">CONTACT US</a></li>
+                                <li><a href="@Url.Action("account","feature")">Account</a></li>
                             </ul>
                         </nav>
                     </div>
@@ -143,7 +102,7 @@
                                                 <figure class="product-thumb">
                                                     <a href="#">
                                                         <img class="img-fluid"
-                                                             src="assets/img/product-1.jpg" alt="Products" />
+                                                             src="~/Resources/img/product-1.jpg" alt="Products" />
                                                     </a>
                                                 </figure>
                                                 <div class="product-details">
@@ -158,7 +117,7 @@
                                                 <figure class="product-thumb">
                                                     <a href="#">
                                                         <img class="img-fluid"
-                                                             src="assets/img/product-2.jpg" alt="Products" />
+                                                             src="~/Resources/img/product-2.jpg" alt="Products" />
                                                     </a>
                                                 </figure>
                                                 <div class="product-details">
@@ -173,7 +132,7 @@
                                                 <figure class="product-thumb">
                                                     <a href="#">
                                                         <img class="img-fluid"
-                                                             src="assets/img/product-3.jpg" alt="Products" />
+                                                             src="~/Resources/img/product-3.jpg" alt="Products" />
                                                     </a>
                                                 </figure>
                                                 <div class="product-details">
@@ -215,7 +174,7 @@
                             <!-- Single Call-to Action Start -->
                             <div class="single-callto-action d-flex">
                                 <figure class="callto-thumb">
-                                    <img src="assets/img/air-plane.png" alt="WorldWide Shipping" />
+                                    <img src="~/Resources/img/air-plane.png" alt="WorldWide Shipping" />
                                 </figure>
                                 <div class="callto-info">
                                     <h2>Free Shipping Worldwide</h2>
@@ -229,7 +188,7 @@
                             <!-- Single Call-to Action Start -->
                             <div class="single-callto-action d-flex">
                                 <figure class="callto-thumb">
-                                    <img src="assets/img/support.png" alt="Support" />
+                                    <img src="~/Resources/img/support.png" alt="Support" />
                                 </figure>
                                 <div class="callto-info">
                                     <h2>24/7 CUSTOMER SERVICE</h2>
@@ -243,7 +202,7 @@
                             <!-- Single Call-to Action Start -->
                             <div class="single-callto-action d-flex">
                                 <figure class="callto-thumb">
-                                    <img src="assets/img/money-back.png" alt="Money Back" />
+                                    <img src="~/Resources/img/money-back.png" alt="Money Back" />
                                 </figure>
                                 <div class="callto-info">
                                     <h2>MONEY BACK Guarantee!</h2>
@@ -257,7 +216,7 @@
                             <!-- Single Call-to Action Start -->
                             <div class="single-callto-action d-flex">
                                 <figure class="callto-thumb">
-                                    <img src="assets/img/cog.png" alt="Guide" />
+                                    <img src="~/Resources/img/cog.png" alt="Guide" />
                                 </figure>
                                 <div class="callto-info">
                                     <h2>SHOPPING GUIDE</h2>
@@ -278,7 +237,7 @@
                     <div class="row">
                         <div class="col-lg-12 text-center">
                             <div class="follow-content-wrap">
-                                <a href="index.html" class="logo"><img class="logo-inten" src="assets/img/7-removebg-preview.png" alt="logo" /></a>
+                                <a href="index.html" class="logo"><img class="logo-inten" src="~/Resources/img/7-removebg-preview.png" alt="logo" /></a>
                                 <p>"Success usually comes to those who are too busy to be looking for it." - Henry David Thoreau -</p>
 
                                 <div class="footer-social-icons">
@@ -289,7 +248,7 @@
                                     <a href="#"><i class="fa fa-flickr"></i></a>
                                 </div>
 
-                                <a href="#"><img src="assets/img/payment.png" alt="Payment Method" /></a>
+                                <a href="#"><img src="~/Resources/img/payment.png" alt="Payment Method" /></a>
                             </div>
                         </div>
                     </div>
@@ -305,22 +264,22 @@
                         <div class="col-lg-12">
                             <div class="imgage-gallery-carousel owl-carousel">
                                 <div class="gallery-item">
-                                    <a href="#"><img src="assets/img/gallery-img-1.jpg" alt="Gallery" /></a>
+                                    <a href="#"><img src="~/Resources/img/gallery-img-1.jpg" alt="Gallery" /></a>
                                 </div>
                                 <div class="gallery-item">
-                                    <a href="#"><img src="assets/img/gallery-img-2.jpg" alt="Gallery" /></a>
+                                    <a href="#"><img src="~/Resources/img/gallery-img-2.jpg" alt="Gallery" /></a>
                                 </div>
                                 <div class="gallery-item">
-                                    <a href="#"><img src="assets/img/gallery-img-3.jpg" alt="Gallery" /></a>
+                                    <a href="#"><img src="~/Resources/img/gallery-img-3.jpg" alt="Gallery" /></a>
                                 </div>
                                 <div class="gallery-item">
-                                    <a href="#"><img src="assets/img/gallery-img-4.jpg" alt="Gallery" /></a>
+                                    <a href="#"><img src="~/Resources/img/gallery-img-4.jpg" alt="Gallery" /></a>
                                 </div>
                                 <div class="gallery-item">
-                                    <a href="#"><img src="assets/img/gallery-img-3.jpg" alt="Gallery" /></a>
+                                    <a href="#"><img src="~/Resources/img/gallery-img-3.jpg" alt="Gallery" /></a>
                                 </div>
                                 <div class="gallery-item">
-                                    <a href="#"><img src="assets/img/gallery-img-2.jpg" alt="Gallery" /></a>
+                                    <a href="#"><img src="~/Resources/img/gallery-img-2.jpg" alt="Gallery" /></a>
                                 </div>
                             </div>
                         </div>
@@ -338,7 +297,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true"><img src="assets/img/cancel.png" alt="Close" class="img-fluid" /></span>
+                    <span aria-hidden="true"><img src="~/Resources/img/cancel.png" alt="Close" class="img-fluid" /></span>
                 </button>
                 <div class="modal-body">
                     <div class="quick-view-content single-product-page-content">
@@ -349,28 +308,28 @@
                                     <div class="product-thumb-carousel owl-carousel">
                                         <div class="single-thumb-item">
                                             <a href="single-product.html">
-                                                <img class="img-fluid" src="assets/img/single-pro-thumb.jpg"
+                                                <img class="img-fluid" src="~/Resources/img/single-pro-thumb.jpg"
                                                      alt="Product" />
                                             </a>
                                         </div>
 
                                         <div class="single-thumb-item">
                                             <a href="single-product.html">
-                                                <img class="img-fluid" src="assets/img/single-pro-thumb-2.jpg"
+                                                <img class="img-fluid" src="~/Resources/img/single-pro-thumb-2.jpg"
                                                      alt="Product" />
                                             </a>
                                         </div>
 
                                         <div class="single-thumb-item">
                                             <a href="single-product.html">
-                                                <img class="img-fluid" src="assets/img/single-pro-thumb-3.jpg"
+                                                <img class="img-fluid" src="~/Resources/img/single-pro-thumb-3.jpg"
                                                      alt="Product" />
                                             </a>
                                         </div>
 
                                         <div class="single-thumb-item">
                                             <a href="single-product.html">
-                                                <img class="img-fluid" src="assets/img/single-pro-thumb-4.jpg"
+                                                <img class="img-fluid" src="~/Resources/img/single-pro-thumb-4.jpg"
                                                      alt="Product" />
                                             </a>
                                         </div>
@@ -454,18 +413,18 @@
     <!-- Scroll to Top End -->
     <!--=======================Javascript============================-->
     <!--=== Jquery Min Js ===-->
-    <script src="assets/js/vendor/jquery-3.3.1.min.js"></script>
+    <script src="~/Resources/js/vendor/jquery-3.3.1.min.js"></script>
     <!--=== Jquery Migrate Min Js ===-->
-    <script src="assets/js/vendor/jquery-migrate-1.4.1.min.js"></script>
+    <script src="~/Resources/js/vendor/jquery-migrate-1.4.1.min.js"></script>
     <!--=== Popper Min Js ===-->
-    <script src="assets/js/vendor/popper.min.js"></script>
+    <script src="~/Resources/js/vendor/popper.min.js"></script>
     <!--=== Bootstrap Min Js ===-->
-    <script src="assets/js/vendor/bootstrap.min.js"></script>
+    <script src="~/Resources/js/vendor/bootstrap.min.js"></script>
     <!--=== Plugins Min Js ===-->
-    <script src="assets/js/plugins.js"></script>
+    <script src="~/Resources/js/plugins.js"></script>
 
     <!--=== Active Js ===-->
-    <script src="assets/js/active.js"></script>
+    <script src="~/Resources/js/active.js"></script>
 </body>
 
 </html>
