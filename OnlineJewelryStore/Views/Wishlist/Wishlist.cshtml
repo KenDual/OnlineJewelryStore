@@ -1,0 +1,257 @@
+﻿@model List<OnlineJewelryStore.Controllers.WishlistItemViewModel>
+@{
+   ViewBag.Title = "Wishlist";
+   Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="page-title-area">
+   <div class="container">
+      <div class="row">
+         <div class="col-12 text-center">
+            <div class="page-title-content">
+               <h1>Wishlist</h1>
+               <ul class="breadcrumb">
+                  <li><a href="@Url.Action("Index", "Home")">Home</a></li>
+                  <li><a href="@Url.Action("Index", "Shop")">Shop</a></li>
+                  <li><a href="#" class="active">Wishlist</a></li>
+               </ul>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+<!--== Page Title Area End ==-->
+<!--== Page Content Wrapper Start ==-->
+<div id="page-content-wrapper" class="p-9">
+   <div class="container">
+      <!-- Wishlist Page Content Start -->
+      <div class="row">
+         <div class="col-lg-12">
+
+            @* Empty State khi wishlist trống *@
+            @if (Model == null || !Model.Any())
+            {
+               <div class="empty-wishlist text-center py-5">
+                  <i class="fa fa-heart-o" style="font-size: 80px; color: #ddd;"></i>
+                  <h3 class="mt-4">Your wishlist is empty</h3>
+                  <p class="text-muted">Save your favorite items here!</p>
+                  <a href="@Url.Action("Index", "Shop")" class="btn btn-primary mt-3">
+                     Continue Shopping
+                  </a>
+               </div>
+            }
+            else
+            {
+               <!-- Wishlist Table Area -->
+               <div class="cart-table table-responsive">
+                  <table class="table table-bordered">
+                     <thead>
+                        <tr>
+                           <th class="pro-thumbnail">Thumbnail</th>
+                           <th class="pro-title">Product</th>
+                           <th class="pro-price">Price</th>
+                           <th class="pro-quantity">Stock Status</th>
+                           <th class="pro-subtotal">Add to Cart</th>
+                           <th class="pro-remove">Remove</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        @foreach (var item in Model)
+                        {
+                           <tr data-wishlist-id="@item.WishlistItemID">
+                              <td class="pro-thumbnail">
+                                 <a href="@Url.Action("Details", "Shop", new { id = item.ProductID })">
+                                    <img class="img-fluid"
+                                         src="@item.MainImageURL"
+                                         alt="@item.ProductName"
+                                         style="max-width: 100px;" />
+                                 </a>
+                              </td>
+
+                              <td class="pro-title">
+                                 <a href="@Url.Action("Details", "Shop", new { id = item.ProductID })">
+                                    @item.ProductName
+                                 </a>
+                                 @if (!string.IsNullOrEmpty(item.VariantDescription))
+                                 {
+                                    <br />
+                                    <small class="text-muted">@item.VariantDescription</small>
+                                 }
+                                 <br />
+                                 <small class="text-muted">SKU: @item.SKU</small>
+                              </td>
+
+                              <td class="pro-price">
+                                 <span>@item.FormattedPrice</span>
+                              </td>
+
+                              <td class="pro-quantity">
+                                 @if (item.IsInStock)
+                                 {
+                                    <span class="text-success">
+                                       <i class="fa fa-check-circle"></i> In Stock
+                                    </span>
+                                    <br />
+                                    <small class="text-muted">@item.StockQuantity available</small>
+                                 }
+                                 else
+                                 {
+                                    <span class="text-danger">
+                                       <i class="fa fa-times-circle"></i> Out of Stock
+                                    </span>
+                                 }
+                              </td>
+
+                              <td class="pro-subtotal">
+                                 @if (item.IsInStock)
+                                 {
+                                    <button type="button"
+                                            class="btn-add-to-cart"
+                                            data-variant-id="@item.VariantID"
+                                            onclick="addToCartFromWishlist(@item.VariantID)">
+                                       Add to Cart
+                                    </button>
+                                 }
+                                 else
+                                 {
+                                    <button class="btn-add-to-cart" disabled>
+                                       Out of Stock
+                                    </button>
+                                 }
+                              </td>
+
+                              <td class="pro-remove">
+                                 <a href="javascript:void(0)"
+                                    onclick="removeFromWishlist(@item.WishlistItemID)">
+                                    <i class="fa fa-trash-o"></i>
+                                 </a>
+                              </td>
+                           </tr>
+                        }
+                     </tbody>
+                  </table>
+               </div>
+            }
+
+         </div>
+      </div>
+      <!-- Wishlist Page Content End -->
+   </div>
+</div>
+<!--== Page Content Wrapper End ==-->
+@section Scripts {
+   <script>
+        // Remove from Wishlist
+        function removeFromWishlist(wishlistItemId) {
+            if (!confirm('Remove this item from wishlist?')) {
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Action("Remove", "Wishlist")',
+                type: 'POST',
+                data: { wishlistItemId: wishlistItemId },
+                success: function (result) {
+                    if (result.success) {
+                        $('tr[data-wishlist-id="' + wishlistItemId + '"]').fadeOut(300, function() {
+                            $(this).remove();
+                            if ($('tbody tr').length === 0) {
+                                location.reload();
+                            }
+                        });
+
+                        updateWishlistCount();
+
+                        showNotification('Removed from wishlist', 'success');
+                    } else {
+                        alert(result.message);
+                    }
+                },
+                error: function () {
+                    alert('An error occurred. Please try again.');
+                }
+            });
+        }
+
+        // Add to Cart from Wishlist
+        function addToCartFromWishlist(variantId) {
+            $.ajax({
+                url: '@Url.Action("AddToCart", "Cart")',
+                type: 'POST',
+                data: {
+                    variantId: variantId,
+                    quantity: 1
+                },
+                success: function (result) {
+                    if (result.success) {
+                        // Update cart count
+                        updateCartCount();
+
+                        // Show notification
+                        showNotification('Added to cart successfully!', 'success');
+                    } else {
+                        alert(result.message);
+                    }
+                },
+                error: function () {
+                    alert('An error occurred. Please try again.');
+                }
+            });
+        }
+
+        // Update Wishlist Count (Navbar)
+        function updateWishlistCount() {
+            $.ajax({
+                url: '@Url.Action("GetCount", "Wishlist")',
+                type: 'GET',
+                success: function (result) {
+                    $('#wishlist-count').text(result.count);
+
+                    // Hide badge if count = 0
+                    if (result.count === 0) {
+                        $('#wishlist-count').hide();
+                    }
+                }
+            });
+        }
+
+        // Update Cart Count (Navbar)
+        function updateCartCount() {
+            $.ajax({
+                url: '@Url.Action("GetCartCount", "Cart")',
+                type: 'GET',
+                success: function (result) {
+                    $('#cart-count').text(result.count);
+                }
+            });
+        }
+
+        // Show Notification (Optional - nếu có plugin)
+        function showNotification(message, type) {
+            // Nếu bạn có toastr hoặc notification plugin:
+            // toastr.success(message);
+
+            // Hoặc dùng alert đơn giản:
+            // alert(message);
+
+            // Hoặc custom notification (ví dụ):
+            var alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+            var notification = `
+                <div class="alert ${alertClass} alert-dismissible fade show" role="alert"
+                     style="position: fixed; top: 80px; right: 20px; z-index: 9999; min-width: 300px;">
+                    ${message}
+                    <button type="button" class="close" data-dismiss="alert">
+                        <span>&times;</span>
+                    </button>
+                </div>
+            `;
+
+            $('body').append(notification);
+
+            // Auto remove after 3 seconds
+            setTimeout(function() {
+                $('.alert').fadeOut(300, function() { $(this).remove(); });
+            }, 3000);
+        }
+   </script>
+}

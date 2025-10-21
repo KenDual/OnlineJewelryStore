@@ -4,19 +4,6 @@
    ViewBag.Title = "Index";
    Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<div class="body-popup-modal-area">
-   <span class="modal-close"><img src="~/Resources/img/cancel.png" alt="Close" class="img-fluid" /></span>
-   <div class="modal-container d-flex">
-      <div class="search-box-area">
-         <div class="search-box-form">
-            <form action="#" method="post">
-               <input type="search" placeholder="type keyword and hit enter" />
-               <button class="btn" type="button"><i class="fa fa-search"></i></button>
-            </form>
-         </div>
-      </div>
-   </div>
-</div>
 
 <!--== Page Title Area Start ==-->
 <div id="page-title-area">
@@ -27,14 +14,13 @@
                <h1>Shop</h1>
                <ul class="breadcrumb">
                   <li><a href="@Url.Action("Home", "Feature")">Home</a></li>
-                  <li><a href="#" class="active">Shop</a></li>
+                  <li><a href="#">Shop</a></li>
                </ul>
             </div>
          </div>
       </div>
    </div>
 </div>
-
 <!--== Page Title Area End ==-->
 <!--== Page Content Wrapper Start ==-->
 <div id="page-content-wrapper" class="p-9">
@@ -46,6 +32,60 @@
                <!-- Single Sidebar Item Start -->
                <div class="single-sidebar-wrap">
                   <h2 class="sidebar-title">Shop By</h2>
+                  <!--== Search Bar Area Start ==-->
+                  <div class="search-bar-wrapper">
+                     <div class="container">
+                        <div class="row">
+                           <div class="col-12">
+                              <div class="search-bar-container">
+                                 <form id="search-form" class="search-form" onsubmit="return false;">
+                                    <div class="search-input-group">
+                                       <input type="text"
+                                              id="search-input"
+                                              class="form-control search-input"
+                                              placeholder="Search"
+                                              autocomplete="off"
+                                              value="@Model.SearchTerm">
+                                       <button type="button" class="btn btn-search" onclick="performSearch()">
+                                          <i class="fa fa-search"></i>
+                                       </button>
+                                    </div>
+
+                                    @* Autocomplete Dropdown *@
+                                    <div id="search-autocomplete" class="search-autocomplete-dropdown" style="display: none;">
+                                       <div class="autocomplete-header">
+                                          <span class="text-muted"><i class="fa fa-lightbulb-o"></i> Suggestions</span>
+                                       </div>
+                                       <div id="autocomplete-results" class="autocomplete-results">
+                                          <!-- Results loaded via AJAX -->
+                                       </div>
+                                       <div class="autocomplete-footer">
+                                          <a href="#" id="view-all-results" class="view-all-link">
+                                             View all results <i class="fa fa-arrow-right"></i>
+                                          </a>
+                                       </div>
+                                    </div>
+                                 </form>
+
+                                 @* Clear search button nếu có search term *@
+                                 @if (!string.IsNullOrEmpty(Model.SearchTerm))
+                                 {
+                                    <div class="search-info-bar">
+                                       <span class="search-results-text">
+                                          <i class="fa fa-search"></i>
+                                          Search results for: <strong>"@Model.SearchTerm"</strong>
+                                       </span>
+                                       <a href="@Url.Action("Index", "Shop")" class="btn btn-sm btn-clear-search">
+                                          <i class="fa fa-times"></i> Clear Search
+                                       </a>
+                                    </div>
+                                 }
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  <!--== Search Bar Area End ==-->
                   <div class="sidebar-body">
                      <div class="shopping-option">
                         <h3>Shopping Options</h3>
@@ -528,5 +568,149 @@
             // Placeholder - sẽ implement sau
             alert('Quick View: Product ID ' + productId);
         }
+   </script>
+   <script>
+       var searchTimeout;
+       var currentSearchTerm = '';
+       $(document).ready(function() {
+           $('#search-input').on('input', function() {
+               var searchTerm = $(this).val().trim();
+               clearTimeout(searchTimeout);
+               if (searchTerm.length === 0) {
+                   hideAutocomplete();
+                   return;
+               }
+               if (searchTerm.length < 2) {
+                   return;
+               }
+               searchTimeout = setTimeout(function() {
+                   performAutocomplete(searchTerm);
+               }, 300);
+           });
+           $(document).on('click', function(e) {
+               if (!$(e.target).closest('.header-search-area').length) {
+                   hideAutocomplete();
+               }
+           });
+           $('#search-form').on('submit', function(e) {
+               e.preventDefault();
+               performSearch();
+           });
+           $('#search-input').on('keypress', function(e) {
+               if (e.which === 13) {
+                   e.preventDefault();
+                   performSearch();
+               }
+           });
+       });
+
+       function performAutocomplete(searchTerm) {
+           currentSearchTerm = searchTerm;
+
+           showAutocompleteLoading();
+
+           $.ajax({
+               url: '@Url.Action("Autocomplete", "Shop")',
+               type: 'GET',
+               data: { term: searchTerm },
+               dataType: 'json',
+               success: function(response) {
+                   if (response.success && response.products && response.products.length > 0) {
+                       displayAutocompleteResults(response.products, searchTerm);
+                   } else {
+                       showNoResults();
+                   }
+               },
+               error: function(xhr, status, error) {
+                   console.error('Autocomplete Error:', error);
+                   hideAutocomplete();
+               }
+           });
+       }
+
+       function displayAutocompleteResults(products, searchTerm) {
+           var html = '';
+
+           products.forEach(function(product) {
+               var imageUrl = product.image || '/Resources/img/no-image.jpg';
+               var productUrl = '@Url.Action("Details", "Shop")?id=' + product.id;
+
+               var highlightedName = highlightSearchTerm(product.name, searchTerm);
+
+               html += `
+                   <a href="${productUrl}" class="autocomplete-item">
+                       <div class="autocomplete-item-image">
+                           <img src="${imageUrl}" alt="${product.name}">
+                       </div>
+                       <div class="autocomplete-item-details">
+                           <div class="autocomplete-item-name">${highlightedName}</div>
+                           <div class="autocomplete-item-category">${product.categoryName}</div>
+                           <div class="autocomplete-item-price">${formatPrice(product.price)} VND</div>
+                       </div>
+                   </a>
+               `;
+           });
+
+           $('#autocomplete-results').html(html);
+
+           var viewAllUrl = '@Url.Action("Index", "Shop")?search=' + encodeURIComponent(searchTerm);
+           $('#view-all-results').attr('href', viewAllUrl);
+
+           showAutocomplete();
+       }
+
+       function showAutocompleteLoading() {
+           var html = `
+               <div class="autocomplete-loading">
+                   <i class="fa fa-spinner fa-spin"></i>
+                   <p>Searching...</p>
+               </div>
+           `;
+           $('#autocomplete-results').html(html);
+           showAutocomplete();
+       }
+
+       function showNoResults() {
+           var html = `
+               <div class="autocomplete-no-results">
+                   <i class="fa fa-search" style="font-size: 40px; color: #ccc;"></i>
+                   <p>No products found</p>
+                   <p class="text-muted" style="font-size: 12px;">Try different keywords</p>
+               </div>
+           `;
+           $('#autocomplete-results').html(html);
+           showAutocomplete();
+       }
+
+       function showAutocomplete() {
+           $('#search-autocomplete').fadeIn(200);
+       }
+
+       function hideAutocomplete() {
+           $('#search-autocomplete').fadeOut(200);
+       }
+
+       function performSearch() {
+           var searchTerm = $('#search-input').val().trim();
+
+           if (searchTerm.length === 0) {
+               alert('Please enter a search term');
+               return;
+           }
+           var url = '@Url.Action("Index", "Shop")' + '?search=' + encodeURIComponent(searchTerm);
+           window.location.href = url;
+       }
+       function formatPrice(price) {
+           return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+       }
+       function highlightSearchTerm(text, term) {
+           if (!term || term.length === 0) return text;
+
+           var regex = new RegExp('(' + escapeRegExp(term) + ')', 'gi');
+           return text.replace(regex, '<span class="highlight">$1</span>');
+       }
+       function escapeRegExp(string) {
+           return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+       }
    </script>
 }

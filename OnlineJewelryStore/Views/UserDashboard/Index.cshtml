@@ -1,118 +1,118 @@
 ﻿@{
-    ViewBag.Title = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+   ViewBag.Title = "Index";
+   Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 
 <div class="body-popup-modal-area">
-    <span class="modal-close">
-        <img src="~Resources/img/cancel.png" alt="Close" class="img-fluid" />
-    </span>
-    <div class="modal-container d-flex">
-        <div class="search-box-area">
-            <div class="search-box-form">
-                <form action="#" method="post">
-                    <input type="search" placeholder="type keyword and hit enter" /> <button class="btn" type="button">
-                        <i class="fa fa-search"></i>
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
+   <span class="modal-close">
+      <img src="~Resources/img/cancel.png" alt="Close" class="img-fluid" />
+   </span>
+   <div class="modal-container d-flex">
+      <div class="search-box-area">
+         <div class="search-box-form">
+            <form action="#" method="post">
+               <input type="search" placeholder="type keyword and hit enter" /> <button class="btn" type="button">
+                  <i class="fa fa-search"></i>
+               </button>
+            </form>
+         </div>
+      </div>
+   </div>
 </div> <!--== Search Box Area End ==--> <!--== Page Title Area Start ==-->
 <div id="page-title-area">
-    <div class="container">
-        <div class="row">
-            <div class="col-12 text-center">
-                <div class="page-title-content">
-                    <h1>Dashboard</h1>
-                    <ul class="breadcrumb">
-                        <li><a href="index.html">Home</a></li>
-                        <li><a href="login-register.html" class="active">Dashboard</a></li>
-                    </ul>
-                </div>
+   <div class="container">
+      <div class="row">
+         <div class="col-12 text-center">
+            <div class="page-title-content">
+               <h1>Dashboard</h1>
+               <ul class="breadcrumb">
+                  <li><a href="index.html">Home</a></li>
+                  <li><a href="login-register.html" class="active">Dashboard</a></li>
+               </ul>
             </div>
-        </div>
-    </div>
+         </div>
+      </div>
+   </div>
 </div> <!--== Page Title Area End ==--> <!--== Page Content Wrapper Start ==-->
 <div id="page-content-wrapper" class="p-9">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <!-- My Account Page Start -->
-                <div class="myaccount-page-wrapper">
-                    <!-- My Account Tab Menu Start -->
-                    <div class="row">
-                        <div class="col-lg-3">
-                            @*<div class="myaccount-tab-menu nav" role="tablist">
-                                    <a href="#dashboad" class="active"
-                                       data-toggle="tab"> <i class="fa fa-dashboard"></i> Dashboard </a> <a href="#orders"
-                                    <a href="#payment-method" data-toggle="tab">
-                                        <i class="fa fa-credit-card"></i> Payment
-                                        Method
-                                    </a> <a href="#address" data-toggle="tab">
-                                        <i class="fa fa-map-marker"></i>
-                                        address
-                                    </a> <a href="#account-info" data-toggle="tab">
-                                        <i class="fa fa-user"></i>
-                                        Account Details
-                                    </a> <a href="login-register.html">
-                                        <i class="fa fa-sign-out"></i>
-                                        Logout
-                                    </a>
-                                </div>*@
+   <div class="container">
+      <div class="row">
+         <div class="col-lg-12">
+            <!-- My Account Page Start -->
+            <div class="myaccount-page-wrapper">
+               <!-- My Account Tab Menu Start -->
+               <div class="row">
+                  <div class="col-lg-3">
+                     @*<div class="myaccount-tab-menu nav" role="tablist">
+                            <a href="#dashboad" class="active"
+                               data-toggle="tab"> <i class="fa fa-dashboard"></i> Dashboard </a> <a href="#orders"
+                            <a href="#payment-method" data-toggle="tab">
+                                <i class="fa fa-credit-card"></i> Payment
+                                Method
+                            </a> <a href="#address" data-toggle="tab">
+                                <i class="fa fa-map-marker"></i>
+                                address
+                            </a> <a href="#account-info" data-toggle="tab">
+                                <i class="fa fa-user"></i>
+                                Account Details
+                            </a> <a href="login-register.html">
+                                <i class="fa fa-sign-out"></i>
+                                Logout
+                            </a>
+                        </div>*@
 
-                            <div class="myaccount-tab-menu nav" role="tablist">
-                                <a href="@Url.Action("Index","UserDashboard")" class="active">
-                                    <i class="fa fa-dashboard"></i> Dashboard
-                                </a>
+                     <div class="myaccount-tab-menu nav" role="tablist">
+                        <a href="@Url.Action("Index","UserDashboard")" class="active">
+                           <i class="fa fa-dashboard"></i> Dashboard
+                        </a>
 
-                                <a href="@Url.Action("Orders","UserDashboard")">
-                                    <i class="fa fa-cart-arrow-down"></i> Orders
-                                </a>
+                        <a href="@Url.Action("Orders","UserDashboard")">
+                           <i class="fa fa-cart-arrow-down"></i> Orders
+                        </a>
 
-                                <a href="@Url.Action("PaymentMethod","UserDashboard")">
-                                    <i class="fa fa-credit-card"></i> Payment Method
-                                </a>
+                        <a href="@Url.Action("PaymentMethod","UserDashboard")">
+                           <i class="fa fa-credit-card"></i> Payment Method
+                        </a>
 
-                                <a href="@Url.Action("Address","UserDashboard")">
-                                    <i class="fa fa-map-marker"></i> Address
-                                </a>
+                        <a href="@Url.Action("Address","UserDashboard")">
+                           <i class="fa fa-map-marker"></i> Address
+                        </a>
 
-                                <a href="@Url.Action("AccountDetails","UserDashboard")">
-                                    <i class="fa fa-user"></i> Account Details
-                                </a>
+                        <a href="@Url.Action("AccountDetails","UserDashboard")">
+                           <i class="fa fa-user"></i> Account Details
+                        </a>
 
-                                <a href="@Url.Action("Login","Account")"><i class="fa fa-sign-out"></i> Logout</a>
-                            </div>
+                        <a href="@Url.Action("Login","Account")"><i class="fa fa-sign-out"></i> Logout</a>
+                     </div>
 
-                        </div> <!-- My Account Tab Menu End --> <!-- My Account Tab Content Start -->
-                        <div class="col-lg-9 mt-5 mt-lg-0">
-                            <div class="tab-content" id="myaccountContent">
-                                <!-- Single Tab Content Start -->
-                                <div class="tab-pane fade show active" id="dashboad" role="tabpanel">
-                                    <div class="myaccount-content">
-                                        <h3>Dashboard</h3>
-                                        <div class="welcome">
-                                            <p>
-                                                Hello, <strong>Alex Tuntuni</strong> (If Not <strong>
-                                                    Tuntuni
-                                                    !
-                                                </strong><a href="login-register.html" class="logout"> Logout</a>)
-                                            </p>
-                                        </div>
-                                        <p class="mb-0">
-                                            From your account dashboard. you can easily check & view your
-                                            recent orders, manage your shipping and billing addresses and edit your
-                                            password and account details.
-                                        </p>
-                                    </div>
-                                </div> <!-- Single Tab Content End --> <!-- Single Tab Content End -->
-                            </div>
-                        </div> <!-- My Account Tab Content End -->
-                    </div>
-                </div> <!-- My Account Page End -->
-            </div>
-        </div>
-    </div>
+                  </div> <!-- My Account Tab Menu End --> <!-- My Account Tab Content Start -->
+                  <div class="col-lg-9 mt-5 mt-lg-0">
+                     <div class="tab-content" id="myaccountContent">
+                        <!-- Single Tab Content Start -->
+                        <div class="tab-pane fade show active" id="dashboad" role="tabpanel">
+                           <div class="myaccount-content">
+                              <h3>Dashboard</h3>
+                              <div class="welcome">
+                                 <p>
+                                    Hello, <strong>Alex Tuntuni</strong> (If Not <strong>
+                                       Tuntuni
+                                       !
+                                    </strong><a href="login-register.html" class="logout"> Logout</a>)
+                                 </p>
+                              </div>
+                              <p class="mb-0">
+                                 From your account dashboard. you can easily check & view your
+                                 recent orders, manage your shipping and billing addresses and edit your
+                                 password and account details.
+                              </p>
+                           </div>
+                        </div> <!-- Single Tab Content End --> <!-- Single Tab Content End -->
+                     </div>
+                  </div> <!-- My Account Tab Content End -->
+               </div>
+            </div> <!-- My Account Page End -->
+         </div>
+      </div>
+   </div>
 </div>

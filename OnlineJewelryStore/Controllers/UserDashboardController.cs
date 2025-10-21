@@ -6,11 +6,14 @@ using System.Web.Mvc;
 
 namespace OnlineJewelryStore.Controllers
 {
+    using global::OnlineJewelryStore.Models;
     using System.Web.Mvc;
     namespace OnlineJewelryStore.Controllers
     {
         public class UserDashboardController : Controller
         {
+            private OnlineJewelryStoreEntities db = new OnlineJewelryStoreEntities();
+
             [HttpGet]
             public ActionResult Index()
             {
@@ -35,12 +38,41 @@ namespace OnlineJewelryStore.Controllers
                 ViewBag.Active = "address"; 
                 return View(); 
             }
-            [HttpGet] 
-            public ActionResult AccountDetails() 
-            { 
-                ViewBag.Active = "account"; 
-                return View(); 
+
+            // GET: UserDashboard/AccountDetails
+            public ActionResult AccountDetails()
+            {
+                if (Session["UserID"] == null) return RedirectToAction("Login", "Account");
+                int userId = (int)Session["UserID"];
+                var user = db.Users.Find(userId);
+                if (user == null) return HttpNotFound();
+
+                ViewBag.DisplayName = string.Format("{0} {1}", user.LastName, user.FirstName).Trim();
+                return View(user);
             }
+
+            [HttpPost]
+            [ValidateAntiForgeryToken]
+            public ActionResult AccountDetails(User form)
+            {
+                if (Session["UserID"] == null) return RedirectToAction("Login", "Account");
+
+                var user = db.Users.Find(form.UserID);
+                if (user == null) return HttpNotFound();
+
+                user.FirstName = form.FirstName;
+                user.LastName = form.LastName;
+                db.SaveChanges();
+
+                // Cập nhật tên hiển thị trong session = LastName + FirstName
+                Session["UserName"] = (user.LastName + " " + user.FirstName).Trim();
+
+                TempData["SuccessMessage"] = "Cập nhật thông tin thành công!";
+                return RedirectToAction("AccountDetails");
+            }
+
+
+
         }
     }
 }

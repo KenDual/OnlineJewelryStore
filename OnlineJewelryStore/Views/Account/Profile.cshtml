@@ -1,71 +1,232 @@
 ﻿@model OnlineJewelryStore.Models.User
-
 @{
-    ViewBag.Title = "Thông Tin Cá Nhân";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+   ViewBag.Title = "My Profile";
+   Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container" style="margin-top: 80px; margin-bottom: 80px;">
-    <div class="row">
-        <div class="col-md-8 offset-md-2">
-            <div class="card shadow">
-                <div class="card-body p-5">
-                    <h2 class="mb-4">Thông Tin Cá Nhân</h2>
+<style>
+   .profile-container {
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 0 20px;
+   }
 
-                    @if (TempData["SuccessMessage"] != null)
-                    {
-                        <div class="alert alert-success alert-dismissible fade show">
-                            @TempData["SuccessMessage"]
-                            <button type="button" class="close" data-dismiss="alert">&times;</button>
-                        </div>
-                    }
+   .profile-card {
+      background: rgba(0, 0, 0, 0.8);
+      border-radius: 10px;
+      padding: 40px;
+      box-shadow: 0 15px 25px rgba(0, 0, 0, 0.5);
+   }
 
-                    @using (Html.BeginForm("Profile", "Account", FormMethod.Post))
-                    {
-                        @Html.AntiForgeryToken()
-                        @Html.HiddenFor(m => m.UserID)
+   .profile-header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+   }
 
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Họ</label>
-                                    @Html.TextBoxFor(m => m.FirstName, new { @class = "form-control" })
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Tên</label>
-                                    @Html.TextBoxFor(m => m.LastName, new { @class = "form-control" })
-                                </div>
-                            </div>
-                        </div>
+      .profile-header h2 {
+         color: white;
+         font-size: 32px;
+         margin-bottom: 10px;
+      }
 
-                        <div class="form-group">
-                            <label>Email</label>
-                            @Html.TextBoxFor(m => m.Email, new { @class = "form-control", @readonly = "readonly" })
-                            <small class="form-text text-muted">Email không thể thay đổi</small>
-                        </div>
+      .profile-header p {
+         color: rgba(255, 255, 255, 0.7);
+         font-size: 16px;
+      }
 
-                        <div class="form-group">
-                            <label>Số điện thoại</label>
-                            @Html.TextBoxFor(m => m.Phone, new { @class = "form-control" })
-                        </div>
+   .alert {
+      padding: 12px 20px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+      font-size: 14px;
+   }
 
-                        <div class="form-group">
-                            <label>Vai trò</label>
-                            <input type="text" class="form-control" value="@Model.Role" readonly />
-                        </div>
+   .alert-success {
+      background-color: rgba(40, 167, 69, 0.9);
+      color: white;
+   }
 
-                        <div class="form-group">
-                            <label>Ngày đăng ký</label>
-                            <input type="text" class="form-control" value="@Model.RegistrationDate.ToString("dd/MM/yyyy HH:mm")" readonly />
-                        </div>
+   .profile-form {
+      max-width: 500px;
+      margin: 0 auto;
+   }
 
-                        <button type="submit" class="btn btn-primary">Cập Nhật</button>
-                        @Html.ActionLink("Đổi Mật Khẩu", "ChangePassword", null, new { @class = "btn btn-warning ml-2" })
-                    }
-                </div>
+   .form-row {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 25px;
+   }
+
+   .form-group {
+      flex: 1;
+      margin-bottom: 25px;
+   }
+
+      .form-group label {
+         display: block;
+         color: white;
+         font-size: 16px;
+         margin-bottom: 8px;
+         letter-spacing: 1px;
+      }
+
+   .form-control {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      color: #03a9f4;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+      outline: none;
+      transition: 0.3s;
+   }
+
+      .form-control:focus {
+         border-bottom-color: #03a9f4;
+      }
+
+      .form-control[readonly] {
+         color: rgba(255, 255, 255, 0.6);
+         cursor: not-allowed;
+      }
+
+   .info-group {
+      margin-bottom: 20px;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 5px;
+   }
+
+      .info-group label {
+         color: rgba(255, 255, 255, 0.6);
+         font-size: 14px;
+         text-transform: uppercase;
+         letter-spacing: 1px;
+         margin-bottom: 5px;
+         display: block;
+      }
+
+      .info-group .info-value {
+         color: white;
+         font-size: 16px;
+      }
+
+   .btn-group {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+   }
+
+   .btn {
+      flex: 1;
+      background: #3498db;
+      background-image: linear-gradient(to bottom, #3498db, #2980b9);
+      border-radius: 17px;
+      color: #ffffff;
+      font-size: 16px;
+      padding: 12px 20px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: 0.3s;
+      text-align: center;
+      display: inline-block;
+   }
+
+      .btn:hover {
+         background: #3cb0fd;
+         background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+         transform: translateY(-2px);
+         box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+         color: white;
+         text-decoration: none;
+      }
+
+   .btn-secondary {
+      background: #6c757d;
+      background-image: linear-gradient(to bottom, #6c757d, #5a6268);
+   }
+
+      .btn-secondary:hover {
+         background: #5a6268;
+         background-image: linear-gradient(to bottom, #5a6268, #4e555b);
+      }
+
+   .text-danger {
+      color: #ff6b6b;
+      font-size: 12px;
+      margin-top: 5px;
+      display: block;
+   }
+</style>
+
+<div class="profile-container">
+   <div class="profile-card">
+      <div class="profile-header">
+         <h2>My Profile</h2>
+         <p>Manage your account information</p>
+      </div>
+
+      @if (TempData["SuccessMessage"] != null)
+      {
+         <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+         </div>
+      }
+
+      @using (Html.BeginForm("Profile", "Account", FormMethod.Post, new { @class = "profile-form" }))
+      {
+         @Html.AntiForgeryToken()
+         @Html.HiddenFor(m => m.UserID)
+
+         <div class="form-row">
+            <div class="form-group">
+               <label>First Name</label>
+               @Html.TextBoxFor(m => m.FirstName, new { @class = "form-control", required = "required" })
+               @Html.ValidationMessageFor(m => m.FirstName, "", new { @class = "text-danger" })
             </div>
-        </div>
-    </div>
+
+            <div class="form-group">
+               <label>Last Name</label>
+               @Html.TextBoxFor(m => m.LastName, new { @class = "form-control", required = "required" })
+               @Html.ValidationMessageFor(m => m.LastName, "", new { @class = "text-danger" })
+            </div>
+         </div>
+
+         <div class="form-group">
+            <label>Email</label>
+            @Html.TextBoxFor(m => m.Email, new { @class = "form-control", @readonly = "readonly" })
+            <small style="color: rgba(255,255,255,0.5); font-size: 12px; margin-top: 5px; display: block;">
+               Email cannot be changed
+            </small>
+         </div>
+
+         <div class="form-group">
+            <label>Phone</label>
+            @Html.TextBoxFor(m => m.Phone, new { @class = "form-control", placeholder = "Enter your phone number" })
+            @Html.ValidationMessageFor(m => m.Phone, "", new { @class = "text-danger" })
+         </div>
+
+         <div class="info-group">
+            <label>Member Since</label>
+            <div class="info-value">@Model.RegistrationDate.ToString("dd MMMM yyyy")</div>
+         </div>
+
+         if (Model.LastLogin.HasValue)
+         {
+            <div class="info-group">
+               <label>Last Login</label>
+               <div class="info-value">@Model.LastLogin.Value.ToString("dd/MM/yyyy HH:mm")</div>
+            </div>
+         }
+
+         <div class="btn-group">
+            <button type="submit" class="btn">Update Profile</button>
+            @Html.ActionLink("Change Password", "ChangePassword", null, new { @class = "btn btn-secondary" })
+         </div>
+      }
+   </div>
 </div>

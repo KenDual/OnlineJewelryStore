@@ -31,7 +31,8 @@ namespace OnlineJewelryStore.ViewModels.Shop
         public int TotalPages { get; set; }
         public int TotalProducts { get; set; }
         public int PageSize { get; set; }
-        
+        public string SearchTerm { get; set; }
+
         // Helper properties cho pagination UI
         public bool HasPreviousPage 
         { 

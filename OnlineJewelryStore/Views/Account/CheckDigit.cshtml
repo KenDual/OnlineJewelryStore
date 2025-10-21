@@ -7,7 +7,7 @@
 <head>
    <meta charset="utf-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Login - Online Jewelry Store</title>
+   <title>Verify Code - Online Jewelry Store</title>
    <link rel="preconnect" href="https://fonts.googleapis.com">
    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600&display=swap" rel="stylesheet">
@@ -34,14 +34,14 @@
       .form-container {
          width: 400px;
          padding: 50px;
-         background: rgba(0, 0, 0, 0.8);
+         background: rgba(0,0,0,0.8);
          border-radius: 10px;
-         box-shadow: 0 15px 25px rgba(0, 0, 0, 0.5);
+         box-shadow: 0 15px 25px rgba(0,0,0,0.5);
       }
 
          .form-container h1 {
             margin-bottom: 30px;
-            color: white;
+            color: #fff;
             text-align: center;
             text-transform: capitalize;
             padding-bottom: 15px;
@@ -56,13 +56,13 @@
       }
 
       .alert-success {
-         background-color: rgba(40, 167, 69, 0.9);
-         color: white;
+         background-color: rgba(40,167,69,0.9);
+         color: #fff;
       }
 
       .alert-danger {
-         background-color: rgba(220, 53, 69, 0.9);
-         color: white;
+         background-color: rgba(220,53,69,0.9);
+         color: #fff;
       }
 
       .input-box {
@@ -74,7 +74,7 @@
             display: block;
             letter-spacing: 1px;
             font-size: 16px;
-            color: white;
+            color: #fff;
             margin-bottom: 10px;
          }
 
@@ -83,9 +83,9 @@
             padding: 10px;
             font-size: 16px;
             color: #03a9f4;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
             border: none;
-            border-bottom: 2px solid white;
+            border-bottom: 2px solid #fff;
             background: transparent;
             outline: none;
             transition: 0.3s;
@@ -95,10 +95,17 @@
                border-bottom-color: #03a9f4;
             }
 
+      .text-danger {
+         color: #ff6b6b;
+         font-size: 12px;
+         display: block;
+         margin-top: 6px;
+      }
+
       .btn {
          width: 100%;
          background: #3498db;
-         background-image: linear-gradient(to bottom, #3498db, #2980b9);
+         background-image: linear-gradient(to bottom,#3498db,#2980b9);
          border-radius: 17px;
          color: #ffffff;
          font-size: 18px;
@@ -112,20 +119,20 @@
 
          .btn:hover {
             background: #3cb0fd;
-            background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+            background-image: linear-gradient(to bottom,#3cb0fd,#3498db);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+            box-shadow: 0 5px 15px rgba(52,152,219,0.4);
          }
 
       .footer-text {
          text-align: center;
          margin-top: 20px;
          padding-top: 20px;
-         border-top: 1px solid rgba(255, 255, 255, 0.2);
+         border-top: 1px solid rgba(255,255,255,0.2);
       }
 
          .footer-text p {
-            color: rgba(255, 255, 255, 0.7);
+            color: rgba(255,255,255,0.7);
             font-size: 14px;
          }
 
@@ -139,63 +146,48 @@
                text-decoration: underline;
             }
 
-      .forgot-password-link a {
-         color: #03a9f4; /* xanh giống Register here */
-         text-decoration: none;
-         font-weight: 600;
-      }
-
-         .forgot-password-link a:hover {
-            text-decoration: underline;
-         }
-
-         .forgot-password-link a:visited {
-            color: #03a9f4; /* giữ nguyên màu xanh sau khi click */
-         }
+            .footer-text a:visited {
+               color: #03a9f4;
+            }
    </style>
 </head>
 
 <body>
    <div class="form-container">
-      <h1>Login</h1>
+      <h1>Verify Code</h1>
+
       @if (TempData["SuccessMessage"] != null)
       {
-         <div class="alert alert-success">
-            @TempData["SuccessMessage"]
-         </div>
+         <div class="alert alert-success">@TempData["SuccessMessage"]</div>
       }
-      @if (ViewBag.Error != null)
+      @if (ViewBag.ErrorTop != null)
       {
-         <div class="alert alert-danger">
-            @ViewBag.Error
-         </div>
+         <div class="alert alert-danger">@ViewBag.ErrorTop</div>
       }
-      @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post))
+
+      @using (Html.BeginForm("CheckDigit", "Account", FormMethod.Post, new { autocomplete = "off" }))
       {
          @Html.AntiForgeryToken()
+         <input type="hidden" name="email" value="@ViewBag.Email" />
 
          <div class="input-box">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" autocomplete="off" required />
+            <input type="text"
+                   id="code"
+                   name="code"
+                   placeholder="Enter 6-digit code"
+                   maxlength="6"
+                   pattern="\d{6}"
+                   required />
+            @if (ViewBag.Error != null)
+            {<span class="text-danger">@ViewBag.Error</span>}
          </div>
 
-         <div class="input-box">
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" autocomplete="off" required />
-         </div>
-
-         <div class="forgot-password-link">
-            @Html.ActionLink("Forgot Password?", "ForgotPassword", "Account")
-         </div>
-
-         <button class="btn" type="submit">Login</button>
+         <button class="btn" type="submit">Verify Code</button>
       }
 
       <div class="footer-text">
-         <p>Don't have an account? @Html.ActionLink("Register here", "Register")</p>
-         <a href="@Url.Action("Home", "Feature")">Login later <i class="fi fi-br-arrow-right"></i></a>
+         <p>Didn’t get a code? @Html.ActionLink("Request a new one", "ForgotPassword", "Account", null, null)</p>
       </div>
-
    </div>
 </body>
 </html>

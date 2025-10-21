@@ -16,11 +16,12 @@ namespace OnlineJewelryStore.Controllers
 
         public ActionResult Index(
             int? categoryId,
-            decimal? minPrice,      // Filter by min price
-            decimal? maxPrice,      // Filter by max price
-            string metalType,       // Filter by metal type
-            string sortBy = "newest", // Sort option
-            int page = 1)           // Current page
+            decimal? minPrice,
+            decimal? maxPrice,
+            string metalType,
+            string search = null,
+            string sortBy = "newest",
+            int page = 1)
         {
             const int pageSize = 20;
 
@@ -151,6 +152,7 @@ namespace OnlineJewelryStore.Controllers
                 MaxPrice = maxPrice,
                 SelectedMetalType = metalType,
                 SortBy = sortBy,
+                SearchTerm = search,
                 CurrentPage = page,
                 TotalPages = totalPages,
                 TotalProducts = totalProducts,

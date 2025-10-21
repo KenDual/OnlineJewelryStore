@@ -6,6 +6,7 @@ using System.Web.Mvc;
 
 namespace OnlineJewelryStore.Controllers
 {
+    
     public class FeatureController : Controller
     {
         // GET: Feature
@@ -15,41 +16,33 @@ namespace OnlineJewelryStore.Controllers
             return View();
         }
 
-        [HttpGet]
-        public ActionResult Shop()
-        {
-            ViewBag.Active = "Shop"; 
-            return View();
-        }
-
-        [HttpGet]
+        [Authorize]
         public ActionResult Wishlist()
         {
             ViewBag.Active = "Wishlist"; 
             return View();
         }
 
-        [HttpGet]
         public ActionResult Blog()
         {
             ViewBag.Active = "Blog"; 
             return View();
         }
 
-        [HttpGet]
         public ActionResult Contact_us()
         {
             ViewBag.Active = "Contact_us"; 
             return View();
         }
-        [HttpGet]
+
+        [Authorize]
         public ActionResult Account()
         {
             ViewBag.Active = "Account"; 
             return View();
         }
 
-        [HttpGet]
+        [Authorize]
         public ActionResult Cart()
         {
             ViewBag.Active = "Cart";
