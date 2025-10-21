@@ -1,0 +1,532 @@
+﻿@model OnlineJewelryStore.ViewModels.Shop.ShopIndexViewModel
+
+@{
+   ViewBag.Title = "Index";
+   Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="body-popup-modal-area">
+   <span class="modal-close"><img src="~/Resources/img/cancel.png" alt="Close" class="img-fluid" /></span>
+   <div class="modal-container d-flex">
+      <div class="search-box-area">
+         <div class="search-box-form">
+            <form action="#" method="post">
+               <input type="search" placeholder="type keyword and hit enter" />
+               <button class="btn" type="button"><i class="fa fa-search"></i></button>
+            </form>
+         </div>
+      </div>
+   </div>
+</div>
+
+<!--== Page Title Area Start ==-->
+<div id="page-title-area">
+   <div class="container">
+      <div class="row">
+         <div class="col-12 text-center">
+            <div class="page-title-content">
+               <h1>Shop</h1>
+               <ul class="breadcrumb">
+                  <li><a href="@Url.Action("Home", "Feature")">Home</a></li>
+                  <li><a href="#" class="active">Shop</a></li>
+               </ul>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+
+<!--== Page Title Area End ==-->
+<!--== Page Content Wrapper Start ==-->
+<div id="page-content-wrapper" class="p-9">
+   <div class="ruby-container">
+      <div class="row">
+         <!-- Sidebar Area Start -->
+         <div class="col-lg-3 mt-5 mt-lg-0">
+            <div id="sidebar-area-wrap">
+               <!-- Single Sidebar Item Start -->
+               <div class="single-sidebar-wrap">
+                  <h2 class="sidebar-title">Shop By</h2>
+                  <div class="sidebar-body">
+                     <div class="shopping-option">
+                        <h3>Shopping Options</h3>
+
+                        <div class="shopping-option-item">
+                           <h4>CATEGORY</h4>
+                           <ul class="sidebar-list">
+                              @* Link "All Categories" *@
+                              <li>
+                                 <a href="@Url.Action("Index", "Shop")"
+                                    class="@(Model.SelectedCategoryID == null ? "active" : "") font-weight-bold">
+                                    All Categories (@Model.TotalProducts)
+                                 </a>
+                              </li>
+
+                              @* Loop qua các categories từ ViewModel *@
+                              @foreach (var category in Model.Categories)
+                              {
+                                 <li>
+                                    <a href="@Url.Action("Index", "Shop", new {
+                                          categoryId = category.CategoryID,
+                                          minPrice = Model.MinPrice,
+                                          maxPrice = Model.MaxPrice,
+                                          metalType = Model.SelectedMetalType,
+                                          sortBy = Model.SortBy
+                               })"
+                                       class="@(Model.SelectedCategoryID == category.CategoryID ? "active" : "")">
+                                       @category.CategoryName (@category.ProductCount)
+                                    </a>
+                                 </li>
+                              }
+                           </ul>
+                        </div>
+                        <div class="shopping-option-item">
+                           <h4>METAL TYPE</h4>
+                           <ul class="sidebar-list">
+                              @* All Metal Types *@
+                              <li>
+                                 <a href="@Url.Action("Index", "Shop", new { categoryId = Model.SelectedCategoryID, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, sortBy = Model.SortBy })"
+                                    class="@(string.IsNullOrEmpty(Model.SelectedMetalType) ? "active" : "")">
+                                    All Metals
+                                 </a>
+                              </li>
+
+                              @* Loop qua metal types *@
+                              @foreach (var metalType in Model.AvailableMetalTypes)
+                              {
+                                 <li>
+                                    <a href="@Url.Action("Index", "Shop", new {categoryId = Model.SelectedCategoryID,metalType = metalType, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, sortBy = Model.SortBy })"
+                                       class="@(Model.SelectedMetalType == metalType ? "active" : "")">
+                                       @metalType
+                                    </a>
+                                 </li>
+                              }
+                           </ul>
+                        </div>
+
+                     </div>
+                  </div>
+               </div>
+               <!-- Single Sidebar Item End -->
+            </div>
+         </div>
+         <!-- Sidebar Area End -->
+         <!-- Shop Page Content Start -->
+         <div class="col-lg-9 order-first order-lg-last">
+            <div class="shop-page-content-wrap">
+               <div class="products-settings-option d-block d-md-flex">
+                  <div class="product-cong-left d-flex align-items-center">
+                     <ul class="product-view d-flex align-items-center">
+                        <li class="current column-gird"><i class="fa fa-bars fa-rotate-90"></i></li>
+                        <li class="box-gird"><i class="fa fa-th"></i></li>
+                        <li class="list"><i class="fa fa-list-ul"></i></li>
+                     </ul>
+                     <span class="show-items">Items 1 - 9 of 17</span>
+                  </div>
+
+                  @*<div class="product-sort_by d-flex align-items-center mt-3 mt-md-0">
+                        <label for="sort">Sort By:</label>
+                        <select name="sort" id="sort">
+                           <option value="Position">Relevance</option>
+                           <option value="Name Ascen">Name, A to Z</option>
+                           <option value="Name Decen">Name, Z to A</option>
+                           <option value="Price Ascen">Price low to heigh</option>
+                           <option value="Price Decen">Price heigh to low</option>
+                        </select>
+                     </div>*@
+
+                  @* Item count - Dynamic *@
+                  @{
+                     int itemFrom = (Model.CurrentPage - 1) * Model.PageSize + 1;
+                     int itemTo = Math.Min(Model.CurrentPage * Model.PageSize, Model.TotalProducts);
+                  }
+                  <span class="show-items">
+                     Items @itemFrom - @itemTo of @Model.TotalProducts
+                  </span>
+
+                  <!-- ... (giữ nguyên product view icons) ... -->
+                  @* Sort dropdown - Dynamic with selected value *@
+                  <div class="product-sort_by d-flex align-items-center mt-3 mt-md-0">
+                     <label for="sort">Sort By:</label>
+                     <select name="sort" id="sort" onchange="handleSortChange(this.value)">
+                        <option value="newest" @(Model.SortBy == "newest" ? "selected" : "")>
+                           Newest First
+                        </option>
+                        <option value="name" @(Model.SortBy == "name" ? "selected" : "")>
+                           Name, A to Z
+                        </option>
+                        <option value="price_asc" @(Model.SortBy == "price_asc" ? "selected" : "")>
+                           Price: Low to High
+                        </option>
+                        <option value="price_desc" @(Model.SortBy == "price_desc" ? "selected" : "")>
+                           Price: High to Low
+                        </option>
+                     </select>
+                  </div>
+               </div>
+
+               <div class="shop-page-products-wrap">
+                  <div class="products-wrapper">
+                     <!--<div class="row">
+                     <div class="col-lg-4 col-sm-6">-->
+                     <!-- Single Product Item -->
+                     <!--<div class="single-product-item text-center">
+                        <figure class="product-thumb">
+                           <a href="single-product.html">
+                              <img src="~/Resources/img/new-product-2.jpg"
+                                   alt="Products" class="img-fluid">
+                           </a>
+                        </figure>
+
+                        <div class="product-details">
+                           <h2><a href="single-product.html">Crown Summit Backpack</a></h2>
+                           <div class="rating">
+                              <i class="fa fa-star"></i>
+                              <i class="fa fa-star"></i>
+                              <i class="fa fa-star"></i>
+                              <i class="fa fa-star-half"></i>
+                              <i class="fa fa-star-o"></i>
+                           </div>
+                           <span class="price">$52.00</span>
+                           <p class="products-desc">
+                              Ideal for cold-weathered training worked lorem
+                              outdoors, the Chaz Hoodie promises superior warmth with every wear.
+                              Thick material blocks out the wind as ribbed cuffs and bottom band seal
+                              in body heat.
+                           </p>
+                           <a href="single-product.html" class="btn btn-add-to-cart">+ Add to Cart</a>
+                           <a href="single-product.html" class="btn btn-add-to-cart btn-whislist">
+                              +
+                              Wishlist
+                           </a>
+                        </div>
+
+                        <div class="product-meta">
+                           <button type="button" data-toggle="modal" data-target="#quickView">
+                              <span data-toggle="tooltip" data-placement="left" title="Quick View">
+                                 <i class="fa fa-compress"></i>
+                              </span>
+                           </button>
+                           <a href="#" data-toggle="tooltip" data-placement="left"
+                              title="Add to Wishlist">
+                              <i class="fa fa-heart-o"></i>
+                           </a>
+                        </div>
+                        <span class="product-bedge sale">Sale</span>
+                     </div>-->
+                     <!-- Single Product Item -->
+                     <!--</div>
+
+                     <div class="col-lg-4 col-sm-6">-->
+                     <!-- Single Product Item -->
+                     <!--<div class="single-product-item text-center">
+                        <figure class="product-thumb">
+                           <a href="single-product.html">
+                              <img src="~/Resources/img/new-product-3.jpg"
+                                   alt="Products" class="img-fluid">
+                           </a>
+                        </figure>
+
+                        <div class="product-details">
+                           <h2><a href="single-product.html">Crown Summit Backpack</a></h2>
+                           <div class="rating">
+                              <i class="fa fa-star"></i>
+                              <i class="fa fa-star"></i>
+                              <i class="fa fa-star"></i>
+                              <i class="fa fa-star-half"></i>
+                              <i class="fa fa-star-o"></i>
+                           </div>
+                           <span class="price">$52.00</span>
+                           <p class="products-desc">
+                              Ideal for cold-weathered training worked lorem
+                              outdoors, the Chaz Hoodie promises superior warmth with every wear.
+                              Thick material blocks out the wind as ribbed cuffs and bottom band seal
+                              in body heat.
+                           </p>
+                           <a href="single-product.html" class="btn btn-add-to-cart">+ Add to Cart</a>
+                           <a href="single-product.html" class="btn btn-add-to-cart btn-whislist">
+                              +
+                              Wishlist
+                           </a>
+                        </div>
+
+                        <div class="product-meta">
+                           <button type="button" data-toggle="modal" data-target="#quickView">
+                              <span data-toggle="tooltip" data-placement="left" title="Quick View">
+                                 <i class="fa fa-compress"></i>
+                              </span>
+                           </button>
+                           <a href="#" data-toggle="tooltip" data-placement="left"
+                              title="Add to Wishlist">
+                              <i class="fa fa-heart-o"></i>
+                           </a>
+                        </div>
+                        <span class="product-bedge">New</span>
+                     </div>-->
+                     <!-- Single Product Item -->
+                     <!--</div>
+                     </div>-->
+
+                     <div class="products-wrapper">
+                        <div class="row">
+                           @if (Model.Products != null && Model.Products.Any())
+                           {
+                              @* Loop qua tất cả products từ ViewModel *@
+                              foreach (var product in Model.Products)
+                              {
+                                 <div class="col-lg-4 col-sm-6">
+                                    <!-- Single Product Item -->
+                                    <div class="single-product-item text-center">
+                                       <figure class="product-thumb">
+                                          <a href="@Url.Action("Details", "Shop", new { id = product.ProductID })">
+                                             @if (!string.IsNullOrEmpty(product.MainImageURL))
+                                             {
+                                                <img src="@product.MainImageURL"
+                                                     alt="@product.ProductName"
+                                                     class="img-fluid">
+                                             }
+                                             else
+                                             {
+                                                <img src="~/Resources/img/no-image.jpg"
+                                                     alt="No Image"
+                                                     class="img-fluid">
+                                             }
+                                          </a>
+                                       </figure>
+
+                                       <div class="product-details">
+                                          <h2>
+                                             <a href="@Url.Action("Details", "Shop", new { id = product.ProductID })">
+                                                @product.ProductName
+                                             </a>
+                                          </h2>
+
+                                          @* Rating - TODO: Implement nếu có *@
+                                          <div class="rating">
+                                             <i class="fa fa-star"></i>
+                                             <i class="fa fa-star"></i>
+                                             <i class="fa fa-star"></i>
+                                             <i class="fa fa-star"></i>
+                                             <i class="fa fa-star-o"></i>
+                                          </div>
+
+                                          @* Price - Format currency *@
+                                          <span class="price">
+                                             @product.FinalPrice.ToString("N0") VND
+                                          </span>
+
+                                          @* Description - Truncate if too long *@
+                                          <p class="products-desc">
+                                             @(product.Description != null && product.Description.Length > 150
+                                    ? product.Description.Substring(0, 150) + "..."
+                                    : product.Description)
+                                          </p>
+
+                                          @* Add to Cart button *@
+                                          <a href="@Url.Action("Details", "Shop", new { id = product.ProductID })"
+                                             class="btn btn-add-to-cart">
+                                             + Add to Cart
+                                          </a>
+
+                                          @* Wishlist button *@
+                                          <a href="javascript:void(0)"
+                                             onclick="addToWishlist(@product.ProductID)"
+                                             class="btn btn-add-to-cart btn-whislist">
+                                             + Wishlist
+                                          </a>
+                                       </div>
+
+                                       <div class="product-meta">
+                                          @* Wishlist icon *@
+                                          <a href="javascript:void(0)"
+                                             onclick="addToWishlist(@product.ProductID)"
+                                             data-toggle="tooltip"
+                                             data-placement="left"
+                                             title="Add to Wishlist">
+                                             <i class="fa fa-heart-o"></i>
+                                          </a>
+                                       </div>
+
+                                       @* Badge - New products (created within 30 days) *@
+                                       @if ((DateTime.Now - product.CreationDate).TotalDays <= 30)
+                                       {
+                                          <span class="product-bedge">New</span>
+                                       }
+                                    </div>
+                                    <!-- Single Product Item -->
+                                 </div>
+                              }
+                           }
+                           else
+                           {
+                              @* No products found message *@
+                              <div class="col-12">
+                                 <div class="alert alert-info text-center">
+                                    <h4>No products found</h4>
+                                    <p>Try adjusting your filters or search criteria.</p>
+                                 </div>
+                              </div>
+                           }
+                        </div>
+                     </div>
+
+                  </div>
+               </div>
+
+               <div class="products-settings-option d-block d-md-flex">
+
+                  @if (Model.TotalPages > 1)
+                  {
+                     <nav class="page-pagination">
+                        <ul class="pagination">
+                           @* Previous button *@
+                           <li class="@(!Model.HasPreviousPage ? "disabled" : "")">
+                              @if (Model.HasPreviousPage)
+                              {
+                                 <a href="@Url.Action("Index", "Shop", new {
+                                    categoryId = Model.SelectedCategoryID,
+                                    minPrice = Model.MinPrice,
+                                    maxPrice = Model.MaxPrice,
+                                    metalType = Model.SelectedMetalType,
+                                    sortBy = Model.SortBy,
+                                    page = Model.CurrentPage - 1
+                                 })"
+                                    aria-label="Previous">
+                                    &laquo;
+                                 </a>
+                              }
+                              else
+                              {
+                                 <span>&laquo;</span>
+                              }
+                           </li>
+
+                           @* Page numbers *@
+                           @{
+                              int startPage = Math.Max(1, Model.CurrentPage - 2);
+                              int endPage = Math.Min(Model.TotalPages, Model.CurrentPage + 2);
+                           }
+
+                           @* First page nếu cần *@
+                           @if (startPage > 1)
+                           {
+                              <li>
+                                 <a href="@Url.Action("Index", "Shop", new {
+                                    categoryId = Model.SelectedCategoryID,
+                                    minPrice = Model.MinPrice,
+                                    maxPrice = Model.MaxPrice,
+                                    metalType = Model.SelectedMetalType,
+                                    sortBy = Model.SortBy,
+                                    page = 1
+                                 })">
+                                    1
+                                 </a>
+                              </li>
+
+                              if (startPage > 2)
+                              {
+                                 <li class="disabled"><span>...</span></li>
+                              }
+                           }
+
+                           @* Page number loop *@
+                           @for (int i = startPage; i <= endPage; i++)
+                           {
+                              <li>
+                                 <a href="@Url.Action("Index", "Shop", new {
+                                    categoryId = Model.SelectedCategoryID,
+                                    minPrice = Model.MinPrice,
+                                    maxPrice = Model.MaxPrice,
+                                    metalType = Model.SelectedMetalType,
+                                    sortBy = Model.SortBy,
+                                    page = i
+                                 })"
+                                    class="@(i == Model.CurrentPage ? "current" : "")">
+                                    @i
+                                 </a>
+                              </li>
+                           }
+
+                           @if (endPage < Model.TotalPages)
+                           {
+                              if (endPage < Model.TotalPages - 1)
+                              {
+                                 <li class="disabled"><span>...</span></li>
+                              }
+
+                              <li>
+                                 <a href="@Url.Action("Index", "Shop", new {
+                                    categoryId = Model.SelectedCategoryID,
+                                    minPrice = Model.MinPrice,
+                                    maxPrice = Model.MaxPrice,
+                                    metalType = Model.SelectedMetalType,
+                                    sortBy = Model.SortBy,
+                                    page = Model.TotalPages
+                                 })">
+                                    @Model.TotalPages
+                                 </a>
+                              </li>
+                           }
+
+                           <li class="@(!Model.HasNextPage ? "disabled" : "")">
+                              @if (Model.HasNextPage)
+                              {
+                                 <a href="@Url.Action("Index", "Shop", new {
+                                    categoryId = Model.SelectedCategoryID,
+                                    minPrice = Model.MinPrice,
+                                    maxPrice = Model.MaxPrice,
+                                    metalType = Model.SelectedMetalType,
+                                    sortBy = Model.SortBy,
+                                    page = Model.CurrentPage + 1
+                                 })"
+                                    aria-label="Next">
+                                    &raquo;
+                                 </a>
+                              }
+                              else
+                              {
+                                 <span>&raquo;</span>
+                              }
+                           </li>
+                        </ul>
+                     </nav>
+                  }
+               </div>
+            </div>
+         </div>
+         <!-- Shop Page Content End -->
+      </div>
+   </div>
+   <div class="modal fade" id="quickViewModal" tabindex="-1" role="dialog" aria-hidden="true">
+      <!-- Modal content will be loaded here via AJAX -->
+   </div>
+</div>
+@section Scripts {
+   <script>
+        // Handle sort change
+        function handleSortChange(sortBy) {
+            var url = '@Url.Action("Index", "Shop")';
+            var params = {
+                categoryId: @(Model.SelectedCategoryID?.ToString() ?? "null"),
+                minPrice: @(Model.MinPrice?.ToString() ?? "null"),
+                maxPrice: @(Model.MaxPrice?.ToString() ?? "null"),
+                metalType: '@(Model.SelectedMetalType ?? "")',
+                sortBy: sortBy,
+                page: 1 // Reset to first page
+            };
+
+            window.location.href = url + '?' + $.param(params);
+        }
+
+        // Add to wishlist (TODO: Implement trong Phase 4)
+        function addToWishlist(productId) {
+            // Placeholder - sẽ implement trong Phase 4
+            alert('Add to Wishlist: Product ID ' + productId);
+        }
+
+        // Show quick view (TODO: Implement)
+        function showQuickView(productId) {
+            // Placeholder - sẽ implement sau
+            alert('Quick View: Product ID ' + productId);
+        }
+   </script>
+}
