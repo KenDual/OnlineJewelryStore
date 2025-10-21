@@ -14,27 +14,32 @@ namespace OnlineJewelryStore.Controllers
             [HttpGet]
             public ActionResult Index()
             {
-                ViewBag.Active = "Dashboard"; return View();
+                ViewBag.Active = "Dashboard"; 
+                return View();
             }
             [HttpGet]
             public ActionResult Orders()
             {
-                ViewBag.Active = "Orders"; return View();
+                ViewBag.Active = "Orders"; 
+                return View();
             }
             [HttpGet]
             public ActionResult PaymentMethod()
             { 
-                ViewBag.Active = "payment"; return View(); 
+                ViewBag.Active = "payment"; 
+                return View(); 
             }
             [HttpGet] 
             public ActionResult Address() 
             { 
-                ViewBag.Active = "address"; return View(); 
+                ViewBag.Active = "address"; 
+                return View(); 
             }
             [HttpGet] 
             public ActionResult AccountDetails() 
             { 
-                ViewBag.Active = "account"; return View(); 
+                ViewBag.Active = "account"; 
+                return View(); 
             }
         }
     }

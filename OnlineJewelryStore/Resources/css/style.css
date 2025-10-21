@@ -110,7 +110,7 @@ button:focus, button:active, button.btn:focus, button.btn:active {
 }
 
 .ruby-container {
-    padding: 0 4%;
+    padding: 0 5%;
 }
 
 .p-9 {
@@ -5273,6 +5273,10 @@ fieldset legend {
 .follow-content-wrap .logo {
     margin-bottom: 20px;
     display: inline-block;
+}
+
+.logo-intensifier {
+    max-width: 20%;
 }
 
 .follow-content-wrap p {

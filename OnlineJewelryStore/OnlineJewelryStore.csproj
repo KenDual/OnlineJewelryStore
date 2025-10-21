@@ -450,6 +450,7 @@
     <Content Include="Views\Feature\Blog.cshtml" />
     <Content Include="Views\Feature\Contact_us.cshtml" />
     <Content Include="Views\Feature\Account.cshtml" />
+    <Content Include="Views\Feature\Cart.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
