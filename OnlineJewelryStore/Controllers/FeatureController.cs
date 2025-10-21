@@ -11,31 +11,49 @@ namespace OnlineJewelryStore.Controllers
         // GET: Feature
         public ActionResult Home()
         {
-            ViewBag.Active = "Home"; return View();
+            ViewBag.Active = "Home"; 
+            return View();
         }
+
         [HttpGet]
         public ActionResult Shop()
         {
-            ViewBag.Active = "Shop"; return View();
+            ViewBag.Active = "Shop"; 
+            return View();
         }
+
         [HttpGet]
         public ActionResult Wishlist()
         {
-            ViewBag.Active = "Wishlist"; return View();
+            ViewBag.Active = "Wishlist"; 
+            return View();
         }
+
         [HttpGet]
         public ActionResult Blog()
         {
-            ViewBag.Active = "Blog"; return View();
+            ViewBag.Active = "Blog"; 
+            return View();
         }
+
         [HttpGet]
         public ActionResult Contact_us()
         {
-            ViewBag.Active = "Contact_us"; return View();
+            ViewBag.Active = "Contact_us"; 
+            return View();
         }
+        [HttpGet]
         public ActionResult Account()
         {
-            ViewBag.Active = "Account"; return View();
+            ViewBag.Active = "Account"; 
+            return View();
+        }
+
+        [HttpGet]
+        public ActionResult Cart()
+        {
+            ViewBag.Active = "Cart";
+            return View();
         }
     }
 }

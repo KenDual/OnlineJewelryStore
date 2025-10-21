@@ -1,10 +1,5 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "Account";
-}
-
-@{
-    ViewBag.Title = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -68,23 +63,6 @@
                     <!-- My Account Tab Menu Start -->
                     <div class="row">
                         <div class="col-lg-3">
-                            @*<div class="myaccount-tab-menu nav" role="tablist">
-                                    <a href="#dashboad" class="active"
-                                       data-toggle="tab"> <i class="fa fa-dashboard"></i> Dashboard </a> <a href="#orders"
-                                    <a href="#payment-method" data-toggle="tab">
-                                        <i class="fa fa-credit-card"></i> Payment
-                                        Method
-                                    </a> <a href="#address" data-toggle="tab">
-                                        <i class="fa fa-map-marker"></i>
-                                        address
-                                    </a> <a href="#account-info" data-toggle="tab">
-                                        <i class="fa fa-user"></i>
-                                        Account Details
-                                    </a> <a href="login-register.html">
-                                        <i class="fa fa-sign-out"></i>
-                                        Logout
-                                    </a>
-                                </div>*@
 
                             <div class="myaccount-tab-menu nav" role="tablist">
                                 <a href="@Url.Action("Index","UserDashboard")" class="active">
