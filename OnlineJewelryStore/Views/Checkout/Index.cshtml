@@ -1,0 +1,483 @@
+﻿@model OnlineJewelryStore.ViewModels.Checkout.CheckoutViewModel
+@{
+   ViewBag.Title = "Index";
+   Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!--== Page Title Area Start ==-->
+<div id="page-title-area">
+   <div class="container">
+      <div class="row">
+         <div class="col-12 text-center">
+            <div class="page-title-content">
+               <h1>Checkout</h1>
+               <ul class="breadcrumb">
+                  <li><a href="@Url.Action("Index", "Home")">Home</a></li>
+                  <li><a href="@Url.Action("Index", "Shop")">Shop</a></li>
+                  <li><a href="@Url.Action("Index", "Cart")">Cart</a></li>
+                  <li><a href="#" class="active">Checkout</a></li>
+               </ul>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+@if (TempData["ErrorMessage"] != null)
+{
+   <div class="container mt-3">
+      <div class="alert alert-danger alert-dismissible fade show">
+         <strong>Error!</strong> @TempData["ErrorMessage"]
+         <button type="button" class="close" data-dismiss="alert">&times;</button>
+      </div>
+   </div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+   <div class="container mt-3">
+      <div class="alert alert-success alert-dismissible fade show">
+         <strong>Success!</strong> @TempData["SuccessMessage"]
+         <button type="button" class="close" data-dismiss="alert">&times;</button>
+      </div>
+   </div>
+}
+<!--== Page Title Area End ==-->
+<!--== Page Content Wrapper Start ==-->
+<div id="page-content-wrapper" class="p-9">
+   <div class="container">
+      <form action="@Url.Action("PlaceOrder", "Checkout")" method="post" id="checkout-form">
+         @Html.AntiForgeryToken()
+         <!--== Checkout Page Content Area ==-->
+         <div class="row">
+            <div class="col-12">
+
+               <!-- Checkout Login Coupon Accordion Start -->
+               <div class="checkoutaccordion" id="checkOutAccordion">
+                  <div class="card">
+                     <h3>
+                        Have A Coupon? <span data-toggle="collapse" data-target="#couponaccordion">Click Here To Enter Your Code</span>
+                     </h3>
+                     <div id="couponaccordion" class="collapse" data-parent="#checkOutAccordion">
+                        <div class="card-body">
+                           <div class="cart-update-option">
+                              <div class="apply-coupon-wrapper">
+                                 <div class="d-block d-md-flex">
+                                    <input type="text" id="couponCode" placeholder="Enter Your Coupon Code" />
+                                    <button type="button" id="btnApplyCoupon" class="btn-add-to-cart">Apply Coupon</button>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <!-- Checkout Login Coupon Accordion End -->
+
+            </div>
+         </div>
+
+         <div class="row">
+            <!-- Checkout Billing Details -->
+            <!-- Checkout Billing Details -->
+            <div class="col-lg-6">
+               <div class="checkout-billing-details-wrap">
+                  <h2>Shipping Address</h2>
+
+                  @if (Model.Addresses != null && Model.Addresses.Any())
+                  {
+                     <div class="billing-form-wrap">
+                        @foreach (var addr in Model.Addresses)
+                        {
+                           <div class="single-input-item mb-3">
+                              <div class="custom-control custom-radio">
+                                 <input type="radio"
+                                        class="custom-control-input"
+                                        id="addr_@addr.AddressID"
+                                        name="ShippingAddressID"
+                                        value="@addr.AddressID"
+                                        @(addr.IsDefault ? "checked" : "")
+                                        required />
+                                 <label class="custom-control-label" for="addr_@addr.AddressID">
+                                    <strong>@addr.StreetAddress</strong><br />
+                                    @addr.City, @addr.State @addr.PostalCode<br />
+                                    @addr.Country<br />
+                                    Phone: @addr.Phone
+                                    @if (addr.IsDefault)
+                                    {
+                                       <span class="badge badge-primary ml-2">Default</span>
+                                    }
+                                 </label>
+                              </div>
+                           </div>
+                        }
+
+                        <div class="single-input-item mt-4">
+                           <a href="@Url.Action("Create", "Addresses", new { returnUrl = Url.Action("Index", "Checkout") })"
+                              class="btn btn-secondary btn-sm">
+                              <i class="fas fa-plus"></i> Add New Address
+                           </a>
+                        </div>
+                     </div>
+                  }
+                  else
+                  {
+                     <div class="alert alert-warning">
+                        <p>You don't have any saved address.</p>
+                        <a href="@Url.Action("Create", "Addresses", new { returnUrl = Url.Action("Index", "Checkout") })"
+                           class="btn btn-primary">
+                           <i class="fas fa-plus"></i> Add Address
+                        </a>
+                     </div>
+                  }
+
+                  <!-- Gift Message (Optional) -->
+                  <div class="checkout-box-wrap mt-4">
+                     <h3>Gift Options (Optional)</h3>
+                     <div class="single-input-item">
+                        <label for="giftMessage">Gift Message</label>
+                        <textarea name="GiftMessage"
+                                  id="giftMessage"
+                                  rows="4"
+                                  maxlength="500"
+                                  class="form-control"
+                                  placeholder="Add a special message for gift recipient..."></textarea>
+                        <small class="text-muted">Maximum 500 characters</small>
+                     </div>
+                  </div>
+               </div>
+            </div>
+
+            <!-- Order Summary Details -->
+            <div class="col-lg-6 mt-5 mt-lg-0">
+               <div class="order-summary-details">
+                  <h2>Your Order Summary</h2>
+                  <div class="order-summary-content">
+                     <!-- Order Summary Table -->
+                     <div class="order-summary-table table-responsive text-center">
+                        <table class="table table-bordered">
+                           <thead>
+                              <tr>
+                                 <th>Products</th>
+                                 <th>Total</th>
+                              </tr>
+                           </thead>
+
+                           <tbody>
+                              @if (Model.CartItems != null && Model.CartItems.Any())
+                              {
+                                 foreach (var item in Model.CartItems)
+                                 {
+                                    <tr>
+                                       <td class="text-left">
+                                          <img src="@item.ImageUrl"
+                                               width="50"
+                                               height="50"
+                                               style="object-fit: cover; margin-right: 10px;"
+                                               alt="@item.ProductName" />
+                                          <a href="@Url.Action("Details", "Shop", new { id = item.ProductID })">
+                                             @item.ProductName
+                                          </a>
+                                          @if (!string.IsNullOrEmpty(item.MetalType))
+                                          {
+                                             <br /><small class="text-muted">Metal: @item.MetalType</small>
+                                          }
+                                          @if (!string.IsNullOrEmpty(item.RingSize))
+                                          {
+                                             <br /><small class="text-muted">Size: @item.RingSize</small>
+                                          }
+                                          <strong> × @item.Quantity</strong>
+                                       </td>
+                                       <td>@item.TotalPrice.ToString("N0") VND</td>
+                                    </tr>
+                                 }
+                              }
+                              else
+                              {
+                                 <tr>
+                                    <td colspan="2" class="text-center">No items in cart</td>
+                                 </tr>
+                              }
+                           </tbody>
+
+                           <tfoot>
+                              <tr>
+                                 <td>Sub Total</td>
+                                 <td><strong>@Model.OrderSummary.Subtotal.ToString("N0") VND</strong></td>
+                              </tr>
+
+                              <tr>
+                                 <td>Tax (10%)</td>
+                                 <td><strong>@Model.OrderSummary.TaxTotal.ToString("N0") VND</strong></td>
+                              </tr>
+
+                              <tr>
+                                 <td>Shipping Fee</td>
+                                 <td><strong>@Model.OrderSummary.ShippingFee.ToString("N0") VND</strong></td>
+                              </tr>
+
+                              <tr id="discount-row" style="display:none;">
+                                 <td>Discount</td>
+                                 <td><strong id="discount-amount" class="text-success">0 VND</strong></td>
+                              </tr>
+
+                              <tr>
+                                 <td><strong>Grand Total</strong></td>
+                                 <td>
+                                    <strong id="grand-total" style="font-size: 1.2em; color: #e91e63;">
+                                       @Model.OrderSummary.GrandTotal.ToString("N0") VND
+                                    </strong>
+                                 </td>
+                              </tr>
+                           </tfoot>
+
+                           <!-- Hidden Fields for JavaScript -->
+                           <input type="hidden" id="hiddenSubtotal" value="@Model.OrderSummary.Subtotal" />
+                           <input type="hidden" id="hiddenTaxTotal" value="@Model.OrderSummary.TaxTotal" />
+                           <input type="hidden" id="hiddenShippingFee" value="@Model.OrderSummary.ShippingFee" />
+                           <input type="hidden" id="hiddenGrandTotal" value="@Model.OrderSummary.GrandTotal" />
+                           <input type="hidden" id="hiddenDiscount" value="0" />
+                        </table>
+                     </div>
+
+                     <!-- Order Payment Method -->
+                     <!-- Order Payment Method -->
+                     <div class="order-payment-method">
+                        <!-- Cash On Delivery -->
+                        <div class="single-payment-method show">
+                           <div class="payment-method-name">
+                              <div class="custom-control custom-radio">
+                                 <input type="radio"
+                                        id="cashon"
+                                        name="PaymentMethod"
+                                        value="COD"
+                                        class="custom-control-input"
+                                        checked
+                                        required />
+                                 <label class="custom-control-label" for="cashon">
+                                    Cash On Delivery (COD)
+                                 </label>
+                              </div>
+                           </div>
+                           <div class="payment-method-details" data-method="cash">
+                              <p>Pay with cash upon delivery. Our delivery staff will collect payment when your order arrives.</p>
+                           </div>
+                        </div>
+
+                        <!-- VNPay -->
+                        <div class="single-payment-method">
+                           <div class="payment-method-name">
+                              <div class="custom-control custom-radio">
+                                 <input type="radio"
+                                        id="vnpay"
+                                        name="PaymentMethod"
+                                        value="VNPay"
+                                        class="custom-control-input"
+                                        required />
+                                 <label class="custom-control-label" for="vnpay">
+                                    VNPay
+                                    <img src="~/Content/images/vnpay-logo.png"
+                                         style="height: 20px; margin-left: 10px;"
+                                         alt="VNPay" />
+                                 </label>
+                              </div>
+                           </div>
+                           <div class="payment-method-details" data-method="vnpay">
+                              <p>Pay securely via VNPay gateway. Supports domestic and international cards.</p>
+                           </div>
+                        </div>
+
+                        <!-- MoMo -->
+                        <div class="single-payment-method">
+                           <div class="payment-method-name">
+                              <div class="custom-control custom-radio">
+                                 <input type="radio"
+                                        id="momo"
+                                        name="PaymentMethod"
+                                        value="MoMo"
+                                        class="custom-control-input"
+                                        required />
+                                 <label class="custom-control-label" for="momo">
+                                    MoMo Wallet
+                                    <img src="~/Content/images/momo-logo.png"
+                                         style="height: 20px; margin-left: 10px;"
+                                         alt="MoMo" />
+                                 </label>
+                              </div>
+                           </div>
+                           <div class="payment-method-details" data-method="momo">
+                              <p>Pay via MoMo e-wallet. Quick and secure payment method.</p>
+                           </div>
+                        </div>
+
+                        <!-- Credit/Debit Card -->
+                        <div class="single-payment-method">
+                           <div class="payment-method-name">
+                              <div class="custom-control custom-radio">
+                                 <input type="radio"
+                                        id="card"
+                                        name="PaymentMethod"
+                                        value="Card"
+                                        class="custom-control-input"
+                                        required />
+                                 <label class="custom-control-label" for="card">
+                                    Credit/Debit Card
+                                 </label>
+                              </div>
+                           </div>
+                           <div class="payment-method-details" data-method="card">
+                              <p>Pay with your credit or debit card. All major cards accepted.</p>
+                           </div>
+                        </div>
+
+                        <!-- Bank Transfer -->
+                        <div class="single-payment-method">
+                           <div class="payment-method-name">
+                              <div class="custom-control custom-radio">
+                                 <input type="radio"
+                                        id="directbank"
+                                        name="PaymentMethod"
+                                        value="Bank"
+                                        class="custom-control-input"
+                                        required />
+                                 <label class="custom-control-label" for="directbank">
+                                    Direct Bank Transfer
+                                 </label>
+                              </div>
+                           </div>
+                           <div class="payment-method-details" data-method="bank">
+                              <p>
+                                 Make your payment directly into our bank account. Please use your Order ID as the
+                                 payment reference. Your order will not be shipped until the funds have cleared in our account.
+                              </p>
+                           </div>
+                        </div>
+
+                        <!-- Terms & Place Order -->
+                        <div class="summary-footer-area">
+                           <div class="custom-control custom-checkbox mb-3">
+                              <input type="checkbox"
+                                     class="custom-control-input"
+                                     id="terms"
+                                     required />
+                              <label class="custom-control-label" for="terms">
+                                 I have read and agree to the website
+                                 <a href="@Url.Action("Terms", "Home")" target="_blank">terms and conditions.</a>
+                              </label>
+                           </div>
+
+                           <button type="submit" class="btn-add-to-cart" id="btnPlaceOrder">
+                              <i class="fas fa-shopping-cart"></i> Place Order
+                           </button>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <!--== Checkout Page Content End ==-->
+      </form>
+   </div>
+</div>
+<!--== Page Content Wrapper End ==-->
+@section Scripts {
+   <script>
+       $(document).ready(function () {
+
+           // Apply Coupon AJAX
+           $('#btnApplyCoupon').click(function () {
+               var code = $('#couponCode').val().trim();
+               var subtotal = parseFloat($('#hiddenSubtotal').val());
+
+               if (!code) {
+                   alert('⚠️ Vui lòng nhập mã giảm giá');
+                   return;
+               }
+
+               // Disable button
+               $(this).prop('disabled', true).text('Processing...');
+
+               $.ajax({
+                   url: '@Url.Action("ApplyCoupon", "Checkout")',
+                   type: 'POST',
+                   data: {
+                       code: code,
+                       subtotal: subtotal
+                   },
+                   success: function (response) {
+                       if (response.Success) {
+                           // Show discount row
+                           $('#discount-row').show();
+
+                           // Update discount amount
+                           $('#discount-amount').text('-' + response.Discount.toLocaleString('vi-VN') + ' VND');
+
+                           // Update grand total
+                           $('#grand-total').text(response.GrandTotal.toLocaleString('vi-VN') + ' VND');
+
+                           // Update hidden fields
+                           $('#hiddenDiscount').val(response.Discount);
+                           $('#hiddenGrandTotal').val(response.GrandTotal);
+
+                           // Show success message
+                           alert('✅ ' + response.Message);
+
+                           // Disable coupon input
+                           $('#couponCode').prop('readonly', true);
+                           $('#btnApplyCoupon').text('Applied').prop('disabled', true);
+                       } else {
+                           alert('❌ ' + response.Message);
+                           $('#btnApplyCoupon').prop('disabled', false).text('Apply Coupon');
+                       }
+                   },
+                   error: function (xhr, status, error) {
+                       console.error('Error:', error);
+                       alert('❌ Có lỗi xảy ra khi áp dụng mã giảm giá. Vui lòng thử lại.');
+                       $('#btnApplyCoupon').prop('disabled', false).text('Apply Coupon');
+                   }
+               });
+           });
+
+           // Form Submit Confirmation
+           $('#checkout-form').submit(function (e) {
+               // Check if address is selected
+               if (!$('input[name="ShippingAddressID"]:checked').length) {
+                   alert('⚠️ Vui lòng chọn địa chỉ giao hàng');
+                   e.preventDefault();
+                   return false;
+               }
+
+               // Check if payment method is selected
+               if (!$('input[name="PaymentMethod"]:checked').length) {
+                   alert('⚠️ Vui lòng chọn phương thức thanh toán');
+                   e.preventDefault();
+                   return false;
+               }
+
+               // Check terms checkbox
+               if (!$('#terms').is(':checked')) {
+                   alert('⚠️ Vui lòng đồng ý với điều khoản và điều kiện');
+                   e.preventDefault();
+                   return false;
+               }
+
+               // Confirm order
+               if (!confirm('🛒 Xác nhận đặt hàng?\n\nTổng tiền: ' + $('#grand-total').text())) {
+                   e.preventDefault();
+                   return false;
+               }
+
+               // Show loading
+               $('#btnPlaceOrder').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing...');
+
+               return true;
+           });
+
+           // Toggle payment method details
+           $('.single-payment-method input[type="radio"]').change(function () {
+               $('.payment-method-details').slideUp();
+               $(this).closest('.single-payment-method').find('.payment-method-details').slideDown();
+           });
+
+       });
+   </script>
+}

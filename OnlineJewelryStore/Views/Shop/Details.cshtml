@@ -324,7 +324,7 @@
                         @* WISHLIST BUTTON *@
                         <div class="product-btn-group">
                            <button type="button"
-                                   class="btn btn-add-to-cart btn-whislist"
+                                   class="btn btn-add-to-cart btn-wishlist"
                                    onclick="addToWishlistDetails()">
                               @if (Model.IsInWishlist)
                               {
@@ -832,15 +832,44 @@
         // ===== ADD TO CART =====
         function addToCartDetails() {
             var variantId = $('#selected-variant-id').val();
-            var quantity = $('#qty').val();
+            var quantity = parseInt($('#qty').val()) || 1;
 
             if (!variantId) {
                 alert('Please select product options');
                 return;
             }
+            // Disable button để tránh double click
+            $('#add-to-cart-btn').prop('disabled', true).text('Adding...');
 
-            // TODO: Implement trong Phase 5
-            alert('Add to Cart: Variant ' + variantId + ', Qty: ' + quantity);
+            $.ajax({
+                url: '@Url.Action("AddToCart", "Cart")',
+                type: 'POST',
+                data: {
+                    variantId: variantId,
+                    quantity: quantity
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Update cart count in navbar
+                        if (window.updateCartCount) {
+                            window.updateCartCount();
+                        }
+
+                        // Show success message
+                        alert('Product added to cart successfully!');
+
+                        // Reset button
+                        $('#add-to-cart-btn').prop('disabled', false).text('Add to Cart');
+                    } else {
+                        alert(response.message);
+                        $('#add-to-cart-btn').prop('disabled', false).text('Add to Cart');
+                    }
+                },
+                error: function() {
+                    alert('Error adding to cart. Please try again.');
+                    $('#add-to-cart-btn').prop('disabled', false).text('Add to Cart');
+                }
+            });
         }
 
         // ===== ADD TO WISHLIST =====
@@ -849,11 +878,31 @@
 
             if (!variantId) {
                 // Lấy variant đầu tiên
-                variantId = variants[0].variantId;
+                if (variants && variants.length > 0) {
+                    variantId = variants[0].variantId;
+                } else {
+                    alert('Please select product options');
+                    return;
+                }
             }
-
-            // TODO: Implement trong Phase 4
-            alert('Add to Wishlist: Variant ' + variantId);
+            $.ajax({
+                url: '@Url.Action("Add", "Wishlist")',
+                type: 'POST',
+                data: { variantId: variantId },
+                success: function(response) {
+                    if (response.success) {
+                        if (window.updateWishlistCount) {
+                            window.updateWishlistCount();
+                        }
+                        alert('Added to wishlist!');
+                    } else {
+                        alert(response.message || 'Error adding to wishlist');
+                    }
+                },
+                error: function() {
+                    alert('Please login to add items to wishlist');
+                }
+            });
         }
 
         // ===== RATING STARS SELECTION =====

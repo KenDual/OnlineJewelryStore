@@ -1,0 +1,185 @@
+﻿@model List<OnlineJewelryStore.ViewModels.Address.AddressListViewModel>
+@{
+   ViewBag.Title = "My Addresses";
+   Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!--== Page Title Area Start ==-->
+<div id="page-title-area">
+   <div class="container">
+      <div class="row">
+         <div class="col-12 text-center">
+            <div class="page-title-content">
+               <h1>My Addresses</h1>
+               <ul class="breadcrumb">
+                  <li>@Html.ActionLink("Home", "Index", "Home")</li>
+                  <li>@Html.ActionLink("Account", "Profile", "Account")</li>
+                  <li><a href="#" class="active">Addresses</a></li>
+               </ul>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+<!--== Page Title Area End ==-->
+<!--== Page Content Wrapper Start ==-->
+<div id="page-content-wrapper" class="p-9">
+   <div class="container">
+
+      <!-- Alert Messages -->
+      @if (TempData["SuccessMessage"] != null)
+      {
+         <div class="alert alert-success alert-dismissible fade show">
+            <strong>Success!</strong> @TempData["SuccessMessage"]
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+         </div>
+      }
+
+      @if (TempData["ErrorMessage"] != null)
+      {
+         <div class="alert alert-danger alert-dismissible fade show">
+            <strong>Error!</strong> @TempData["ErrorMessage"]
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+         </div>
+      }
+
+      <!-- Page Header -->
+      <div class="row mb-4">
+         <div class="col-md-6">
+            <h3>Saved Addresses</h3>
+         </div>
+         <div class="col-md-6 text-right">
+            <a href="@Url.Action("Create", "Addresses")" class="btn btn-primary">
+               <i class="fa fa-plus"></i> Add New Address
+            </a>
+         </div>
+      </div>
+
+      <!-- Addresses List -->
+      <div class="row">
+         @if (Model != null && Model.Any())
+         {
+            foreach (var address in Model)
+            {
+               <div class="col-lg-6 mb-4">
+                  <div class="address-card" style="border: 1px solid #dee2e6; border-radius: 5px; padding: 20px; position: relative;">
+
+                     <!-- Default Badge -->
+                     @if (address.IsDefault)
+                     {
+                        <span class="badge badge-primary" style="position: absolute; top: 10px; right: 10px;">
+                           Default
+                        </span>
+                     }
+
+                     <!-- Address Content -->
+                     <div class="address-content mb-3">
+                        <h5><i class="fa fa-map-marker"></i> Address</h5>
+                        <p class="mb-1">
+                           <strong>@address.StreetAddress</strong><br />
+                           @address.City, @address.State @address.PostalCode<br />
+                           @address.Country
+                        </p>
+                        <p class="mb-0">
+                           <i class="fa fa-phone"></i> <strong>Phone:</strong> @address.Phone
+                        </p>
+                        <p class="text-muted mb-0">
+                           <small><i class="fa fa-calendar"></i> Added: @address.CreatedAt.ToString("dd/MM/yyyy")</small>
+                        </p>
+                     </div>
+
+                     <!-- Action Buttons -->
+                     <div class="address-actions">
+                        @if (!address.IsDefault)
+                        {
+                           <button type="button"
+                                   class="btn btn-sm btn-outline-primary set-default-btn"
+                                   data-address-id="@address.AddressID">
+                              <i class="fa fa-check"></i> Set as Default
+                           </button>
+                        }
+
+                        <a href="@Url.Action("Edit", "Addresses", new { id = address.AddressID })"
+                           class="btn btn-sm btn-outline-secondary">
+                           <i class="fa fa-edit"></i> Edit
+                        </a>
+
+                        <button type="button"
+                                class="btn btn-sm btn-outline-danger delete-address-btn"
+                                data-address-id="@address.AddressID">
+                           <i class="fa fa-trash"></i> Delete
+                        </button>
+                     </div>
+
+                  </div>
+               </div>
+            }
+         }
+         else
+         {
+            <div class="col-12">
+               <div class="alert alert-info text-center py-5">
+                  <i class="fa fa-map-marker fa-3x mb-3"></i>
+                  <h4>No Saved Addresses</h4>
+                  <p>You haven't added any shipping addresses yet.</p>
+                  <a href="@Url.Action("Create", "Addresses")" class="btn btn-primary mt-3">
+                     <i class="fa fa-plus"></i> Add Your First Address
+                  </a>
+               </div>
+            </div>
+         }
+      </div>
+
+   </div>
+</div>
+<!--== Page Content Wrapper End ==-->
+<!-- Hidden Form for Delete -->
+<form id="deleteForm" method="post" style="display:none;">
+   @Html.AntiForgeryToken()
+</form>
+
+@section Scripts {
+   <script>
+        $(document).ready(function() {
+
+            // Set Default Address
+            $('.set-default-btn').click(function() {
+                var addressId = $(this).data('address-id');
+
+                if (!confirm('Set this address as default?')) {
+                    return;
+                }
+
+                $.ajax({
+                    url: '@Url.Action("SetDefault", "Addresses")',
+                    type: 'POST',
+                    data: { id: addressId },
+                    success: function(response) {
+                        if (response.success) {
+                            location.reload();
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function() {
+                        alert('Error setting default address. Please try again.');
+                    }
+                });
+            });
+
+            // Delete Address
+            $('.delete-address-btn').click(function() {
+                var addressId = $(this).data('address-id');
+
+                if (!confirm('Are you sure you want to delete this address?\n\nThis action cannot be undone.')) {
+                    return;
+                }
+
+                var form = $('#deleteForm');
+                form.attr('action', '@Url.Action("Delete", "Addresses")/' + addressId);
+                form.submit();
+            });
+
+        });
+   </script>
+}

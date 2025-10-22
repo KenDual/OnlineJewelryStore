@@ -26,6 +26,53 @@
 
    <!-- Modernizer JS -->
    <script src="~/Resources/js/vendor/modernizr-2.8.3.min.js"></script>
+   <style>
+      /* Cart Badge Styles */
+      .cart-icon {
+         position: relative;
+         display: inline-block;
+      }
+
+      #cart-count, #cart-count-badge {
+         position: absolute;
+         top: -8px;
+         right: -10px;
+         background: #c29958;
+         color: #fff;
+         border-radius: 50%;
+         padding: 2px 6px;
+         font-size: 10px;
+         font-weight: bold;
+         min-width: 18px;
+         text-align: center;
+      }
+
+      /* Mini Cart Dropdown */
+      .header-right-meta .minicart {
+         position: relative;
+      }
+
+      .minicart-content {
+         position: absolute;
+         top: 100%;
+         right: 0;
+         width: 320px;
+         background: #fff;
+         box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+         z-index: 999;
+         display: none;
+         margin-top: 10px;
+         border-radius: 4px;
+      }
+
+      .minicart:hover .minicart-content {
+         display: block;
+      }
+
+      .minicart-btn {
+         position: relative;
+      }
+   </style>
 </head>
 
 <body>
@@ -52,7 +99,13 @@
                         <li><a href="@Url.Action("Blog","feature")">BLOG</a></li>
                         <li><a href="@Url.Action("Contact_us","feature")">CONTACT US</a></li>
                         <li><a href="@Url.Action("Account","feature")">ACCOUNT</a></li>
-                        <li><a class="fa fa-shopping-bag" href="@Url.Action("cart","feature")"></a></li>
+                        @*<li><a class="fa fa-shopping-bag" href="@Url.Action("Index","Cart")"></a></li>*@
+                        <li class="cart-menu-item">
+                           <a href="@Url.Action("Index","Cart")" class="cart-icon">
+                              <i class="fa fa-shopping-bag"></i>
+                              <span class="badge badge-danger" id="cart-count">0</span>
+                           </a>
+                        </li>
                      </ul>
                   </nav>
                </div>
@@ -342,7 +395,80 @@
    <!--=== Active Js ===-->
    <script src="~/Resources/js/active.js"></script>
 
+   <script>
+      $(document).ready(function() {
+          // Update cart và wishlist count khi page load
+          updateCartCount();
+          updateWishlistCount();
 
+          // Load mini cart khi hover
+          $('.minicart-btn').on('mouseenter', function() {
+              loadMiniCart();
+          });
+
+          // Function: Update cart count
+          function updateCartCount() {
+              $.ajax({
+                  url: '@Url.Action("GetCartCount", "Cart")',
+                  type: 'GET',
+                  success: function(response) {
+                      var count = response.count || 0;
+                      $('#cart-count').text(count);
+                      $('#cart-count-badge').text(count);
+
+                      // Hide badge if count = 0
+                      if (count === 0) {
+                          $('#cart-count, #cart-count-badge').hide();
+                      } else {
+                          $('#cart-count, #cart-count-badge').show();
+                      }
+                  },
+                  error: function() {
+                      console.log('Error loading cart count');
+                  }
+              });
+          }
+
+          // Function: Update wishlist count
+          function updateWishlistCount() {
+              $.ajax({
+                  url: '@Url.Action("GetCount", "Wishlist")',
+                  type: 'GET',
+                  success: function(response) {
+                      var count = response.count || 0;
+                      $('#wishlist-count').text(count);
+
+                      if (count === 0) {
+                          $('#wishlist-count').hide();
+                      } else {
+                          $('#wishlist-count').show();
+                      }
+                  },
+                  error: function() {
+                      console.log('Error loading wishlist count');
+                  }
+              });
+          }
+
+          // Function: Load mini cart
+          function loadMiniCart() {
+              $.ajax({
+                  url: '@Url.Action("GetMiniCart", "Cart")',
+                  type: 'GET',
+                  success: function(html) {
+                      $('#mini-cart-container').html(html);
+                  },
+                  error: function() {
+                      $('#mini-cart-container').html('<div class="p-3 text-center text-muted">Error loading cart</div>');
+                  }
+              });
+          }
+
+          // Expose functions globally để các page khác có thể gọi
+          window.updateCartCount = updateCartCount;
+          window.updateWishlistCount = updateWishlistCount;
+      });
+   </script>
 
    @Scripts.Render("~/bundles/jquery")
    @Scripts.Render("~/bundles/bootstrap")

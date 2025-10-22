@@ -142,6 +142,9 @@
     <Compile Include="Areas\Admin\Dashboard\OverviewStatsViewModel.cs" />
     <Compile Include="Areas\Admin\Dashboard\RecentOrderViewModel.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\AddressesController.cs" />
+    <Compile Include="Controllers\CartController.cs" />
+    <Compile Include="Controllers\CheckoutController.cs" />
     <Compile Include="Controllers\FeatureController.cs" />
     <Compile Include="Controllers\ShopController.cs" />
     <Compile Include="Controllers\UserDashboardController.cs" />
@@ -220,6 +223,12 @@
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModels\Address\AddressViewModel.cs" />
+    <Compile Include="ViewModels\Cart\CartItemViewModel.cs" />
+    <Compile Include="ViewModels\Cart\CartViewModel.cs" />
+    <Compile Include="ViewModels\Cart\MiniCartItemViewModel.cs" />
+    <Compile Include="ViewModels\Cart\MiniCartViewModel.cs" />
+    <Compile Include="ViewModels\Checkout\CheckoutViewModel.cs" />
     <Compile Include="ViewModels\Shop\ProductDetailsViewModel.cs" />
     <Compile Include="ViewModels\Shop\ProductListItemViewModel.cs" />
     <Compile Include="ViewModels\Shop\ProductQuickViewModel.cs" />
@@ -298,6 +307,7 @@
     <Content Include="Resources\img\logo.png" />
     <Content Include="Resources\img\men-cat.jpg" />
     <Content Include="Resources\img\men-pro.jpg" />
+    <Content Include="Resources\img\momo.png" />
     <Content Include="Resources\img\money-back.png" />
     <Content Include="Resources\img\new-product-1.jpg" />
     <Content Include="Resources\img\new-product-2.jpg" />
@@ -329,6 +339,7 @@
     <Content Include="Resources\img\support.png" />
     <Content Include="Resources\img\testi_bg.jpg" />
     <Content Include="Resources\img\title-line.png" />
+    <Content Include="Resources\img\vnpay.png" />
     <Content Include="Resources\img\watch-cat.jpg" />
     <Content Include="Resources\img\women-cat.jpg" />
     <Content Include="Resources\img\women-cat2.jpg" />
@@ -463,6 +474,12 @@
     <Content Include="Views\Account\ChangePassword.cshtml" />
     <Content Include="Views\Account\CheckDigit.cshtml" />
     <Content Include="Views\Account\NewPassword.cshtml" />
+    <Content Include="Views\Cart\Index.cshtml" />
+    <Content Include="Views\Checkout\Index.cshtml" />
+    <Content Include="Views\Checkout\OrderConfirmation.cshtml" />
+    <Content Include="Views\Addresses\Index.cshtml" />
+    <Content Include="Views\Addresses\Create.cshtml" />
+    <Content Include="Views\Addresses\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

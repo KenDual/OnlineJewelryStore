@@ -375,17 +375,6 @@
                                           </a>
                                        </div>
 
-                                       <div class="product-meta">
-                                          @* Wishlist icon *@
-                                          <a href="javascript:void(0)"
-                                             onclick="addToWishlist(@product.ProductID)"
-                                             data-toggle="tooltip"
-                                             data-placement="left"
-                                             title="Add to Wishlist">
-                                             <i class="fa fa-heart-o"></i>
-                                          </a>
-                                       </div>
-
                                        @* Badge - New products (created within 30 days) *@
                                        @if ((DateTime.Now - product.CreationDate).TotalDays <= 30)
                                        {

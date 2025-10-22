@@ -1,0 +1,155 @@
+﻿@model OnlineJewelryStore.ViewModels.Address.AddressViewModel
+@{
+   ViewBag.Title = "Edit Address";
+   Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!--== Page Title Area Start ==-->
+<div id="page-title-area">
+   <div class="container">
+      <div class="row">
+         <div class="col-12 text-center">
+            <div class="page-title-content">
+               <h1>Edit Address</h1>
+               <ul class="breadcrumb">
+                  <li>@Html.ActionLink("Home", "Index", "Home")</li>
+                  <li>@Html.ActionLink("Addresses", "Index", "Addresses")</li>
+                  <li><a href="#" class="active">Edit</a></li>
+               </ul>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+<!--== Page Title Area End ==-->
+<!--== Page Content Wrapper Start ==-->
+<div id="page-content-wrapper" class="p-9">
+   <div class="container">
+
+      <div class="row justify-content-center">
+         <div class="col-lg-8">
+
+            <!-- Form Card -->
+            <div class="checkout-billing-details-wrap">
+               <h2>Edit Address Information</h2>
+
+               @using (Html.BeginForm("Edit", "Addresses", FormMethod.Post, new { @class = "billing-form-wrap" }))
+               {
+                  @Html.AntiForgeryToken()
+                  @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+                  @Html.HiddenFor(m => m.AddressID)
+                  @Html.HiddenFor(m => m.CreatedAt)
+
+                  <div class="row">
+                     <!-- Street Address -->
+                     <div class="col-12">
+                        <div class="single-input-item">
+                           @Html.LabelFor(m => m.StreetAddress, new { @class = "required" })
+                           @Html.TextBoxFor(m => m.StreetAddress, new { @class = "form-control", placeholder = "123 Main Street, Apt 4B" })
+                           @Html.ValidationMessageFor(m => m.StreetAddress, "", new { @class = "text-danger" })
+                        </div>
+                     </div>
+
+                     <!-- City -->
+                     <div class="col-md-6">
+                        <div class="single-input-item">
+                           @Html.LabelFor(m => m.City, new { @class = "required" })
+                           @Html.TextBoxFor(m => m.City, new { @class = "form-control", placeholder = "Ho Chi Minh City" })
+                           @Html.ValidationMessageFor(m => m.City, "", new { @class = "text-danger" })
+                        </div>
+                     </div>
+
+                     <!-- State/Province -->
+                     <div class="col-md-6">
+                        <div class="single-input-item">
+                           @Html.LabelFor(m => m.State)
+                           @Html.TextBoxFor(m => m.State, new { @class = "form-control", placeholder = "District 1" })
+                           @Html.ValidationMessageFor(m => m.State, "", new { @class = "text-danger" })
+                        </div>
+                     </div>
+
+                     <!-- Postal Code -->
+                     <div class="col-md-6">
+                        <div class="single-input-item">
+                           @Html.LabelFor(m => m.PostalCode, new { @class = "required" })
+                           @Html.TextBoxFor(m => m.PostalCode, new { @class = "form-control", placeholder = "70000" })
+                           @Html.ValidationMessageFor(m => m.PostalCode, "", new { @class = "text-danger" })
+                        </div>
+                     </div>
+
+                     <!-- Country -->
+                     <div class="col-md-6">
+                        <div class="single-input-item">
+                           @Html.LabelFor(m => m.Country, new { @class = "required" })
+                           @Html.DropDownListFor(m => m.Country,
+                               new SelectList(new[] {
+                                   "Vietnam",
+                                   "United States",
+                                   "United Kingdom",
+                                   "Singapore",
+                                   "Thailand",
+                                   "Malaysia",
+                                   "Japan",
+                                   "South Korea",
+                                   "Other"
+                               }, Model.Country),
+                               "Select Country",
+                               new { @class = "form-control" })
+                           @Html.ValidationMessageFor(m => m.Country, "", new { @class = "text-danger" })
+                        </div>
+                     </div>
+
+                     <!-- Phone -->
+                     <div class="col-12">
+                        <div class="single-input-item">
+                           @Html.LabelFor(m => m.Phone, new { @class = "required" })
+                           @Html.TextBoxFor(m => m.Phone, new { @class = "form-control", placeholder = "0901234567", type = "tel" })
+                           @Html.ValidationMessageFor(m => m.Phone, "", new { @class = "text-danger" })
+                           <small class="text-muted">Enter phone number with country code if international</small>
+                        </div>
+                     </div>
+
+                     <!-- Set as Default Checkbox -->
+                     <div class="col-12">
+                        <div class="single-input-item">
+                           <div class="custom-control custom-checkbox">
+                              @Html.CheckBoxFor(m => m.IsDefault, new { @class = "custom-control-input", id = "setDefaultCheck" })
+                              @Html.LabelFor(m => m.IsDefault, "Set as default shipping address", new { @class = "custom-control-label", @for = "setDefaultCheck" })
+                           </div>
+                        </div>
+                     </div>
+
+                     <!-- Address Created Date Info -->
+                     <div class="col-12">
+                        <small class="text-muted">
+                           <i class="fa fa-calendar"></i> Address added on: @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                        </small>
+                     </div>
+                  </div>
+
+                  <!-- Action Buttons -->
+                  <div class="row mt-4">
+                     <div class="col-12">
+                        <button type="submit" class="btn-add-to-cart mr-2">
+                           <i class="fa fa-save"></i> Update Address
+                        </button>
+
+                        <a href="@Url.Action("Index", "Addresses")" class="btn btn-secondary">
+                           <i class="fa fa-times"></i> Cancel
+                        </a>
+                     </div>
+                  </div>
+
+               }
+            </div>
+
+         </div>
+      </div>
+
+   </div>
+</div>
+<!--== Page Content Wrapper End ==-->
+
+@section Scripts {
+   @Scripts.Render("~/bundles/jqueryval")
+}

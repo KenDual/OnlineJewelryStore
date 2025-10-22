@@ -1,0 +1,351 @@
+﻿@model OnlineJewelryStore.ViewModels.Cart.CartViewModel
+@{
+   ViewBag.Title = "Index";
+   Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!--== Page Title Area Start ==-->
+<div id="page-title-area">
+   <div class="container">
+      <div class="row">
+         <div class="col-12 text-center">
+            <div class="page-title-content">
+               <h1>Shopping Cart</h1>
+               <ul class="breadcrumb">
+                  <li>@Html.ActionLink("Home", "Index", "Home")</li>
+                  <li>@Html.ActionLink("Shop", "Index", "Shop")</li>
+                  <li><a href="#" class="active">Cart</a></li>
+               </ul>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+<!--== Page Title Area End ==-->
+<!--== Page Content Wrapper Start ==-->
+<div id="page-content-wrapper" class="p-9">
+   <div class="container">
+      <!-- Cart Page Content Start -->
+      <div class="row">
+         <div class="col-lg-12">
+            <!-- Cart Table Area -->
+            <div class="cart-table table-responsive">
+               <table class="table table-bordered">
+                  <thead>
+                     <tr>
+                        <th class="pro-thumbnail">Thumbnail</th>
+                        <th class="pro-title">Product</th>
+                        <th class="pro-price">Price</th>
+                        <th class="pro-quantity">Quantity</th>
+                        <th class="pro-subtotal">Total</th>
+                        <th class="pro-remove">Remove</th>
+                     </tr>
+                  </thead>
+
+
+                  @*<tbody>
+                        <tr>
+                           <td class="pro-thumbnail">
+                              <a href="#">
+                                 <img class="img-fluid" src="assets/img/product-1.jpg"
+                                      alt="Product" />
+                              </a>
+                           </td>
+                           <td class="pro-title"><a href="#">Zeon Zen 4 Pro</a></td>
+                           <td class="pro-price"><span>$295.00</span></td>
+                           <td class="pro-quantity">
+                              <div class="pro-qty"><input type="text" value="1"></div>
+                           </td>
+                           <td class="pro-subtotal"><span>$295.00</span></td>
+                           <td class="pro-remove"><a href="#"><i class="fa fa-trash-o"></i></a></td>
+                        </tr>
+                        <tr>
+                           <td class="pro-thumbnail">
+                              <a href="#">
+                                 <img class="img-fluid" src="assets/img/product-2.jpg"
+                                      alt="Product" />
+                              </a>
+                           </td>
+                           <td class="pro-title"><a href="#">Aquet Drone D 420</a></td>
+                           <td class="pro-price"><span>$275.00</span></td>
+                           <td class="pro-quantity">
+                              <div class="pro-qty"><input type="text" value="2"></div>
+                           </td>
+                           <td class="pro-subtotal"><span>$550.00</span></td>
+                           <td class="pro-remove"><a href="#"><i class="fa fa-trash-o"></i></a></td>
+                        </tr>
+                        <tr>
+                           <td class="pro-thumbnail">
+                              <a href="#">
+                                 <img class="img-fluid" src="assets/img/product-3.jpg"
+                                      alt="Product" />
+                              </a>
+                           </td>
+                           <td class="pro-title"><a href="#">Game Station X 22</a></td>
+                           <td class="pro-price"><span>$295.00</span></td>
+                           <td class="pro-quantity">
+                              <div class="pro-qty"><input type="text" value="1"></div>
+                           </td>
+                           <td class="pro-subtotal"><span>$295.00</span></td>
+                           <td class="pro-remove"><a href="#"><i class="fa fa-trash-o"></i></a></td>
+                        </tr>
+                        <tr>
+                           <td class="pro-thumbnail">
+                              <a href="#">
+                                 <img class="img-fluid" src="assets/img/product-4.jpg"
+                                      alt="Product" />
+                              </a>
+                           </td>
+                           <td class="pro-title"><a href="#">Roxxe Headphone Z 75 </a></td>
+                           <td class="pro-price"><span>$110.00</span></td>
+                           <td class="pro-quantity">
+                              <div class="pro-qty"><input type="text" value="1"></div>
+                           </td>
+                           <td class="pro-subtotal"><span>$110.00</span></td>
+                           <td class="pro-remove"><a href="#"><i class="fa fa-trash-o"></i></a></td>
+                        </tr>
+                     </tbody>*@
+
+                  <tbody>
+                     @if (Model.HasItems)
+                     {
+                        foreach (var item in Model.Items)
+                        {
+                           <tr data-cart-item-id="@item.CartItemID">
+                              <td class="pro-thumbnail">
+                                 <a href="@Url.Action("Details", "Shop", new { id = item.ProductID })">
+                                    <img class="img-fluid" src="@item.ImageUrl" alt="@item.ProductName" />
+                                 </a>
+                              </td>
+                              <td class="pro-title">
+                                 <a href="@Url.Action("Details", "Shop", new { id = item.ProductID })">
+                                    @item.ProductName
+                                 </a>
+                                 @if (!string.IsNullOrEmpty(item.VariantInfo))
+                                 {
+                                    <br />
+                                    <small class="text-muted">@item.VariantInfo</small>
+                                 }
+                                 <br />
+                                 <small class="text-muted">SKU: @item.SKU</small>
+
+                                 @if (!item.InStock)
+                                 {
+                                    <br />
+                                    <small class="text-danger">
+                                       <i class="fa fa-exclamation-triangle"></i>
+                                       Only @item.StockQuantity in stock
+                                    </small>
+                                 }
+                              </td>
+                              <td class="pro-price">
+                                 <span>@item.UnitPrice.ToString("N0") VNĐ</span>
+                              </td>
+                              <td class="pro-quantity">
+                                 <div class="pro-qty">
+                                    <input type="text"
+                                           class="quantity-input"
+                                           value="@item.Quantity"
+                                           data-cart-item-id="@item.CartItemID"
+                                           data-max="@item.StockQuantity" />
+                                 </div>
+                              </td>
+                              <td class="pro-subtotal">
+                                 <span class="item-subtotal">@item.Subtotal.ToString("N0") VNĐ</span>
+                              </td>
+                              <td class="pro-remove">
+                                 <a href="javascript:void(0);"
+                                    class="remove-cart-item"
+                                    data-cart-item-id="@item.CartItemID">
+                                    <i class="fa fa-trash-o"></i>
+                                 </a>
+                              </td>
+                           </tr>
+                        }
+                     }
+                     else
+                     {
+                        <tr>
+                           <td colspan="6" class="text-center py-5">
+                              <i class="fa fa-shopping-cart fa-3x text-muted mb-3"></i>
+                              <h4>Your cart is empty</h4>
+                              <p>
+                                 <a href="@Url.Action("Index", "Shop")" class="btn btn-primary mt-3">
+                                    Continue Shopping
+                                 </a>
+                              </p>
+                           </td>
+                        </tr>
+                     }
+                  </tbody>
+
+               </table>
+            </div>
+
+            <!-- Cart Update Option -->
+         </div>
+      </div>
+
+      <div class="row">
+         <div class="col-lg-6 ml-auto">
+
+            @if (Model.HasItems)
+            {
+               <div class="cart-calculator-wrapper">
+                  <h3>Cart Totals</h3>
+                  <div class="cart-calculate-items">
+                     <div class="table-responsive">
+                        <table class="table table-bordered">
+                           <tr>
+                              <td>Sub Total</td>
+                              <td id="cart-subtotal">@Model.GrandTotal.ToString("N0") VNĐ</td>
+                           </tr>
+                           <tr>
+                              <td>Shipping</td>
+                              <td class="text-muted"><em>Calculated at checkout</em></td>
+                           </tr>
+                           <tr>
+                              <td><strong>Total</strong></td>
+                              <td class="total-amount" id="cart-grandtotal">
+                                 <strong>@Model.GrandTotal.ToString("N0") VNĐ</strong>
+                              </td>
+                           </tr>
+                        </table>
+                     </div>
+                  </div>
+                  <a href="@Url.Action("Index", "Checkout")" class="btn-add-to-cart">
+                     Proceed To Checkout <i class="fa fa-arrow-right"></i>
+                  </a>
+               </div>
+            }
+
+         </div>
+      </div>
+      <!-- Cart Page Content End -->
+   </div>
+</div>
+<!--== Page Content Wrapper End ==-->
+@section Scripts {
+   <script>
+$(document).ready(function() {
+
+       // Update quantity khi thay đổi input
+       $('.quantity-input').on('change', function() {
+           var $input = $(this);
+           var cartItemId = $input.data('cart-item-id');
+           var newQuantity = parseInt($input.val());
+           var maxStock = parseInt($input.data('max'));
+
+           // Validate
+           if (isNaN(newQuantity) || newQuantity < 1) {
+               alert('Quantity must be at least 1');
+               $input.val($input.data('original-value') || 1);
+               return;
+           }
+
+           if (newQuantity > maxStock) {
+               alert('Only ' + maxStock + ' items available in stock');
+               $input.val(maxStock);
+               newQuantity = maxStock;
+           }
+
+           updateCartQuantity(cartItemId, newQuantity);
+       });
+
+       // Store original value khi focus
+       $('.quantity-input').on('focus', function() {
+           $(this).data('original-value', $(this).val());
+       });
+
+       // Remove item
+       $('.remove-cart-item').on('click', function() {
+           if (!confirm('Remove this item from cart?')) {
+               return;
+           }
+
+           var cartItemId = $(this).data('cart-item-id');
+           removeCartItem(cartItemId);
+       });
+
+       // Function: Update quantity
+       function updateCartQuantity(cartItemId, quantity) {
+           $.ajax({
+               url: '@Url.Action("UpdateQuantity", "Cart")',
+               type: 'POST',
+               data: { cartItemId: cartItemId, quantity: quantity },
+               success: function(response) {
+                   if (response.success) {
+                       // Update subtotal cho item
+                       var $row = $('tr[data-cart-item-id="' + cartItemId + '"]');
+                       $row.find('.item-subtotal').text(formatCurrency(response.newSubtotal));
+
+                       // Update grand total
+                       $('#cart-subtotal').text(formatCurrency(response.grandTotal));
+                       $('#cart-grandtotal strong').text(formatCurrency(response.grandTotal));
+
+                       // Update cart badge
+                       $('#cart-count').text(response.cartCount);
+
+                       showNotification('Cart updated successfully', 'success');
+                   } else {
+                       alert(response.message);
+                       // Reload page nếu có lỗi
+                       location.reload();
+                   }
+               },
+               error: function() {
+                   alert('Error updating cart. Please try again.');
+                   location.reload();
+               }
+           });
+       }
+
+       // Function: Remove item
+       function removeCartItem(cartItemId) {
+           $.ajax({
+               url: '@Url.Action("RemoveItem", "Cart")',
+               type: 'POST',
+               data: { cartItemId: cartItemId },
+               success: function(response) {
+                   if (response.success) {
+                       // Remove row với animation
+                       var $row = $('tr[data-cart-item-id="' + cartItemId + '"]');
+                       $row.fadeOut(300, function() {
+                           $(this).remove();
+
+                           // Check if cart is empty
+                           if ($('tbody tr').length === 0) {
+                               location.reload(); // Reload để hiển thị empty cart message
+                           } else {
+                               // Update totals
+                               $('#cart-subtotal').text(formatCurrency(response.grandTotal));
+                               $('#cart-grandtotal strong').text(formatCurrency(response.grandTotal));
+                               $('#cart-count').text(response.cartCount);
+                           }
+                       });
+
+                       showNotification('Item removed from cart', 'success');
+                   } else {
+                       alert(response.message);
+                   }
+               },
+               error: function() {
+                   alert('Error removing item. Please try again.');
+               }
+           });
+       }
+
+       // Helper: Format currency
+       function formatCurrency(amount) {
+           return Math.round(amount).toLocaleString('vi-VN') + ' VNĐ';
+       }
+
+       // Helper: Show notification (optional - nếu bạn có notification system)
+       function showNotification(message, type) {
+           // Sử dụng toastr hoặc alert đơn giản
+           console.log(type + ': ' + message);
+           // Hoặc có thể dùng: toastr.success(message);
+       }
+});
+   </script>
+}

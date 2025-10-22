@@ -1,0 +1,303 @@
+﻿@model OnlineJewelryStore.ViewModels.Checkout.OrderConfirmationViewModel
+@{
+   ViewBag.Title = "Order Confirmation";
+   Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!--== Page Title Area Start ==-->
+<div id="page-title-area">
+   <div class="container">
+      <div class="row">
+         <div class="col-12 text-center">
+            <div class="page-title-content">
+               <h1>Order Confirmation</h1>
+               <ul class="breadcrumb">
+                  <li>@Html.ActionLink("Home", "Index", "Home")</li>
+                  <li>@Html.ActionLink("Shop", "Index", "Shop")</li>
+                  <li>@Html.ActionLink("Cart", "Index", "Cart")</li>
+                  <li>@Html.ActionLink("Checkout", "Index", "Checkout")</li>
+                  <li><a href="#" class="active">Confirmation</a></li>
+               </ul>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+<!--== Page Title Area End ==-->
+<!--== Page Content Wrapper Start ==-->
+<div id="page-content-wrapper" class="p-9">
+   <div class="container">
+
+      <!-- Success Message -->
+      <div class="row">
+         <div class="col-12">
+            <div class="alert alert-success text-center py-4 mb-4" role="alert">
+               <i class="fa fa-check-circle fa-3x mb-3" style="color: #28a745;"></i>
+               <h3 class="mb-2">Thank You For Your Order!</h3>
+               <p class="mb-0">Your order has been placed successfully. We'll send you a confirmation email shortly.</p>
+            </div>
+         </div>
+      </div>
+
+      <!-- Order Information -->
+      <div class="row">
+         <div class="col-lg-8">
+            <div class="order-details-wrapper mb-4">
+               <h3 class="mb-3">Order Details</h3>
+               <div class="table-responsive">
+                  <table class="table table-bordered">
+                     <tbody>
+                        <tr>
+                           <td width="30%"><strong>Order Number</strong></td>
+                           <td>#@Model.OrderID</td>
+                        </tr>
+                        <tr>
+                           <td><strong>Order Date</strong></td>
+                           <td>@Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                        </tr>
+                        <tr>
+                           <td><strong>Status</strong></td>
+                           <td>
+                              <span class="badge badge-warning">@Model.Status</span>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td><strong>Payment Method</strong></td>
+                           <td>
+                              @Model.Payment.Method
+                              @if (Model.Payment.Status == "Pending")
+                              {
+                                 <span class="badge badge-secondary ml-2">@Model.Payment.Status</span>
+                              }
+                              else if (Model.Payment.Status == "Authorized")
+                              {
+                                 <span class="badge badge-info ml-2">@Model.Payment.Status</span>
+                              }
+                              else if (Model.Payment.Status == "Captured")
+                              {
+                                 <span class="badge badge-success ml-2">@Model.Payment.Status</span>
+                              }
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+
+            <!-- Order Items -->
+            <div class="cart-table table-responsive mb-4">
+               <h3 class="mb-3">Order Items</h3>
+               <table class="table table-bordered">
+                  <thead>
+                     <tr>
+                        <th class="pro-thumbnail">Thumbnail</th>
+                        <th class="pro-title">Product</th>
+                        <th class="pro-price">Price</th>
+                        <th class="pro-quantity">Quantity</th>
+                        <th class="pro-subtotal">Total</th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                     @foreach (var item in Model.OrderItems)
+                     {
+                        <tr>
+                           <td class="pro-thumbnail">
+                              <a href="@Url.Action("Details", "Shop", new { id = item.OrderItemID })">
+                                 <img class="img-fluid" src="@item.ImageUrl" alt="@item.ProductName" style="max-width: 80px;" />
+                              </a>
+                           </td>
+                           <td class="pro-title">
+                              <a href="@Url.Action("Details", "Shop", new { id = item.OrderItemID })">
+                                 @item.ProductName
+                              </a>
+                              @if (!string.IsNullOrEmpty(item.MetalType))
+                              {
+                                 <br />
+                                 <small class="text-muted">Metal: @item.MetalType</small>
+                              }
+                              <br />
+                              <small class="text-muted">SKU: @item.SKU</small>
+                           </td>
+                           <td class="pro-price">
+                              <span>@item.UnitPrice.ToString("N0") VNĐ</span>
+                           </td>
+                           <td class="pro-quantity">
+                              <span>@item.Quantity</span>
+                           </td>
+                           <td class="pro-subtotal">
+                              <span>@item.TotalPrice.ToString("N0") VNĐ</span>
+                           </td>
+                        </tr>
+                     }
+                  </tbody>
+               </table>
+            </div>
+
+            <!-- Shipping Address -->
+            <div class="shipping-address-wrapper">
+               <h3 class="mb-3">Shipping Address</h3>
+               <div class="table-responsive">
+                  <table class="table table-bordered">
+                     <tbody>
+                        <tr>
+                           <td>
+                              <strong>@Model.ShippingAddress.StreetAddress</strong><br />
+                              @Model.ShippingAddress.City, @Model.ShippingAddress.State @Model.ShippingAddress.PostalCode<br />
+                              @Model.ShippingAddress.Country<br />
+                              <strong>Phone:</strong> @Model.ShippingAddress.Phone
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.GiftMessage))
+            {
+               <!-- Gift Message -->
+               <div class="gift-message-wrapper mt-4">
+                  <h3 class="mb-3">Gift Message</h3>
+                  <div class="table-responsive">
+                     <table class="table table-bordered">
+                        <tbody>
+                           <tr>
+                              <td>
+                                 <em>"@Model.GiftMessage"</em>
+                              </td>
+                           </tr>
+                        </tbody>
+                     </table>
+                  </div>
+               </div>
+            }
+
+         </div>
+
+         <!-- Order Summary Sidebar -->
+         <div class="col-lg-4">
+            <div class="cart-calculator-wrapper">
+               <h3>Order Summary</h3>
+               <div class="cart-calculate-items">
+                  <div class="table-responsive">
+                     <table class="table table-bordered">
+                        <tr>
+                           <td>Subtotal</td>
+                           <td>@Model.Subtotal.ToString("N0") VNĐ</td>
+                        </tr>
+                        <tr>
+                           <td>Tax (10%)</td>
+                           <td>@Model.TaxTotal.ToString("N0") VNĐ</td>
+                        </tr>
+                        <tr>
+                           <td>Shipping Fee</td>
+                           <td>@Model.ShippingFee.ToString("N0") VNĐ</td>
+                        </tr>
+                        @if (Model.DiscountTotal > 0)
+                        {
+                           <tr>
+                              <td>Discount</td>
+                              <td class="text-success">-@Model.DiscountTotal.ToString("N0") VNĐ</td>
+                           </tr>
+                        }
+                        <tr>
+                           <td><strong>Grand Total</strong></td>
+                           <td class="total-amount">
+                              <strong style="color: #e91e63; font-size: 1.2em;">
+                                 @Model.GrandTotal.ToString("N0") VNĐ
+                              </strong>
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+
+               <!-- Action Buttons -->
+               <div class="order-confirmation-actions mt-4">
+                  <a href="@Url.Action("Details", "Orders", new { id = Model.OrderID })"
+                     class="btn btn-primary btn-block mb-2">
+                     <i class="fa fa-file-text"></i> View Order Details
+                  </a>
+
+                  <a href="@Url.Action("Index", "Shop")"
+                     class="btn btn-secondary btn-block mb-2">
+                     <i class="fa fa-shopping-bag"></i> Continue Shopping
+                  </a>
+
+                  <a href="@Url.Action("Index", "Orders")"
+                     class="btn btn-outline-secondary btn-block">
+                     <i class="fa fa-list"></i> View All Orders
+                  </a>
+               </div>
+
+               <!-- Payment Info -->
+               <div class="payment-info-box mt-4 p-3" style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px;">
+                  <h5 class="mb-3">Payment Information</h5>
+                  <table class="table table-sm table-borderless mb-0">
+                     <tr>
+                        <td><strong>Method:</strong></td>
+                        <td>@Model.Payment.Method</td>
+                     </tr>
+                     <tr>
+                        <td><strong>Status:</strong></td>
+                        <td>
+                           @if (Model.Payment.Status == "Pending")
+                           {
+                              <span class="badge badge-secondary">@Model.Payment.Status</span>
+                           }
+                           else if (Model.Payment.Status == "Authorized")
+                           {
+                              <span class="badge badge-info">@Model.Payment.Status</span>
+                           }
+                           else if (Model.Payment.Status == "Captured")
+                           {
+                              <span class="badge badge-success">@Model.Payment.Status</span>
+                           }
+                           else
+                           {
+                              <span class="badge badge-warning">@Model.Payment.Status</span>
+                           }
+                        </td>
+                     </tr>
+                     <tr>
+                        <td><strong>Amount:</strong></td>
+                        <td>@Model.Payment.Amount.ToString("N0") @Model.Payment.Currency</td>
+                     </tr>
+                     @if (!string.IsNullOrEmpty(Model.Payment.TransactionRef))
+                     {
+                        <tr>
+                           <td><strong>Transaction:</strong></td>
+                           <td><small>@Model.Payment.TransactionRef</small></td>
+                        </tr>
+                     }
+                  </table>
+               </div>
+
+               <!-- Additional Info -->
+               <div class="alert alert-info mt-4" role="alert">
+                  <i class="fa fa-info-circle"></i>
+                  <strong>What's Next?</strong><br />
+                  <small>
+                     You will receive a confirmation email with your order details.
+                     We'll notify you when your order is shipped.
+                  </small>
+               </div>
+
+            </div>
+         </div>
+      </div>
+
+   </div>
+</div>
+<!--== Page Content Wrapper End ==-->
+
+@section Scripts {
+   <script>
+      $(document).ready(function() {
+          // Auto print option (optional)
+          // window.print();
+
+          // Track order confirmation page view (for analytics)
+          console.log('Order #@Model.OrderID confirmed');
+      });
+   </script>
+}
