@@ -1,0 +1,198 @@
+﻿@model IEnumerable<OnlineJewelryStore.Models.Order>
+@{
+   ViewBag.Title = "Orders";
+   Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="body-popup-modal-area">
+   <span class="modal-close">
+      <img src="~Resources/img/cancel.png" alt="Close"
+           class="img-fluid" />
+   </span>
+   <div class="modal-container d-flex">
+      <div class="search-box-area">
+         <div class="search-box-form">
+            <form action="#" method="post">
+               <input type="search" placeholder="type keyword and hit enter" />
+               <button class="btn" type="button">
+                  <i class="fa fa-search"></i>
+               </button>
+            </form>
+         </div>
+      </div>
+   </div>
+</div> <!--== Search Box Area End ==--> <!--== Page Title Area Start ==-->
+<div id="page-title-area">
+   <div class="container">
+      <div class="row">
+         <div class="col-12 text-center">
+            <div class="page-title-content">
+               <h1>My Orders</h1>
+               <ul class="breadcrumb">
+                  <li><a href="@Url.Action("Index", "Home")">Home</a></li>
+                  <li><a href="@Url.Action("Index", "Orders")" class="active">Orders</a></li>
+               </ul>
+            </div>
+         </div>
+      </div>
+   </div>
+</div> <!--== Page Title Area End ==--> <!--== Page Content Wrapper Start ==-->
+<div id="page-content-wrapper" class="p-9">
+   <div class="container">
+      <div class="row">
+         <div class="col-lg-12">
+            <!-- My Account Page Start -->
+            <div class="myaccount-page-wrapper">
+               <!-- My Account Tab Menu Start -->
+               <div class="row">
+                  <div class="col-lg-3">
+
+                     <div class="myaccount-tab-menu nav" role="tablist">
+                        <a href="@Url.Action("Index","UserDashboard")">
+                           <i class="fa fa-dashboard"></i> Dashboard
+                        </a>
+
+                        <a href="@Url.Action("Index","Orders")" class="active">
+                           <i class="fa fa-cart-arrow-down"></i> Orders
+                        </a>
+
+                        <a href="@Url.Action("PaymentMethod","UserDashboard")">
+                           <i class="fa fa-credit-card"></i> Payment Method
+                        </a>
+
+                        <a href="@Url.Action("Address","UserDashboard")">
+                           <i class="fa fa-map-marker"></i> Address
+                        </a>
+
+                        <a href="@Url.Action("AccountDetails","UserDashboard")">
+                           <i class="fa fa-user"></i> Account Details
+                        </a>
+
+                        <a href="@Url.Action("Login","Account")"><i class="fa fa-sign-out"></i> Logout</a>
+                     </div>
+
+                  </div> <!-- My Account Tab Menu End --> <!-- My Account Tab Content Start -->
+                  <div class="col-lg-9 mt-5 mt-lg-0">
+                     <div class="tab-content" id="myaccountContent">
+                        <!-- Single Tab Content Start -->
+                        <div class="tab-pane fade show active" id="orders" role="tabpanel">
+
+                           <div class="myaccount-content">
+                              <div class="myaccount-content">
+                                 <!-- Order Status Tabs -->
+                                 <ul class="nav nav-tabs mb-4" role="tablist">
+                                    <li class="nav-item">
+                                       <a class="nav-link @(ViewBag.CurrentStatus == "All" ? "active" : "")"
+                                          href="@Url.Action("Index", "Orders", new { status = "All" })">
+                                          All <span class="badge badge-secondary">@ViewBag.AllCount</span>
+                                       </a>
+                                    </li>
+                                    <li class="nav-item">
+                                       <a class="nav-link @(ViewBag.CurrentStatus == "Pending" ? "active" : "")"
+                                          href="@Url.Action("Index", "Orders", new { status = "Pending" })">
+                                          Pending <span class="badge badge-warning">@ViewBag.PendingCount</span>
+                                       </a>
+                                    </li>
+                                    <li class="nav-item">
+                                       <a class="nav-link @(ViewBag.CurrentStatus == "Processing" ? "active" : "")"
+                                          href="@Url.Action("Index", "Orders", new { status = "Processing" })">
+                                          Processing <span class="badge badge-info">@ViewBag.ProcessingCount</span>
+                                       </a>
+                                    </li>
+                                    <li class="nav-item">
+                                       <a class="nav-link @(ViewBag.CurrentStatus == "Shipped" ? "active" : "")"
+                                          href="@Url.Action("Index", "Orders", new { status = "Shipped" })">
+                                          Shipped <span class="badge badge-primary">@ViewBag.ShippedCount</span>
+                                       </a>
+                                    </li>
+                                    <li class="nav-item">
+                                       <a class="nav-link @(ViewBag.CurrentStatus == "Delivered" ? "active" : "")"
+                                          href="@Url.Action("Index", "Orders", new { status = "Delivered" })">
+                                          Delivered <span class="badge badge-success">@ViewBag.DeliveredCount</span>
+                                       </a>
+                                    </li>
+                                    <li class="nav-item">
+                                       <a class="nav-link @(ViewBag.CurrentStatus == "Cancelled" ? "active" : "")"
+                                          href="@Url.Action("Index", "Orders", new { status = "Cancelled" })">
+                                          Cancelled <span class="badge badge-danger">@ViewBag.CancelledCount</span>
+                                       </a>
+                                    </li>
+                                 </ul>
+
+                                 <h3>Orders</h3>
+                                 <div class="myaccount-table table-responsive text-center">
+                                    <table class="table table-bordered">
+                                       <thead class="thead-light">
+                                          <tr>
+                                             <th>Order</th>
+                                             <th>Date</th>
+                                             <th>Status</th>
+                                             <th>Total</th>
+                                             <th>Action</th>
+                                          </tr>
+                                       </thead>
+
+                                       <tbody>
+                                          @if (Model != null && Model.Any())
+                                          {
+                                             foreach (var order in Model)
+                                             {
+                                                <tr>
+                                                   <td>#@order.OrderID</td>
+                                                   <td>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                                   <td>
+                                                      @if (order.Status == "Pending")
+                                                      {
+                                                         <span class="badge badge-warning">@order.Status</span>
+                                                      }
+                                                      else if (order.Status == "Processing")
+                                                      {
+                                                         <span class="badge badge-info">@order.Status</span>
+                                                      }
+                                                      else if (order.Status == "Shipped")
+                                                      {
+                                                         <span class="badge badge-primary">@order.Status</span>
+                                                      }
+                                                      else if (order.Status == "Delivered")
+                                                      {
+                                                         <span class="badge badge-success">@order.Status</span>
+                                                      }
+                                                      else if (order.Status == "Cancelled")
+                                                      {
+                                                         <span class="badge badge-danger">@order.Status</span>
+                                                      }
+                                                   </td>
+                                                   <td>@order.GrandTotal.ToString("N0") VND</td>
+                                                   <td>
+                                                      <a href="@Url.Action("Details", "Orders", new { id = order.OrderID })"
+                                                         class="btn-add-to-cart">View</a>
+                                                   </td>
+                                                </tr>
+                                             }
+                                          }
+                                          else
+                                          {
+                                             <tr>
+                                                <td colspan="5" class="text-center py-5">
+                                                   <i class="fa fa-shopping-bag fa-3x text-muted mb-3"></i>
+                                                   <p class="text-muted">No orders found.</p>
+                                                   <a href="@Url.Action("Index", "Shop")" class="btn btn-primary mt-2">
+                                                      Start Shopping
+                                                   </a>
+                                                </td>
+                                             </tr>
+                                          }
+                                       </tbody>
+
+                                    </table>
+                                 </div>
+                              </div>
+                           </div> <!-- Single Tab Content End -->
+                        </div>
+                     </div> <!-- My Account Tab Content End -->
+                  </div>
+               </div> <!-- My Account Page End -->
+            </div>
+         </div>
+      </div>
+   </div>

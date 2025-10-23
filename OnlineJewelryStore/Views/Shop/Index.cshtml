@@ -206,106 +206,6 @@
 
                <div class="shop-page-products-wrap">
                   <div class="products-wrapper">
-                     <!--<div class="row">
-                     <div class="col-lg-4 col-sm-6">-->
-                     <!-- Single Product Item -->
-                     <!--<div class="single-product-item text-center">
-                        <figure class="product-thumb">
-                           <a href="single-product.html">
-                              <img src="~/Resources/img/new-product-2.jpg"
-                                   alt="Products" class="img-fluid">
-                           </a>
-                        </figure>
-
-                        <div class="product-details">
-                           <h2><a href="single-product.html">Crown Summit Backpack</a></h2>
-                           <div class="rating">
-                              <i class="fa fa-star"></i>
-                              <i class="fa fa-star"></i>
-                              <i class="fa fa-star"></i>
-                              <i class="fa fa-star-half"></i>
-                              <i class="fa fa-star-o"></i>
-                           </div>
-                           <span class="price">$52.00</span>
-                           <p class="products-desc">
-                              Ideal for cold-weathered training worked lorem
-                              outdoors, the Chaz Hoodie promises superior warmth with every wear.
-                              Thick material blocks out the wind as ribbed cuffs and bottom band seal
-                              in body heat.
-                           </p>
-                           <a href="single-product.html" class="btn btn-add-to-cart">+ Add to Cart</a>
-                           <a href="single-product.html" class="btn btn-add-to-cart btn-whislist">
-                              +
-                              Wishlist
-                           </a>
-                        </div>
-
-                        <div class="product-meta">
-                           <button type="button" data-toggle="modal" data-target="#quickView">
-                              <span data-toggle="tooltip" data-placement="left" title="Quick View">
-                                 <i class="fa fa-compress"></i>
-                              </span>
-                           </button>
-                           <a href="#" data-toggle="tooltip" data-placement="left"
-                              title="Add to Wishlist">
-                              <i class="fa fa-heart-o"></i>
-                           </a>
-                        </div>
-                        <span class="product-bedge sale">Sale</span>
-                     </div>-->
-                     <!-- Single Product Item -->
-                     <!--</div>
-
-                     <div class="col-lg-4 col-sm-6">-->
-                     <!-- Single Product Item -->
-                     <!--<div class="single-product-item text-center">
-                        <figure class="product-thumb">
-                           <a href="single-product.html">
-                              <img src="~/Resources/img/new-product-3.jpg"
-                                   alt="Products" class="img-fluid">
-                           </a>
-                        </figure>
-
-                        <div class="product-details">
-                           <h2><a href="single-product.html">Crown Summit Backpack</a></h2>
-                           <div class="rating">
-                              <i class="fa fa-star"></i>
-                              <i class="fa fa-star"></i>
-                              <i class="fa fa-star"></i>
-                              <i class="fa fa-star-half"></i>
-                              <i class="fa fa-star-o"></i>
-                           </div>
-                           <span class="price">$52.00</span>
-                           <p class="products-desc">
-                              Ideal for cold-weathered training worked lorem
-                              outdoors, the Chaz Hoodie promises superior warmth with every wear.
-                              Thick material blocks out the wind as ribbed cuffs and bottom band seal
-                              in body heat.
-                           </p>
-                           <a href="single-product.html" class="btn btn-add-to-cart">+ Add to Cart</a>
-                           <a href="single-product.html" class="btn btn-add-to-cart btn-whislist">
-                              +
-                              Wishlist
-                           </a>
-                        </div>
-
-                        <div class="product-meta">
-                           <button type="button" data-toggle="modal" data-target="#quickView">
-                              <span data-toggle="tooltip" data-placement="left" title="Quick View">
-                                 <i class="fa fa-compress"></i>
-                              </span>
-                           </button>
-                           <a href="#" data-toggle="tooltip" data-placement="left"
-                              title="Add to Wishlist">
-                              <i class="fa fa-heart-o"></i>
-                           </a>
-                        </div>
-                        <span class="product-bedge">New</span>
-                     </div>-->
-                     <!-- Single Product Item -->
-                     <!--</div>
-                     </div>-->
-
                      <div class="products-wrapper">
                         <div class="row">
                            @if (Model.Products != null && Model.Products.Any())
@@ -340,13 +240,39 @@
                                              </a>
                                           </h2>
 
-                                          @* Rating - TODO: Implement nếu có *@
+                                          @* Rating - Dynamic from Reviews *@
                                           <div class="rating">
-                                             <i class="fa fa-star"></i>
-                                             <i class="fa fa-star"></i>
-                                             <i class="fa fa-star"></i>
-                                             <i class="fa fa-star"></i>
-                                             <i class="fa fa-star-o"></i>
+                                             @if (product.AverageRating > 0)
+                                             {
+                                                @* Full stars *@
+                                                for (int i = 1; i <= Math.Floor(product.AverageRating); i++)
+                                                {
+                                                   <i class="fa fa-star"></i>
+                                                }
+
+                                                @* Half star *@
+                                                if (product.AverageRating % 1 >= 0.5m)
+                                                {
+                                                   <i class="fa fa-star-half"></i>
+                                                }
+
+                                                @* Empty stars *@
+                                                for (int i = (int)Math.Ceiling(product.AverageRating); i < 5; i++)
+                                                {
+                                                   <i class="fa fa-star-o"></i>
+                                                }
+
+                                                <span class="review-count">(@product.TotalReviews)</span>
+                                             }
+                                             else
+                                             {
+                                                @* No reviews yet *@
+                                                for (int i = 0; i < 5; i++)
+                                                {
+                                                   <i class="fa fa-star-o"></i>
+                                                }
+                                                <span class="review-count">(0)</span>
+                                             }
                                           </div>
 
                                           @* Price - Format currency *@

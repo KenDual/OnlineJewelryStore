@@ -146,6 +146,8 @@
     <Compile Include="Controllers\CartController.cs" />
     <Compile Include="Controllers\CheckoutController.cs" />
     <Compile Include="Controllers\FeatureController.cs" />
+    <Compile Include="Controllers\OrdersController.cs" />
+    <Compile Include="Controllers\ReviewsController.cs" />
     <Compile Include="Controllers\ShopController.cs" />
     <Compile Include="Controllers\UserDashboardController.cs" />
     <Compile Include="Controllers\WishlistController.cs" />
@@ -457,7 +459,7 @@
     <Content Include="Views\Account\Register.cshtml" />
     <Content Include="Views\Account\ForgotPassword.cshtml" />
     <Content Include="Views\UserDashboard\Index.cshtml" />
-    <Content Include="Views\UserDashboard\Orders.cshtml" />
+    <Content Include="Views\Orders\Index.cshtml" />
     <Content Include="Views\UserDashboard\PaymentMethod.cshtml" />
     <Content Include="Views\UserDashboard\Address.cshtml" />
     <Content Include="Views\UserDashboard\AccountDetails.cshtml" />
@@ -480,6 +482,10 @@
     <Content Include="Views\Addresses\Index.cshtml" />
     <Content Include="Views\Addresses\Create.cshtml" />
     <Content Include="Views\Addresses\Edit.cshtml" />
+    <Content Include="Views\Orders\Details.cshtml" />
+    <Content Include="Views\Orders\TrackOrder.cshtml" />
+    <Content Include="Views\Shared\_ProductReviews.cshtml" />
+    <Content Include="Views\Reviews\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

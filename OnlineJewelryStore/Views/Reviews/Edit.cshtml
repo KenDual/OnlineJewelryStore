@@ -1,0 +1,224 @@
+﻿@model OnlineJewelryStore.Models.Review
+
+@{
+   ViewBag.Title = "Edit Review";
+   Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!--== Page Title Area Start ==-->
+<div id="page-title-area">
+   <div class="container">
+      <div class="row">
+         <div class="col-12 text-center">
+            <div class="page-title-content">
+               <h1>Edit Your Review</h1>
+               <ul class="breadcrumb">
+                  <li><a href="@Url.Action("Index", "Home")">Home</a></li>
+                  <li><a href="@Url.Action("Details", "Shop", new { id = Model.ProductID })">@Model.Product.ProductName</a></li>
+                  <li><a href="#" class="active">Edit Review</a></li>
+               </ul>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+<!--== Page Title Area End ==-->
+<!--== Page Content Wrapper Start ==-->
+<div id="page-content-wrapper" class="p-9">
+   <div class="container">
+      <div class="row justify-content-center">
+         <div class="col-lg-8">
+            <!-- Product Info Card -->
+            <div class="product-info-card mb-4 p-4" style="background: #f9f9f9; border-radius: 5px;">
+               <div class="row align-items-center">
+                  <div class="col-md-3">
+                     @if (Model.Product.ProductMedias != null && Model.Product.ProductMedias.Any(m => m.IsMain))
+                     {
+                        var mainImage = Model.Product.ProductMedias.FirstOrDefault(m => m.IsMain);
+                        <img src="@mainImage.URL" alt="@Model.Product.ProductName" class="img-fluid" style="border-radius: 5px;" />
+                     }
+                     else
+                     {
+                        <img src="~/Resources/img/no-image.jpg" alt="No Image" class="img-fluid" style="border-radius: 5px;" />
+                     }
+                  </div>
+                  <div class="col-md-9">
+                     <h4 class="mb-2">@Model.Product.ProductName</h4>
+                     <p class="text-muted mb-0">You are editing your review for this product</p>
+                  </div>
+               </div>
+            </div>
+
+            <!-- Edit Review Form -->
+            <div class="edit-review-form p-4" style="background: #fff; border: 1px solid #e5e5e5; border-radius: 5px;">
+               <h3 class="mb-4">Your Review</h3>
+
+               @using (Html.BeginForm("Edit", "Reviews", FormMethod.Post))
+               {
+                  @Html.AntiForgeryToken()
+                  @Html.HiddenFor(m => m.ReviewID)
+
+                  <div class="form-group">
+                     <label>Your Rating <span class="text-danger">*</span></label>
+                     <div class="rating-input mb-2">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                           if (i <= Model.Rating)
+                           {
+                              <i class="fa fa-star star-rating" data-rating="@i" style="color: #f39c12; font-size: 24px; cursor: pointer;"></i>
+                           }
+                           else
+                           {
+                              <i class="fa fa-star-o star-rating" data-rating="@i" style="color: #ccc; font-size: 24px; cursor: pointer;"></i>
+                           }
+                        }
+                     </div>
+                     <input type="hidden" id="rating-value" name="rating" value="@Model.Rating" required />
+                  </div>
+
+                  <div class="form-group">
+                     <label for="title">Review Title (Optional)</label>
+                     @Html.TextBoxFor(m => m.Title, new
+                     {
+                         @class = "form-control",
+                         placeholder = "Give your review a title",
+                         maxlength = "255"
+                     })
+                  </div>
+
+                  <div class="form-group">
+                     <label for="body">Your Review (Optional)</label>
+                     @Html.TextAreaFor(m => m.Body, new
+                     {
+                         @class = "form-control",
+                         rows = "5",
+                         placeholder = "Write your review here..."
+                     })
+                  </div>
+
+                  <div class="form-group">
+                     <button type="submit" class="btn btn-add-to-cart mr-2">
+                        <i class="fa fa-save"></i> Update Review
+                     </button>
+                     <a href="@Url.Action("Details", "Shop", new { id = Model.ProductID })" class="btn btn-secondary">
+                        <i class="fa fa-times"></i> Cancel
+                     </a>
+                  </div>
+
+                  if (ViewBag.ErrorMessage != null)
+                  {
+                     <div class="alert alert-danger mt-3">
+                        @ViewBag.ErrorMessage
+                     </div>
+                  }
+               }
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+<!--== Page Content Wrapper End ==-->
+
+@section Scripts {
+   <script>
+        $(document).ready(function() {
+            // Star rating click event
+            $('.star-rating').on('click', function() {
+                var rating = $(this).data('rating');
+                $('#rating-value').val(rating);
+
+                // Update stars display
+                $('.star-rating').each(function(index) {
+                    var starRating = $(this).data('rating');
+                    if (starRating <= rating) {
+                        $(this).removeClass('fa-star-o').addClass('fa-star').css('color', '#f39c12');
+                    } else {
+                        $(this).removeClass('fa-star').addClass('fa-star-o').css('color', '#ccc');
+                    }
+                });
+            });
+
+            // Star rating hover effect
+            $('.star-rating').hover(
+                function() {
+                    var rating = $(this).data('rating');
+                    $('.star-rating').each(function(index) {
+                        var starRating = $(this).data('rating');
+                        if (starRating <= rating) {
+                            $(this).css('color', '#f39c12');
+                        }
+                    });
+                },
+                function() {
+                    var currentRating = $('#rating-value').val();
+                    $('.star-rating').each(function(index) {
+                        var starRating = $(this).data('rating');
+                        if (starRating <= currentRating) {
+                            $(this).removeClass('fa-star-o').addClass('fa-star').css('color', '#f39c12');
+                        } else {
+                            $(this).removeClass('fa-star').addClass('fa-star-o').css('color', '#ccc');
+                        }
+                    });
+                }
+            );
+        });
+   </script>
+}
+
+<style>
+   .product-info-card h4 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #333;
+   }
+
+   .edit-review-form h3 {
+      font-size: 22px;
+      font-weight: 600;
+      color: #333;
+   }
+
+   .edit-review-form label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+   }
+
+   .edit-review-form .form-control {
+      font-size: 14px;
+      padding: 10px 15px;
+      border: 1px solid #ddd;
+      border-radius: 3px;
+   }
+
+      .edit-review-form .form-control:focus {
+         border-color: #333;
+         box-shadow: none;
+      }
+
+   .rating-input {
+      display: flex;
+      gap: 5px;
+   }
+
+   .star-rating {
+      transition: color 0.2s ease;
+   }
+
+   .btn-secondary {
+      background-color: #6c757d;
+      border-color: #6c757d;
+      color: #fff;
+      padding: 10px 25px;
+      font-size: 14px;
+      border-radius: 3px;
+      transition: all 0.3s ease;
+   }
+
+      .btn-secondary:hover {
+         background-color: #5a6268;
+         border-color: #545b62;
+         color: #fff;
+      }
+</style>

@@ -52,7 +52,7 @@
                            <i class="fa fa-dashboard"></i> Dashboard
                         </a>
 
-                        <a href="@Url.Action("Orders","UserDashboard")">
+                        <a href="@Url.Action("Index","Orders")">
                            <i class="fa fa-cart-arrow-down"></i> Orders
                         </a>
 
@@ -79,38 +79,6 @@
                            <div class="myaccount-content">
                               <h3>Account Details</h3>
                               <div class="account-details-form">
-                                 @*<form action="#">
-                                       <div class="row">
-                                          <div class="col-lg-6">
-                                             <div class="single-input-item">
-                                                <label for="first-name" class="required">First Name</label>
-                                                <input type="text" id="first-name" placeholder="First Name" />
-                                             </div>
-                                          </div>
-                                          <div class="col-lg-6">
-                                             <div class="single-input-item">
-                                                <label for="last-name"
-                                                       class="required">Last Name</label>
-                                                <input type="text" id="last-name" placeholder="Last Name" />
-                                             </div>
-                                          </div>
-                                       </div>
-                                       <div class="single-input-item">
-                                          <label for="display-name" class="required">Display Name</label> <input type="text" id="display-name" placeholder="Display Name" />
-                                       </div>
-                                       <div class="single-input-item">
-                                          <label for="email" class="required">Email Addres</label>
-                                          <input type="email" id="email" placeholder="Email Address" />
-                                       </div>
-                                       <div class="single-input-item">
-                                          <button class="btn-add-to-cart">
-                                             Save Changes
-                                          </button>
-                                          <button class="btn-login btn-add-to-cart">
-                                             Update Profile
-                                          </button>
-                                       </div>
-                                    </form>*@
 
                                  @using (Html.BeginForm("AccountDetails", "UserDashboard", FormMethod.Post, new { @class = "account-form" }))
                                  {

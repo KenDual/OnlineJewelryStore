@@ -42,7 +42,9 @@ namespace OnlineJewelryStore.Controllers
                                 .Select(m => m.URL)
                                 .FirstOrDefault(),
                             HasStock = p.ProductVariants.Any(v => v.StockQuantity > 0),
-                            AvailableVariantsCount = p.ProductVariants.Count(v => v.StockQuantity > 0)
+                            AvailableVariantsCount = p.ProductVariants.Count(v => v.StockQuantity > 0),
+                            AverageRating = p.Reviews.Any() ? p.Reviews.Average(r => (decimal)r.Rating) : 0,
+                            TotalReviews = p.Reviews.Count()
                         };
 
             // ===== APPLY FILTERS =====
@@ -76,7 +78,9 @@ namespace OnlineJewelryStore.Controllers
                 MainImageURL = x.MainImageURL,
                 HasStock = x.HasStock,
                 AvailableVariantsCount = x.AvailableVariantsCount,
-                CreationDate = x.Product.CreationDate
+                CreationDate = x.Product.CreationDate,
+                AverageRating = x.AverageRating,
+                TotalReviews = x.TotalReviews
             });
 
             // ===== APPLY PRICE FILTER (after projection) =====

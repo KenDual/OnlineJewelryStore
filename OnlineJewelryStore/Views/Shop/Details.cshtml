@@ -3,6 +3,42 @@
    ViewBag.Title = "Details";
    Layout = "~/Views/Shared/_Layout.cshtml";
 }
+@{
+   <style>
+      /* Review Form Styling */
+      .review-form .rating-input {
+         font-size: 24px;
+         margin-bottom: 10px;
+      }
+
+      .review-form .star-rating {
+         cursor: pointer;
+         color: #ccc;
+         transition: color 0.2s;
+      }
+
+         .review-form .star-rating:hover {
+            color: #f39c12;
+         }
+
+         .review-form .star-rating.fa-star {
+            color: #f39c12;
+         }
+
+      .reviews-list-section h3,
+      .review-form-section h3 {
+         margin-bottom: 20px;
+         font-size: 20px;
+         font-weight: 600;
+      }
+
+      .review-count {
+         font-size: 14px;
+         color: #666;
+         margin-left: 5px;
+      }
+   </style>
+}
 
 <!--== Page Title Area Start ==-->
 <div id="page-title-area">
@@ -36,47 +72,6 @@
                   <!-- Product Thumbnail Start -->
                   <div class="col-lg-5">
                      <div class="product-thumbnail-wrap">
-                        @*<div class="product-thumb-carousel owl-carousel">
-                              <div class="single-thumb-item">
-                                 <a href="single-product.html">
-                                    <img class="img-fluid"
-                                         src="~/Resources/img/single-pro-thumb.jpg"
-                                         alt="Product" />
-                                 </a>
-                              </div>
-
-                              <div class="single-thumb-item">
-                                 <a href="single-product.html">
-                                    <img class="img-fluid"
-                                         src="~/Resources/img/single-pro-thumb-2.jpg"
-                                         alt="Product" />
-                                 </a>
-                              </div>
-
-                              <div class="single-thumb-item">
-                                 <a href="single-product.html">
-                                    <img class="img-fluid"
-                                         src="~/Resources/img/single-pro-thumb-3.jpg"
-                                         alt="Product" />
-                                 </a>
-                              </div>
-
-                              <div class="single-thumb-item">
-                                 <a href="single-product.html">
-                                    <img class="img-fluid"
-                                         src="~/Resources/img/single-pro-thumb-4.jpg"
-                                         alt="Product" />
-                                 </a>
-                              </div>
-
-                              <div class="single-thumb-item">
-                                 <a href="single-product.html">
-                                    <img class="img-fluid"
-                                         src="~/Resources/img/single-pro-thumb-5.jpg"
-                                         alt="Product" />
-                                 </a>
-                              </div>
-                           </div>*@
 
                         <div class="product-thumb-carousel owl-carousel">
                            @if (Model.MediaFiles != null && Model.MediaFiles.Any())
@@ -385,10 +380,6 @@
                               }
                            </div>
                         }
-
-
-
-
                      </div>
                   </div>
                   <!-- Product Details End -->
@@ -401,32 +392,11 @@
                         <!-- Single Product tab Menu -->
                         <nav class="nav" id="nav-tab">
                            <a class="active" id="description-tab" data-toggle="tab" href="#description">Description</a>
-                           <a id="reviews-tab" data-toggle="tab" href="#reviews">Reviews</a>
+                           <a id="reviews-tab" data-toggle="tab" href="#review">Reviews</a>
                         </nav>
                         <!-- Single Product tab Menu -->
                         <!-- Single Product tab Content -->
                         <div class="tab-content" id="nav-tabContent">
-                           @*<div class="tab-pane fade show active" id="description">
-                                 <p>
-                                    Stay comfortable and stay in the race no matter what the weather's up to. The
-                                    Bruno Compete Hoodie's water-repellent exterior shields you from the
-                                    elements, while advanced fabric technology inside wicks moisture to keep you
-                                    dry.Stay comfortable and stay in the race no matter what the weather's up
-                                    to. The Bruno Compete Hoodie's water-repellent exterior shields you from the
-                                    elements, while advanced fabric technology inside wicks moisture to keep you
-                                    dry.Stay comfortable and stay in the race no matter what the weather's up
-                                    to. The Bruno Compete Hoodie's water-repellent exterior shields you from the
-                                    elements, while advanced fabric technology inside wicks moisture to keep you
-                                    dry.
-                                 </p>
-
-                                 <ul>
-                                    <li>Adipisicing elitEnim, laborum.</li>
-                                    <li>Lorem ipsum dolor sit</li>
-                                    <li>Dolorem molestiae quod voluptatem! Sint.</li>
-                                    <li>Iure obcaecati odio pariatur quae saepe!</li>
-                                 </ul>
-                              </div>*@
 
                            <div class="tab-pane fade show active" id="description">
                               @* Full Description *@
@@ -469,274 +439,33 @@
                               </div>
                            </div>
 
-                           <div class="tab-pane fade" id="reviews">
-                              <div class="row">
-                                 <div class="col-lg-7">
-                                    <div class="product-ratting-wrap">
-                                       @*<div class="pro-avg-ratting">
-                                             <h4>4.5 <span>(Overall)</span></h4>
-                                             <span>Based on 9 Comments</span>
-                                          </div>
-                                          <div class="ratting-list">
-                                             <div class="sin-list float-left">
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <span>(5)</span>
-                                             </div>
-                                             <div class="sin-list float-left">
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star-o"></i>
-                                                <span>(3)</span>
-                                             </div>
-                                             <div class="sin-list float-left">
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star-o"></i>
-                                                <i class="fa fa-star-o"></i>
-                                                <span>(1)</span>
-                                             </div>
-                                             <div class="sin-list float-left">
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star-o"></i>
-                                                <i class="fa fa-star-o"></i>
-                                                <i class="fa fa-star-o"></i>
-                                                <span>(0)</span>
-                                             </div>
-                                             <div class="sin-list float-left">
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star-o"></i>
-                                                <i class="fa fa-star-o"></i>
-                                                <i class="fa fa-star-o"></i>
-                                                <i class="fa fa-star-o"></i>
-                                                <span>(0)</span>
-                                             </div>
-                                          </div>*@
-                                       <div class="rattings-wrapper">
-                                          @if (Model.Reviews != null && Model.Reviews.Any())
-                                          {
-                                             foreach (var review in Model.Reviews)
-                                             {
-                                                <div class="sin-rattings">
-                                                   <div class="ratting-author">
-                                                      <h3>@review.UserFullName</h3>
-                                                      <div class="ratting-star">
-                                                         @* Display rating stars *@
-                                                         @for (int i = 0; i < review.Rating; i++)
-                                                         {
-                                                            <i class="fa fa-star"></i>
-                                                         }
-                                                         @for (int i = review.Rating; i < 5; i++)
-                                                         {
-                                                            <i class="fa fa-star-o"></i>
-                                                         }
-                                                         <span>(@review.Rating)</span>
-                                                      </div>
-                                                      <small class="text-muted">
-                                                         @review.CreatedAt.ToString("MMMM dd, yyyy")
-                                                      </small>
-                                                   </div>
+                           <!-- Single Tab Content Start (Reviews) -->
+                           <div class="tab-pane fade" id="review" role="tabpanel">
+                              <div class="product-review-content">
 
-                                                   @if (!string.IsNullOrEmpty(review.Title))
-                                                   {
-                                                      <h5>@review.Title</h5>
-                                                   }
-
-                                                   <p>@review.Body</p>
-                                                </div>
-                                             }
-                                          }
-                                          else
-                                          {
-                                             <div class="alert alert-info">
-                                                <p>No reviews yet. Be the first to review this product!</p>
-                                             </div>
-                                          }
+                                 <!-- Reviews List Section -->
+                                 <div class="reviews-list-section mb-5">
+                                    <h3>Customer Reviews</h3>
+                                    <div id="reviews-container">
+                                       <!-- AJAX load reviews here -->
+                                       <div class="text-center">
+                                          <i class="fa fa-spinner fa-spin fa-2x"></i>
+                                          <p>Loading reviews...</p>
                                        </div>
-
-
-                                       @*<div class="rattings-wrapper">
-
-                                             <div class="sin-rattings">
-                                                <div class="ratting-author">
-                                                   <h3>Cristopher Lee</h3>
-                                                   <div class="ratting-star">
-                                                      <i class="fa fa-star"></i>
-                                                      <i class="fa fa-star"></i>
-                                                      <i class="fa fa-star"></i>
-                                                      <i class="fa fa-star"></i>
-                                                      <i class="fa fa-star"></i>
-                                                      <span>(5)</span>
-                                                   </div>
-                                                </div>
-                                                <p>
-                                                   enim ipsam voluptatem quia voluptas sit aspernatur aut
-                                                   odit aut fugit, sed quia res eos qui ratione voluptatem
-                                                   sequi Neque porro quisquam est, qui dolorem ipsum quia
-                                                   dolor sit amet, consectetur, adipisci veli
-                                                </p>
-                                             </div>
-
-                                             <div class="sin-rattings">
-                                                <div class="ratting-author">
-                                                   <h3>Nirob Khan</h3>
-                                                   <div class="ratting-star">
-                                                      <i class="fa fa-star"></i>
-                                                      <i class="fa fa-star"></i>
-                                                      <i class="fa fa-star"></i>
-                                                      <i class="fa fa-star"></i>
-                                                      <i class="fa fa-star"></i>
-                                                      <span>(5)</span>
-                                                   </div>
-                                                </div>
-                                                <p>
-                                                   enim ipsam voluptatem quia voluptas sit aspernatur aut
-                                                   odit aut fugit, sed quia res eos qui ratione voluptatem
-                                                   sequi Neque porro quisquam est, qui dolorem ipsum quia
-                                                   dolor sit amet, consectetur, adipisci veli
-                                                </p>
-                                             </div>
-
-                                             <div class="sin-rattings">
-                                                <div class="ratting-author">
-                                                   <h3>MD.ZENAUL ISLAM</h3>
-                                                   <div class="ratting-star">
-                                                      <i class="fa fa-star"></i>
-                                                      <i class="fa fa-star"></i>
-                                                      <i class="fa fa-star"></i>
-                                                      <i class="fa fa-star"></i>
-                                                      <i class="fa fa-star"></i>
-                                                      <span>(5)</span>
-                                                   </div>
-                                                </div>
-                                                <p>
-                                                   enim ipsam voluptatem quia voluptas sit aspernatur aut
-                                                   odit aut fugit, sed quia res eos qui ratione voluptatem
-                                                   sequi Neque porro quisquam est, qui dolorem ipsum quia
-                                                   dolor sit amet, consectetur, adipisci veli
-                                                </p>
-                                             </div>
-
-                                          </div>*@
-                                       @*<div class="ratting-form-wrapper fix">
-                                             <h3>Add your Comments</h3>
-                                             <form action="#" method="post">
-                                                <div class="ratting-form row">
-                                                   <div class="col-12 mb-4">
-                                                      <h5>Rating:</h5>
-                                                      <div class="ratting-star fix">
-                                                         <i class="fa fa-star-o"></i>
-                                                         <i class="fa fa-star-o"></i>
-                                                         <i class="fa fa-star-o"></i>
-                                                         <i class="fa fa-star-o"></i>
-                                                         <i class="fa fa-star-o"></i>
-                                                      </div>
-                                                   </div>
-                                                   <div class="col-md-6 col-12 mb-4">
-                                                      <label for="name">Name:</label>
-                                                      <input id="name" placeholder="Name" type="text">
-                                                   </div>
-                                                   <div class="col-md-6 col-12 mb-4">
-                                                      <label for="email">Email:</label>
-                                                      <input id="email" placeholder="Email" type="text">
-                                                   </div>
-                                                   <div class="col-12 mb-4">
-                                                      <label for="your-review">Your Review:</label>
-                                                      <textarea name="review" id="your-review"
-                                                                placeholder="Write a review"></textarea>
-                                                   </div>
-                                                   <div class="col-12">
-                                                      <input value="add review" type="submit">
-                                                   </div>
-                                                </div>
-                                             </form>
-                                          </div>*@
-
-                                       <div class="ratting-form-wrapper fix">
-                                          <h3>Add your Comments</h3>
-
-                                          @if (User.Identity.IsAuthenticated)
-                                          {
-                                             if (Model.CanReview)
-                                             {
-                                                if (!Model.HasReviewed)
-                                                {
-                                                   @* Review Form *@
-                                                   <form id="review-form" method="post">
-                                                      <div class="ratting-form row">
-                                                         <div class="col-12 mb-4">
-                                                            <h5>Rating:</h5>
-                                                            <div class="ratting-star fix" id="rating-stars">
-                                                               <i class="fa fa-star-o star-rating" data-rating="1"></i>
-                                                               <i class="fa fa-star-o star-rating" data-rating="2"></i>
-                                                               <i class="fa fa-star-o star-rating" data-rating="3"></i>
-                                                               <i class="fa fa-star-o star-rating" data-rating="4"></i>
-                                                               <i class="fa fa-star-o star-rating" data-rating="5"></i>
-                                                            </div>
-                                                            <input type="hidden" id="rating-value" name="rating" value="0" required />
-                                                         </div>
-
-                                                         <div class="col-12 mb-4">
-                                                            <label for="review-title">Title:</label>
-                                                            <input id="review-title"
-                                                                   name="title"
-                                                                   placeholder="Review Title"
-                                                                   type="text"
-                                                                   maxlength="255">
-                                                         </div>
-
-                                                         <div class="col-12 mb-4">
-                                                            <label for="your-review">Your Review: <span class="text-danger">*</span></label>
-                                                            <textarea name="body"
-                                                                      id="your-review"
-                                                                      placeholder="Write a review"
-                                                                      required></textarea>
-                                                         </div>
-
-                                                         <div class="col-12">
-                                                            <button type="button"
-                                                                    class="btn btn-primary"
-                                                                    onclick="submitReview(@Model.Product.ProductID)">
-                                                               Add Review
-                                                            </button>
-                                                         </div>
-                                                      </div>
-                                                   </form>
-                                                }
-                                                else
-                                                {
-                                                   <div class="alert alert-info">
-                                                      You have already reviewed this product.
-                                                   </div>
-                                                }
-                                             }
-                                             else
-                                             {
-                                                <div class="alert alert-warning">
-                                                   You can only review products that you have purchased and received.
-                                                </div>
-                                             }
-                                          }
-                                          else
-                                          {
-                                             <div class="alert alert-info">
-                                                Please <a href="@Url.Action("Login", "Account", new { returnUrl = Request.Url.PathAndQuery })">login</a>
-                                                to write a review.
-                                             </div>
-                                          }
-                                       </div>
-
                                     </div>
                                  </div>
+
+                                 <!-- Review Form Section -->
+                                 <div class="review-form-section">
+                                    <h3>Write Your Review</h3>
+                                    <div id="review-form-container">
+                                       <!-- Form will be loaded dynamically -->
+                                    </div>
+                                 </div>
+
                               </div>
                            </div>
+                           <!-- Single Tab Content End -->
                         </div>
                         <!-- Single Product tab Content -->
                      </div>
@@ -905,40 +634,279 @@
             });
         }
 
-        // ===== RATING STARS SELECTION =====
-        $('.star-rating').on('click', function() {
-            var rating = $(this).data('rating');
-            $('#rating-value').val(rating);
+         // =========================================
+         // REVIEWS SECTION - PHASE 9
+         // =========================================
 
-            // Update stars display
-            $('.star-rating').each(function(index) {
-                if (index < rating) {
-                    $(this).removeClass('fa-star-o').addClass('fa-star');
-                } else {
-                    $(this).removeClass('fa-star').addClass('fa-star-o');
-                }
-            });
-        });
+         var currentProductId = @Model.Product.ProductID;
 
-        // ===== SUBMIT REVIEW =====
-        function submitReview(productId) {
-            var rating = $('#rating-value').val();
-            var title = $('#review-title').val();
-            var body = $('#your-review').val();
+         // ===== LOAD REVIEWS ON PAGE LOAD =====
+         $(document).ready(function() {
+             loadReviews();
+             loadReviewForm();
+         });
 
-            if (rating == 0) {
-                alert('Please select a rating');
-                return;
-            }
+         // ===== LOAD ALL REVIEWS FOR PRODUCT =====
+         function loadReviews() {
+             $.ajax({
+                 url: '@Url.Action("GetProductReviews", "Reviews")',
+                 type: 'GET',
+                 data: { productId: currentProductId },
+                 success: function(html) {
+                     $('#reviews-container').html(html);
+                 },
+                 error: function() {
+                     $('#reviews-container').html('<p class="text-danger">Error loading reviews.</p>');
+                 }
+             });
+         }
 
-            if (!body) {
-                alert('Please write a review');
-                return;
-            }
+         // ===== LOAD REVIEW FORM =====
+         function loadReviewForm() {
+             $.ajax({
+                 url: '@Url.Action("CanUserReview", "Reviews")',
+                 type: 'GET',
+                 data: { productId: currentProductId },
+                 success: function(response) {
+                     if (response.canReview) {
+                         showReviewForm();
+                     } else {
+                         showCannotReviewMessage(response.message, response.reason);
+                     }
+                 },
+                 error: function() {
+                     $('#review-form-container').html('<p class="text-danger">Error loading form.</p>');
+                 }
+             });
+         }
 
-            // TODO: Implement AJAX call trong Phase 9
-            alert('Submit Review: Rating ' + rating);
-        }
+         // ===== SHOW REVIEW FORM =====
+         function showReviewForm() {
+             var formHtml = `
+                 <form id="review-form" class="review-form">
+                     @Html.AntiForgeryToken()
+
+                     <div class="form-group">
+                         <label>Your Rating <span class="text-danger">*</span></label>
+                         <div class="rating-input">
+                             <i class="fa fa-star-o star-rating" data-rating="1"></i>
+                             <i class="fa fa-star-o star-rating" data-rating="2"></i>
+                             <i class="fa fa-star-o star-rating" data-rating="3"></i>
+                             <i class="fa fa-star-o star-rating" data-rating="4"></i>
+                             <i class="fa fa-star-o star-rating" data-rating="5"></i>
+                         </div>
+                         <input type="hidden" id="rating-value" name="rating" value="0" />
+                     </div>
+
+                     <div class="form-group">
+                         <label for="review-title">Review Title (Optional)</label>
+                         <input type="text" class="form-control" id="review-title"
+                                name="title" placeholder="Give your review a title" maxlength="255" />
+                     </div>
+
+                     <div class="form-group">
+                         <label for="your-review">Your Review (Optional)</label>
+                         <textarea class="form-control" id="your-review" name="body"
+                                   rows="5" placeholder="Write your review here..."></textarea>
+                     </div>
+
+                     <button type="button" class="btn btn-add-to-cart" onclick="submitReview()">
+                         Submit Review
+                     </button>
+                 </form>
+             `;
+             $('#review-form-container').html(formHtml);
+
+             // Re-bind star rating click event
+             bindStarRatingEvents();
+         }
+
+         // ===== SHOW CANNOT REVIEW MESSAGE =====
+         function showCannotReviewMessage(message, reason) {
+             var messageHtml = `
+                 <div class="alert alert-info">
+                     <i class="fa fa-info-circle"></i> ${message}
+                 </div>
+             `;
+
+             if (reason === 'not_authenticated') {
+                 messageHtml = `
+                     <div class="alert alert-warning">
+                         <i class="fa fa-exclamation-triangle"></i> ${message}
+                         <a href="@Url.Action("Login", "Account")" class="btn btn-sm btn-primary ml-3">
+                             Login Now
+                         </a>
+                     </div>
+                 `;
+             } else if (reason === 'already_reviewed') {
+                 // Load user's existing review
+                 loadUserReview();
+                 return;
+             }
+
+             $('#review-form-container').html(messageHtml);
+         }
+
+         // ===== LOAD USER'S EXISTING REVIEW =====
+         function loadUserReview() {
+             $.ajax({
+                 url: '@Url.Action("GetUserReview", "Reviews")',
+                 type: 'GET',
+                 data: { productId: currentProductId },
+                 success: function(response) {
+                     if (response.hasReview) {
+                         showExistingReview(response.review);
+                     }
+                 }
+             });
+         }
+
+         // ===== SHOW USER'S EXISTING REVIEW =====
+         function showExistingReview(review) {
+             var stars = '';
+             for (var i = 0; i < 5; i++) {
+                 stars += i < review.rating
+                     ? '<i class="fa fa-star text-warning"></i>'
+                     : '<i class="fa fa-star-o"></i>';
+             }
+
+             var reviewHtml = `
+                 <div class="alert alert-success">
+                     <h5>Your Review</h5>
+                     <div class="mb-2">${stars}</div>
+                     ${review.title ? '<h6>' + review.title + '</h6>' : ''}
+                     ${review.body ? '<p>' + review.body + '</p>' : ''}
+                     <small class="text-muted">Posted on ${new Date(review.createdAt).toLocaleDateString()}</small>
+                     <div class="mt-3">
+                         <a href="@Url.Action("Edit", "Reviews")?id=${review.reviewId}"
+                            class="btn btn-sm btn-primary">
+                             <i class="fa fa-edit"></i> Edit Review
+                         </a>
+                         <button type="button" class="btn btn-sm btn-danger"
+                                 onclick="deleteReview(${review.reviewId})">
+                             <i class="fa fa-trash"></i> Delete Review
+                         </button>
+                     </div>
+                 </div>
+             `;
+             $('#review-form-container').html(reviewHtml);
+         }
+
+         // ===== BIND STAR RATING EVENTS =====
+         function bindStarRatingEvents() {
+             $('.star-rating').off('click').on('click', function() {
+                 var rating = $(this).data('rating');
+                 $('#rating-value').val(rating);
+
+                 // Update stars display
+                 $('.star-rating').each(function(index) {
+                     if (index < rating) {
+                         $(this).removeClass('fa-star-o').addClass('fa-star').css('color', '#f39c12');
+                     } else {
+                         $(this).removeClass('fa-star').addClass('fa-star-o').css('color', '#ccc');
+                     }
+                 });
+             });
+
+             // Hover effect
+             $('.star-rating').hover(
+                 function() {
+                     var rating = $(this).data('rating');
+                     $('.star-rating').each(function(index) {
+                         if (index < rating) {
+                             $(this).css('color', '#f39c12');
+                         }
+                     });
+                 },
+                 function() {
+                     var currentRating = $('#rating-value').val();
+                     $('.star-rating').each(function(index) {
+                         if (index < currentRating) {
+                             $(this).css('color', '#f39c12');
+                         } else {
+                             $(this).css('color', '#ccc');
+                         }
+                     });
+                 }
+             );
+         }
+
+         // ===== SUBMIT REVIEW =====
+         function submitReview() {
+             var rating = $('#rating-value').val();
+             var title = $('#review-title').val();
+             var body = $('#your-review').val();
+
+             if (rating == 0) {
+                 alert('Please select a rating (1-5 stars)');
+                 return;
+             }
+
+             // Get AntiForgeryToken
+             var token = $('input[name="__RequestVerificationToken"]').val();
+
+             $.ajax({
+                 url: '@Url.Action("Create", "Reviews")',
+                 type: 'POST',
+                 data: {
+                     __RequestVerificationToken: token,
+                     productId: currentProductId,
+                     rating: rating,
+                     title: title,
+                     body: body
+                 },
+                 success: function(response) {
+                     if (response.success) {
+                         alert(response.message);
+                         // Reload reviews and form
+                         loadReviews();
+                         loadReviewForm();
+                     } else {
+                         alert(response.message);
+                     }
+                 },
+                 error: function(xhr) {
+                     if (xhr.status === 401) {
+                         alert('Please login to submit a review');
+                         window.location.href = '@Url.Action("Login", "Account")';
+                     } else {
+                         alert('Error submitting review. Please try again.');
+                     }
+                 }
+             });
+         }
+
+         // ===== DELETE REVIEW =====
+         function deleteReview(reviewId) {
+             if (!confirm('Are you sure you want to delete this review?')) {
+                 return;
+             }
+
+             var token = $('input[name="__RequestVerificationToken"]').val();
+
+             $.ajax({
+                 url: '@Url.Action("Delete", "Reviews")',
+                 type: 'POST',
+                 data: {
+                     __RequestVerificationToken: token,
+                     id: reviewId
+                 },
+                 success: function(response) {
+                     if (response.success) {
+                         alert(response.message);
+                         // Reload reviews and form
+                         loadReviews();
+                         loadReviewForm();
+                     } else {
+                         alert(response.message);
+                     }
+                 },
+                 error: function() {
+                     alert('Error deleting review. Please try again.');
+                 }
+             });
+         }
+
 
         // ===== 360 VIEW =====
         function show360View() {

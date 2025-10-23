@@ -1,0 +1,157 @@
+﻿@model IEnumerable<OnlineJewelryStore.Models.Review>
+
+@{
+   var averageRating = ViewBag.AverageRating ?? 0m;
+   var totalReviews = ViewBag.TotalReviews ?? 0;
+   var currentUserId = ViewBag.CurrentUserId as int?;
+}
+
+<!-- Reviews Summary -->
+<div class="reviews-summary mb-4">
+   @if (totalReviews > 0)
+   {
+      <div class="row align-items-center">
+         <div class="col-md-6">
+            <h4 class="mb-2">@averageRating.ToString("0.0") out of 5</h4>
+            <div class="rating mb-2">
+               @for (int i = 1; i <= 5; i++)
+               {
+                  if (i <= Math.Floor(averageRating))
+                  {
+                     <i class="fa fa-star" style="color: #f39c12;"></i>
+                  }
+                  else if (i - 0.5 <= averageRating)
+                  {
+                     <i class="fa fa-star-half" style="color: #f39c12;"></i>
+                  }
+                  else
+                  {
+                     <i class="fa fa-star-o" style="color: #ccc;"></i>
+                  }
+               }
+            </div>
+            <p class="text-muted">Based on @totalReviews review@(totalReviews > 1 ? "s" : "")</p>
+         </div>
+      </div>
+      <hr />
+   }
+</div>
+
+<!-- Reviews List -->
+@if (Model != null && Model.Any())
+{
+   <div class="reviews-list">
+      @foreach (var review in Model)
+      {
+         <div class="single-review mb-4 pb-4" style="border-bottom: 1px solid #eee;">
+            <div class="row">
+               <div class="col-12">
+                  <!-- Reviewer Info -->
+                  <div class="reviewer-info mb-2">
+                     <strong>@review.User.FirstName @review.User.LastName</strong>
+                     <span class="text-muted ml-3">
+                        <i class="fa fa-calendar"></i>
+                        @review.CreatedAt.ToString("MMM dd, yyyy")
+                     </span>
+                  </div>
+
+                  <!-- Rating Stars -->
+                  <div class="review-rating mb-2">
+                     @for (int i = 1; i <= 5; i++)
+                     {
+                        if (i <= review.Rating)
+                        {
+                           <i class="fa fa-star" style="color: #f39c12;"></i>
+                        }
+                        else
+                        {
+                           <i class="fa fa-star-o" style="color: #ccc;"></i>
+                        }
+                     }
+                  </div>
+
+                  <!-- Review Title -->
+                  @if (!string.IsNullOrEmpty(review.Title))
+                  {
+                     <h5 class="review-title mb-2">@review.Title</h5>
+                  }
+
+                  <!-- Review Body -->
+                  @if (!string.IsNullOrEmpty(review.Body))
+                  {
+                     <p class="review-body">@review.Body</p>
+                  }
+
+                  <!-- Edit/Delete Buttons (Only for own reviews) -->
+                  @if (currentUserId.HasValue && review.UserID == currentUserId.Value)
+                  {
+                     <div class="review-actions mt-3">
+                        <a href="@Url.Action("Edit", "Reviews", new { id = review.ReviewID })"
+                           class="btn btn-sm btn-outline-primary">
+                           <i class="fa fa-edit"></i> Edit
+                        </a>
+                        <button type="button"
+                                class="btn btn-sm btn-outline-danger"
+                                onclick="deleteReview(@review.ReviewID)">
+                           <i class="fa fa-trash"></i> Delete
+                        </button>
+                     </div>
+                  }
+               </div>
+            </div>
+         </div>
+      }
+   </div>
+}
+else
+{
+   <!-- Empty State -->
+   <div class="no-reviews text-center py-5">
+      <i class="fa fa-comment-o fa-3x text-muted mb-3"></i>
+      <h5>No reviews yet</h5>
+      <p class="text-muted">Be the first to review this product!</p>
+   </div>
+}
+
+<style>
+   .reviews-summary h4 {
+      font-size: 24px;
+      font-weight: 600;
+      color: #333;
+   }
+
+   .single-review {
+      font-family: inherit;
+   }
+
+   .reviewer-info strong {
+      font-size: 16px;
+      color: #333;
+   }
+
+   .review-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+   }
+
+   .review-body {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #666;
+      margin-bottom: 0;
+   }
+
+   .review-rating {
+      font-size: 16px;
+   }
+
+   .review-actions .btn {
+      font-size: 13px;
+      padding: 5px 15px;
+   }
+
+   .no-reviews i {
+      display: block;
+   }
+</style>
