@@ -144,6 +144,7 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AddressesController.cs" />
     <Compile Include="Controllers\CartController.cs" />
+    <Compile Include="Controllers\ChatbotController.cs" />
     <Compile Include="Controllers\CheckoutController.cs" />
     <Compile Include="Controllers\FeatureController.cs" />
     <Compile Include="Controllers\OrdersController.cs" />
@@ -230,7 +231,10 @@
     <Compile Include="ViewModels\Cart\CartViewModel.cs" />
     <Compile Include="ViewModels\Cart\MiniCartItemViewModel.cs" />
     <Compile Include="ViewModels\Cart\MiniCartViewModel.cs" />
+    <Compile Include="ViewModels\ChatRequestViewModel.cs" />
+    <Compile Include="ViewModels\ChatResponseViewModel.cs" />
     <Compile Include="ViewModels\Checkout\CheckoutViewModel.cs" />
+    <Compile Include="ViewModels\ProductSuggestionViewModel.cs" />
     <Compile Include="ViewModels\Shop\ProductDetailsViewModel.cs" />
     <Compile Include="ViewModels\Shop\ProductListItemViewModel.cs" />
     <Compile Include="ViewModels\Shop\ProductQuickViewModel.cs" />
@@ -391,6 +395,7 @@
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="App_Browsers\qt.browser" />
+    <Content Include="AIService\db_connector.py" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
@@ -490,6 +495,7 @@
     <Folder Include="App_Data\" />
     <Folder Include="Areas\Admin\Data\" />
     <Folder Include="Content\uploads\products\" />
+    <Folder Include="Views\Chatbot\" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

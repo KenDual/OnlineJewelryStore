@@ -1,0 +1,18 @@
+
+pip install -r requirements.txt --break-system-packages
+
+Nếu lỗi khi cài dependencies:
+    https://learn.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server
+
+ollama serve
+
+ollama pull llama3.1:8b
+
+python build_index.py
+
+rebase:
+    curl -X POST http://localhost:8000/index-rebuild
+
+Nếu gặp lỗi compile:
+    Install-Package Newtonsoft.Json
+    Install-Package Microsoft.AspNet.WebApi.Client

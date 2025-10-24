@@ -1,0 +1,27 @@
+# AI Service Requirements
+
+# Install: pip install -r requirements.txt --break-system-packages
+
+numpy==1.26.4
+
+# FastAPI và web server
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# Machine Learning & Embeddings
+sentence-transformers==2.2.2
+huggingface_hub==0.16.4
+faiss-cpu==1.7.4
+
+# Database
+pyodbc==5.0.1
+sqlalchemy==2.0.23
+
+# Utilities
+pydantic==2.5.0
+requests==2.31.0
+python-dotenv==1.0.0
+
+# Optional: Progress bars và logging
+tqdm==4.66.1
