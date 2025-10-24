@@ -10,6 +10,7 @@ namespace OnlineJewelryStore.Controllers
     public class FeatureController : Controller
     {
         // GET: Feature
+        [AllowAnonymous]
         public ActionResult Home()
         {
             ViewBag.Active = "Home"; 
@@ -23,12 +24,14 @@ namespace OnlineJewelryStore.Controllers
             return View();
         }
 
+        [AllowAnonymous]
         public ActionResult Blog()
         {
             ViewBag.Active = "Blog"; 
             return View();
         }
 
+        [AllowAnonymous]
         public ActionResult Contact_us()
         {
             ViewBag.Active = "Contact_us"; 

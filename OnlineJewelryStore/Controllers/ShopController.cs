@@ -14,6 +14,7 @@ namespace OnlineJewelryStore.Controllers
     {
         private OnlineJewelryStoreEntities db = new OnlineJewelryStoreEntities();
 
+        [AllowAnonymous]
         public ActionResult Index(
             int? categoryId,
             decimal? minPrice,
@@ -169,6 +170,7 @@ namespace OnlineJewelryStore.Controllers
         // ========================================
         // ACTION: Details - Chi tiết sản phẩm
         // ========================================
+        [AllowAnonymous]
         public ActionResult Details(int id)
         {
             // Lấy thông tin product chính
@@ -327,43 +329,43 @@ namespace OnlineJewelryStore.Controllers
             return View(viewModel);
         }
 
-        // ========================================
-        // ACTION: QuickView - AJAX Modal
-        // ========================================
-        public ActionResult QuickView(int id)
-        {
-            var product = db.Products
-                .Where(p => p.ProductID == id && p.IsActive == true)
-                .Select(p => new ProductQuickViewModel
-                {
-                    ProductID = p.ProductID,
-                    ProductName = p.ProductName,
-                    Description = p.Description,
-                    CategoryName = p.Category.CategoryName,
-                    BasePrice = p.BasePrice,
-                    MinAdditionalPrice = p.ProductVariants.Any()
-                        ? p.ProductVariants.Min(v => v.AdditionalPrice)
-                        : 0,
-                    MainImageURL = p.ProductMedias
-                        .Where(m => m.IsMain == true)
-                        .Select(m => m.URL)
-                        .FirstOrDefault(),
-                    Variants = p.ProductVariants.ToList(),
-                    AverageRating = p.Reviews.Any()
-                        ? (decimal)p.Reviews.Average(r => r.Rating)
-                        : 0,
-                    TotalReviews = p.Reviews.Count(),
-                    HasStock = p.ProductVariants.Any(v => v.StockQuantity > 0)
-                })
-                .FirstOrDefault();
+        //// ========================================
+        //// ACTION: QuickView - AJAX Modal
+        //// ========================================
+        //public ActionResult QuickView(int id)
+        //{
+        //    var product = db.Products
+        //        .Where(p => p.ProductID == id && p.IsActive == true)
+        //        .Select(p => new ProductQuickViewModel
+        //        {
+        //            ProductID = p.ProductID,
+        //            ProductName = p.ProductName,
+        //            Description = p.Description,
+        //            CategoryName = p.Category.CategoryName,
+        //            BasePrice = p.BasePrice,
+        //            MinAdditionalPrice = p.ProductVariants.Any()
+        //                ? p.ProductVariants.Min(v => v.AdditionalPrice)
+        //                : 0,
+        //            MainImageURL = p.ProductMedias
+        //                .Where(m => m.IsMain == true)
+        //                .Select(m => m.URL)
+        //                .FirstOrDefault(),
+        //            Variants = p.ProductVariants.ToList(),
+        //            AverageRating = p.Reviews.Any()
+        //                ? (decimal)p.Reviews.Average(r => r.Rating)
+        //                : 0,
+        //            TotalReviews = p.Reviews.Count(),
+        //            HasStock = p.ProductVariants.Any(v => v.StockQuantity > 0)
+        //        })
+        //        .FirstOrDefault();
 
-            if (product == null)
-            {
-                return HttpNotFound();
-            }
+        //    if (product == null)
+        //    {
+        //        return HttpNotFound();
+        //    }
 
-            return PartialView("_QuickView", product);
-        }
+        //    return PartialView("_QuickView", product);
+        //}
 
         // ========================================
         // ACTION: Autocomplete - AJAX Search

@@ -9,7 +9,7 @@ using OnlineJewelryStore.ViewModels.Cart;
 
 namespace OnlineJewelryStore.Controllers
 {
-    [Authorize] // Yêu cầu đăng nhập cho toàn bộ controller
+    [Authorize]
     public class CartController : Controller
     {
         private OnlineJewelryStoreEntities db = new OnlineJewelryStoreEntities();
