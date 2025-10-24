@@ -1,0 +1,575 @@
+﻿@model OnlineJewelryStore.Models.Order
+@{
+   ViewBag.Title = "Track Order";
+   Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+   .info-box {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 4px;
+   }
+
+      .info-box h4 {
+         font-size: 16px;
+         font-weight: 600;
+         margin-bottom: 15px;
+         padding-bottom: 10px;
+         border-bottom: 2px solid #f5f5f5;
+         color: #333;
+      }
+
+   .info-row {
+      display: flex;
+      padding: 8px 0;
+      border-bottom: 1px solid #f5f5f5;
+   }
+
+      .info-row:last-child {
+         border-bottom: none;
+      }
+
+   .info-label {
+      width: 140px;
+      font-weight: 500;
+      color: #666;
+      font-size: 14px;
+   }
+
+   .info-value {
+      flex: 1;
+      color: #333;
+      font-size: 14px;
+   }
+
+   .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: #666;
+      text-decoration: none;
+      font-size: 14px;
+   }
+
+      .back-link:hover {
+         color: #333;
+      }
+
+      .back-link i {
+         margin-right: 5px;
+      }
+
+   /* Timeline Styles */
+   .tracking-timeline {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      padding: 30px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+   }
+
+   .timeline-item {
+      display: flex;
+      position: relative;
+      padding-bottom: 40px;
+   }
+
+      .timeline-item:last-child {
+         padding-bottom: 0;
+      }
+
+         .timeline-item:last-child .timeline-line {
+            display: none;
+         }
+
+   .timeline-marker {
+      position: relative;
+      flex-shrink: 0;
+      width: 50px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+   }
+
+   .timeline-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #fff;
+      border: 3px solid #e0e0e0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      color: #ccc;
+      z-index: 2;
+   }
+
+      .timeline-circle.active {
+         background: #28a745;
+         border-color: #28a745;
+         color: #fff;
+      }
+
+      .timeline-circle.current {
+         background: #007bff;
+         border-color: #007bff;
+         color: #fff;
+      }
+
+      .timeline-circle.cancelled {
+         background: #dc3545;
+         border-color: #dc3545;
+         color: #fff;
+      }
+
+   .timeline-line {
+      position: absolute;
+      top: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 3px;
+      height: 100%;
+      background: #e0e0e0;
+      z-index: 1;
+   }
+
+      .timeline-line.active {
+         background: #28a745;
+      }
+
+   .timeline-content {
+      flex: 1;
+      padding-left: 20px;
+   }
+
+   .timeline-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 5px;
+   }
+
+      .timeline-title.active {
+         color: #28a745;
+      }
+
+      .timeline-title.current {
+         color: #007bff;
+      }
+
+      .timeline-title.cancelled {
+         color: #dc3545;
+      }
+
+   .timeline-date {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 5px;
+   }
+
+   .timeline-description {
+      font-size: 13px;
+      color: #999;
+   }
+
+   .timeline-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      font-size: 11px;
+      border-radius: 3px;
+      margin-top: 5px;
+   }
+
+   .badge-estimated {
+      background: #f8f9fa;
+      color: #666;
+      border: 1px solid #e0e0e0;
+   }
+
+   .badge-actual {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+   }
+
+   /* Cancelled Order Alert */
+   .cancelled-alert {
+      background: #fff;
+      border: 2px solid #dc3545;
+      border-radius: 4px;
+      padding: 20px;
+      margin-bottom: 20px;
+   }
+
+      .cancelled-alert h4 {
+         color: #dc3545;
+         margin-bottom: 10px;
+         font-size: 18px;
+      }
+
+      .cancelled-alert p {
+         margin-bottom: 5px;
+         font-size: 14px;
+      }
+</style>
+
+<div class="body-popup-modal-area">
+   <span class="modal-close">
+      <img src="~/Resources/img/cancel.png" alt="Close" class="img-fluid" />
+   </span>
+   <div class="modal-container d-flex">
+      <div class="search-box-area">
+         <div class="search-box-form">
+            <form action="#" method="post">
+               <input type="search" placeholder="type keyword and hit enter" />
+               <button class="btn" type="button">
+                  <i class="fa fa-search"></i>
+               </button>
+            </form>
+         </div>
+      </div>
+   </div>
+</div>
+
+<!--== Page Title Area Start ==-->
+<div id="page-title-area">
+   <div class="container">
+      <div class="row">
+         <div class="col-12 text-center">
+            <div class="page-title-content">
+               <h1>Track Order</h1>
+               <ul class="breadcrumb">
+                  <li><a href="@Url.Action("Index", "Home")">Home</a></li>
+                  <li><a href="@Url.Action("Index", "Orders")">Orders</a></li>
+                  <li><a href="@Url.Action("Details", "Orders", new { id = Model.OrderID })">Order #@Model.OrderID</a></li>
+                  <li><a href="#" class="active">Track</a></li>
+               </ul>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+
+<!--== Page Content Wrapper Start ==-->
+<div id="page-content-wrapper" class="p-9">
+   <div class="container">
+      <div class="row">
+         <div class="col-lg-12">
+            <div class="myaccount-page-wrapper">
+               <div class="row">
+                  <!-- Sidebar -->
+                  <div class="col-lg-3">
+                     <div class="myaccount-tab-menu nav" role="tablist">
+                        <a href="@Url.Action("Index","UserDashboard")">
+                           <i class="fa fa-dashboard"></i> Dashboard
+                        </a>
+                        <a href="@Url.Action("Index","Orders")" class="active">
+                           <i class="fa fa-cart-arrow-down"></i> Orders
+                        </a>
+                        <a href="@Url.Action("PaymentMethod","UserDashboard")">
+                           <i class="fa fa-credit-card"></i> Payment Method
+                        </a>
+                        <a href="@Url.Action("Address","UserDashboard")">
+                           <i class="fa fa-map-marker"></i> Address
+                        </a>
+                        <a href="@Url.Action("AccountDetails","UserDashboard")">
+                           <i class="fa fa-user"></i> Account Details
+                        </a>
+                        <a href="@Url.Action("Login","Account")">
+                           <i class="fa fa-sign-out"></i> Logout
+                        </a>
+                     </div>
+                  </div>
+
+                  <!-- Main Content -->
+                  <div class="col-lg-9 mt-5 mt-lg-0">
+                     <div class="tab-content">
+                        <div class="tab-pane fade show active">
+                           <div class="myaccount-content">
+                              <!-- Back Link -->
+                              <a href="@Url.Action("Details", "Orders", new { id = Model.OrderID })" class="back-link">
+                                 <i class="fa fa-arrow-left"></i> Back to Order Details
+                              </a>
+
+                              <!-- Order Header -->
+                              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                 <h3 style="margin: 0;">Track Order #@Model.OrderID</h3>
+                                 @if (Model.Status == "Pending")
+                                 {
+                                    <span class="badge badge-warning" style="font-size: 14px; padding: 8px 15px;">@Model.Status</span>
+                                 }
+                                 else if (Model.Status == "Processing")
+                                 {
+                                    <span class="badge badge-info" style="font-size: 14px; padding: 8px 15px;">@Model.Status</span>
+                                 }
+                                 else if (Model.Status == "Shipped")
+                                 {
+                                    <span class="badge badge-primary" style="font-size: 14px; padding: 8px 15px;">@Model.Status</span>
+                                 }
+                                 else if (Model.Status == "Delivered")
+                                 {
+                                    <span class="badge badge-success" style="font-size: 14px; padding: 8px 15px;">@Model.Status</span>
+                                 }
+                                 else if (Model.Status == "Cancelled")
+                                 {
+                                    <span class="badge badge-danger" style="font-size: 14px; padding: 8px 15px;">@Model.Status</span>
+                                 }
+                              </div>
+
+                              <!-- Cancelled Order Alert -->
+                              @if (Model.Status == "Cancelled")
+                              {
+                                 <div class="cancelled-alert">
+                                    <h4><i class="fa fa-times-circle"></i> Order Cancelled</h4>
+                                    <p><strong>Cancellation Date:</strong> @Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</p>
+                                    @if (!string.IsNullOrEmpty(Model.CancellationReason))
+                                    {
+                                       <p><strong>Reason:</strong> @Model.CancellationReason</p>
+                                    }
+                                 </div>
+                              }
+
+                              <!-- Order Summary Box -->
+                              <div class="info-box">
+                                 <h4><i class="fa fa-info-circle"></i> Order Summary</h4>
+                                 <div class="info-row">
+                                    <div class="info-label">Order Date:</div>
+                                    <div class="info-value">@Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</div>
+                                 </div>
+                                 <div class="info-row">
+                                    <div class="info-label">Current Status:</div>
+                                    <div class="info-value">
+                                       @if (Model.Status == "Pending")
+                                       {
+                                          <span class="badge badge-warning">@Model.Status</span>
+                                       }
+                                       else if (Model.Status == "Processing")
+                                       {
+                                          <span class="badge badge-info">@Model.Status</span>
+                                       }
+                                       else if (Model.Status == "Shipped")
+                                       {
+                                          <span class="badge badge-primary">@Model.Status</span>
+                                       }
+                                       else if (Model.Status == "Delivered")
+                                       {
+                                          <span class="badge badge-success">@Model.Status</span>
+                                       }
+                                       else if (Model.Status == "Cancelled")
+                                       {
+                                          <span class="badge badge-danger">@Model.Status</span>
+                                       }
+                                    </div>
+                                 </div>
+                                 <div class="info-row">
+                                    <div class="info-label">Total Amount:</div>
+                                    <div class="info-value"><strong>@Model.GrandTotal.ToString("N0") đ</strong></div>
+                                 </div>
+                                 <div class="info-row">
+                                    <div class="info-label">Shipping To:</div>
+                                    <div class="info-value">
+                                       @Model.Address.StreetAddress, @Model.Address.City, @Model.Address.State
+                                    </div>
+                                 </div>
+                              </div>
+
+                              <!-- Tracking Timeline -->
+                              <div class="tracking-timeline">
+                                 <h4 style="margin-bottom: 30px; font-size: 18px; font-weight: 600;">
+                                    <i class="fa fa-truck"></i> Order Tracking Timeline
+                                 </h4>
+
+                                 @if (Model.Status == "Cancelled")
+                                 {
+                                    <!-- Cancelled Timeline -->
+                                    <div class="timeline-item">
+                                       <div class="timeline-marker">
+                                          <div class="timeline-circle active">
+                                             <i class="fa fa-check"></i>
+                                          </div>
+                                          <div class="timeline-line active"></div>
+                                       </div>
+                                       <div class="timeline-content">
+                                          <div class="timeline-title active">Order Placed</div>
+                                          <div class="timeline-date">@Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</div>
+                                          <div class="timeline-description">Your order has been received and confirmed.</div>
+                                       </div>
+                                    </div>
+
+                                    <div class="timeline-item">
+                                       <div class="timeline-marker">
+                                          <div class="timeline-circle cancelled">
+                                             <i class="fa fa-times"></i>
+                                          </div>
+                                       </div>
+                                       <div class="timeline-content">
+                                          <div class="timeline-title cancelled">Order Cancelled</div>
+                                          <div class="timeline-date">@Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</div>
+                                          <div class="timeline-description">This order has been cancelled.</div>
+                                          @if (!string.IsNullOrEmpty(Model.CancellationReason))
+                                          {
+                                             <div class="timeline-description" style="margin-top: 5px;">
+                                                <strong>Reason:</strong> @Model.CancellationReason
+                                             </div>
+                                          }
+                                       </div>
+                                    </div>
+                                 }
+                                 else
+                                 {
+                                    <!-- Normal Timeline -->
+
+                                    <!-- Step 1: Order Placed -->
+                                    <div class="timeline-item">
+                                       <div class="timeline-marker">
+                                          <div class="timeline-circle active">
+                                             <i class="fa fa-check"></i>
+                                          </div>
+                                          <div class="timeline-line active"></div>
+                                       </div>
+                                       <div class="timeline-content">
+                                          <div class="timeline-title active">Order Placed</div>
+                                          <div class="timeline-date">@Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</div>
+                                          <div class="timeline-description">Your order has been received and confirmed.</div>
+                                          <span class="timeline-badge badge-actual">Completed</span>
+                                       </div>
+                                    </div>
+
+                                    <!-- Step 2: Processing -->
+                                    <div class="timeline-item">
+                                       <div class="timeline-marker">
+                                          @if (Model.Status == "Processing" || Model.Status == "Shipped" || Model.Status == "Delivered")
+                                          {
+                                             <div class="timeline-circle @(Model.Status == "Processing" ? "current" : "active")">
+                                                <i class="fa @(Model.Status == "Processing" ? "fa-spinner" : "fa-check")"></i>
+                                             </div>
+                                             <div class="timeline-line @(Model.Status == "Shipped" || Model.Status == "Delivered" ? "active" : "")"></div>
+                                          }
+                                          else
+                                          {
+                                             <div class="timeline-circle">
+                                                <i class="fa fa-circle"></i>
+                                             </div>
+                                             <div class="timeline-line"></div>
+                                          }
+                                       </div>
+                                       <div class="timeline-content">
+                                          <div class="timeline-title @(Model.Status == "Processing" ? "current" : Model.Status == "Shipped" || Model.Status == "Delivered" ? "active" : "")">
+                                             Processing
+                                          </div>
+                                          @if (Model.Status == "Processing" || Model.Status == "Shipped" || Model.Status == "Delivered")
+                                          {
+                                             <div class="timeline-date">@ViewBag.EstimatedProcessingDate?.ToString("dd/MM/yyyy")</div>
+                                             <div class="timeline-description">Your order is being prepared for shipment.</div>
+                                             <span class="timeline-badge @(Model.Status == "Processing" ? "badge-estimated" : "badge-actual")">
+                                                @(Model.Status == "Processing" ? "In Progress" : "Completed")
+                                             </span>
+                                          }
+                                          else
+                                          {
+                                             <div class="timeline-date">Est. @ViewBag.EstimatedProcessingDate?.ToString("dd/MM/yyyy")</div>
+                                             <div class="timeline-description">Your order will be processed soon.</div>
+                                             <span class="timeline-badge badge-estimated">Estimated</span>
+                                          }
+                                       </div>
+                                    </div>
+
+                                    <!-- Step 3: Shipped -->
+                                    <div class="timeline-item">
+                                       <div class="timeline-marker">
+                                          @if (Model.Status == "Shipped" || Model.Status == "Delivered")
+                                          {
+                                             <div class="timeline-circle @(Model.Status == "Shipped" ? "current" : "active")">
+                                                <i class="fa @(Model.Status == "Shipped" ? "fa-truck" : "fa-check")"></i>
+                                             </div>
+                                             <div class="timeline-line @(Model.Status == "Delivered" ? "active" : "")"></div>
+                                          }
+                                          else
+                                          {
+                                             <div class="timeline-circle">
+                                                <i class="fa fa-circle"></i>
+                                             </div>
+                                             <div class="timeline-line"></div>
+                                          }
+                                       </div>
+                                       <div class="timeline-content">
+                                          <div class="timeline-title @(Model.Status == "Shipped" ? "current" : Model.Status == "Delivered" ? "active" : "")">
+                                             Shipped
+                                          </div>
+                                          @if (Model.Status == "Shipped" || Model.Status == "Delivered")
+                                          {
+                                             <div class="timeline-date">@ViewBag.EstimatedShippingDate?.ToString("dd/MM/yyyy")</div>
+                                             <div class="timeline-description">Your order is on the way.</div>
+                                             <span class="timeline-badge @(Model.Status == "Shipped" ? "badge-estimated" : "badge-actual")">
+                                                @(Model.Status == "Shipped" ? "Out for Delivery" : "Completed")
+                                             </span>
+                                          }
+                                          else
+                                          {
+                                             <div class="timeline-date">Est. @ViewBag.EstimatedShippingDate?.ToString("dd/MM/yyyy")</div>
+                                             <div class="timeline-description">Your order will be shipped soon.</div>
+                                             <span class="timeline-badge badge-estimated">Estimated</span>
+                                          }
+                                       </div>
+                                    </div>
+
+                                    <!-- Step 4: Delivered -->
+                                    <div class="timeline-item">
+                                       <div class="timeline-marker">
+                                          @if (Model.Status == "Delivered")
+                                          {
+                                             <div class="timeline-circle active">
+                                                <i class="fa fa-check"></i>
+                                             </div>
+                                          }
+                                          else
+                                          {
+                                             <div class="timeline-circle">
+                                                <i class="fa fa-circle"></i>
+                                             </div>
+                                          }
+                                       </div>
+                                       <div class="timeline-content">
+                                          <div class="timeline-title @(Model.Status == "Delivered" ? "active" : "")">
+                                             Delivered
+                                          </div>
+                                          @if (Model.Status == "Delivered" && Model.DeliveredAt != null)
+                                          {
+                                             <div class="timeline-date">@Model.DeliveredAt.Value.ToString("dd/MM/yyyy HH:mm")</div>
+                                             <div class="timeline-description">Your order has been successfully delivered.</div>
+                                             <span class="timeline-badge badge-actual">Completed</span>
+                                          }
+                                          else
+                                          {
+                                             <div class="timeline-date">Est. @ViewBag.EstimatedDeliveryDate?.ToString("dd/MM/yyyy")</div>
+                                             <div class="timeline-description">Your order will be delivered soon.</div>
+                                             <span class="timeline-badge badge-estimated">Estimated</span>
+                                          }
+                                       </div>
+                                    </div>
+                                 }
+                              </div>
+
+                              <!-- Action Buttons -->
+                              <div style="margin-top: 20px;">
+                                 <a href="@Url.Action("Details", "Orders", new { id = Model.OrderID })" class="btn btn-primary">
+                                    <i class="fa fa-file-text-o"></i> View Order Details
+                                 </a>
+                                 <a href="@Url.Action("Index", "Orders")" class="btn btn-secondary">
+                                    <i class="fa fa-list"></i> View All Orders
+                                 </a>
+                              </div>
+
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>

@@ -45,25 +45,12 @@
                <!-- My Account Tab Menu Start -->
                <div class="row">
                   <div class="col-lg-3">
-                     @*<div class="myaccount-tab-menu nav" role="tablist">
-                            <a href="#dashboad" data-toggle="tab">
-                                <i class="fa fa-dashboard"></i> Dashboard
-                            </a> <a href="#orders"
-                                    data-toggle="tab"><i class="fa fa-cart-arrow-down"></i> Orders</a> <a href="#download" data-toggle="tab"><i class="fa fa-cloud-download"></i> Download</a>
-                            <a href="#payment-method" class="active" data-toggle="tab">
-                                <i class="fa fa-credit-card"></i> Payment Method
-                            </a> <a href="#address"
-                                    data-toggle="tab"><i class="fa fa-map-marker"></i> address</a> <a href="#account-info" data-toggle="tab">
-                                <i class="fa fa-user"></i> Account
-                                Details
-                            </a> <a href="login-register.html"><i class="fa fa-sign-out"></i> Logout</a>
-                        </div>*@
                      <div class="myaccount-tab-menu nav" role="tablist">
                         <a href="@Url.Action("Index","UserDashboard")">
                            <i class="fa fa-dashboard"></i> Dashboard
                         </a>
 
-                        <a href="@Url.Action("Orders","UserDashboard")">
+                        <a href="@Url.Action("Index","Orders")">
                            <i class="fa fa-cart-arrow-down"></i> Orders
                         </a>
 
