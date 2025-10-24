@@ -3,24 +3,6 @@
    ViewBag.Title = "PaymentMethod";
 }
 
-<!--== Search Box Area Start ==-->
-<div class="body-popup-modal-area">
-   <span class="modal-close">
-      <img src="Resources/img/cancel.png" alt="Close"
-           class="img-fluid" />
-   </span>
-   <div class="modal-container d-flex">
-      <div class="search-box-area">
-         <div class="search-box-form">
-            <form action="#" method="post">
-               <input type="search" placeholder="type keyword and hit enter" /> <button class="btn" type="button">
-                  <i class="fa fa-search"></i>
-               </button>
-            </form>
-         </div>
-      </div>
-   </div>
-</div> <!--== Search Box Area End ==--> <!--== Page Title Area Start ==-->
 <div id="page-title-area">
    <div class="container">
       <div class="row">
@@ -28,8 +10,8 @@
             <div class="page-title-content">
                <h1>Dashboard</h1>
                <ul class="breadcrumb">
-                  <li><a href="index.html">Home</a></li>
-                  <li><a href="login-register.html" class="active">Dashboard</a></li>
+                  <li><a href="@Url.Action("Home", "Feature")">Home</a></li>
+                  <li><a href="#l" class="active">Dashboard</a></li>
                </ul>
             </div>
          </div>
@@ -54,11 +36,7 @@
                            <i class="fa fa-cart-arrow-down"></i> Orders
                         </a>
 
-                        <a href="@Url.Action("PaymentMethod","UserDashboard")" class="active">
-                           <i class="fa fa-credit-card"></i> Payment Method
-                        </a>
-
-                        <a href="@Url.Action("Address","UserDashboard")">
+                        <a href="@Url.Action("Index","Addresses")">
                            <i class="fa fa-map-marker"></i> Address
                         </a>
 
@@ -66,7 +44,7 @@
                            <i class="fa fa-user"></i> Account Details
                         </a>
 
-                        <a href="@Url.Action("Login","Account")"><i class="fa fa-sign-out"></i> Logout</a>
+                        <a href="@Url.Action("Logout","Account")"><i class="fa fa-sign-out"></i> Logout</a>
                      </div>
 
                   </div> <!-- My Account Tab Menu End --> <!-- My Account Tab Content Start -->

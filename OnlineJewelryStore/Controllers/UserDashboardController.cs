@@ -10,6 +10,7 @@ namespace OnlineJewelryStore.Controllers
     using System.Web.Mvc;
     namespace OnlineJewelryStore.Controllers
     {
+        [Authorize]
         public class UserDashboardController : Controller
         {
             private OnlineJewelryStoreEntities db = new OnlineJewelryStoreEntities();
@@ -70,9 +71,6 @@ namespace OnlineJewelryStore.Controllers
                 TempData["SuccessMessage"] = "Cập nhật thông tin thành công!";
                 return RedirectToAction("AccountDetails");
             }
-
-
-
         }
     }
 }

@@ -122,7 +122,7 @@
                         <li><a href="@Url.Action("Index","Shop")">SHOP</a></li>
                         <li><a href="@Url.Action("Blog","feature")">BLOG</a></li>
                         <li><a href="@Url.Action("Contact_us","feature")">CONTACT US</a></li>
-                        <li><a href="@Url.Action("Account","feature")">ACCOUNT</a></li>
+                        <li><a href="@Url.Action("Index","UserDashboard")">ACCOUNT</a></li>
                         @*<li><a class="fa fa-shopping-bag" href="@Url.Action("Index","Cart")"></a></li>*@
                         <li class="cart-menu-item">
                            <a href="@Url.Action("Index","Cart")" class="cart-icon">
@@ -155,11 +155,7 @@
                                  <dd><a href="@Url.Action("Index", "Orders")">My Orders</a></dd>
 
                                  <dd>
-                                    @using (Html.BeginForm("Logout", "Account", FormMethod.Post, new { id = "logoutForm" }))
-                                    {
-                                       @Html.AntiForgeryToken()
-                                       <a href="javascript:document.getElementById('logoutForm').submit()">Logout</a>
-                                    }
+                                    <a href="@Url.Action("Logout", "Account")">Logout</a>
                                  </dd>
                               </dl>
                            </div>

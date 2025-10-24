@@ -461,7 +461,6 @@
     <Content Include="Views\UserDashboard\Index.cshtml" />
     <Content Include="Views\Orders\Index.cshtml" />
     <Content Include="Views\UserDashboard\PaymentMethod.cshtml" />
-    <Content Include="Views\UserDashboard\Address.cshtml" />
     <Content Include="Views\UserDashboard\AccountDetails.cshtml" />
     <Content Include="Views\Feature\Home.cshtml" />
     <Content Include="Views\Feature\Wishlist.cshtml" />

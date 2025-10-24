@@ -19,10 +19,7 @@ namespace OnlineJewelryStore.Controllers
             db = new OnlineJewelryStoreEntities();
         }
 
-        /// <summary>
-        /// GET: /Addresses
-        /// Hiển thị danh sách addresses của user
-        /// </summary>
+        // GET: /Addresses
         [HttpGet]
         public ActionResult Index()
         {
