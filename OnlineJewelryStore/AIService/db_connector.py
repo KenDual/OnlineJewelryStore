@@ -13,7 +13,7 @@ class DatabaseConnector:
         
         Args:
             connection_string: SQL Server connection string từ web.config
-            Format: "Driver={SQL Server};Server=DESKTOP-195HJGO\SQLEXPRESS;Database=OnlineJewelryStore;UID=sa;PWD=1;TrustServerCertificate=yes;"
+            Format: "Driver={SQL Server};Server=WINDOWS-PC\SQLEXPRESS;Database=OnlineJewelryStore;UID=sa;PWD=1;TrustServerCertificate=yes;"
         """
         self.connection_string = connection_string
         self.conn = None
@@ -240,7 +240,7 @@ class DatabaseConnector:
 # ===== USAGE EXAMPLE =====
 if __name__ == "__main__":
     # Test connection
-    conn_string = "Driver={SQL Server};Server=DESKTOP-195HJGO\SQLEXPRESS;Database=OnlineJewelryStore;UID=sa;PWD=1;TrustServerCertificate=yes;"
+    conn_string = "Driver={SQL Server};Server=WINDOWS-PC\SQLEXPRESS;Database=OnlineJewelryStore;UID=sa;PWD=1;TrustServerCertificate=yes;"
     
     db = DatabaseConnector(conn_string)
     

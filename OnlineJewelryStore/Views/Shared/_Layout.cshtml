@@ -23,6 +23,7 @@
    <link href="~/Resources/css/plugins.css" rel="stylesheet">
    <!--=== Main Style CSS ===-->
    <link href="~/Resources/css/style.css" rel="stylesheet">
+   <link href="~/Resources/css/chatbot.css" rel="stylesheet">
 
    <!-- Modernizer JS -->
    <script src="~/Resources/js/vendor/modernizr-2.8.3.min.js"></script>
@@ -397,22 +398,101 @@
       </div>
    </div>
    <!--== Product Quick View Modal Area End ==-->
-   <!-- End All Modal Content -->
-   <a href="#" class="scrolltotop"><i class="fa fa-angle-up"></i></a>
-   <!-- Scroll to Top End -->
-   <!--=======================Javascript============================-->
-   <!--=== Jquery Min Js ===-->
-   <script src="~/Resources/js/vendor/jquery-3.3.1.min.js"></script>
-   <!--=== Jquery Migrate Min Js ===-->
-   <script src="~/Resources/js/vendor/jquery-migrate-1.4.1.min.js"></script>
-   <!--=== Popper Min Js ===-->
-   <script src="~/Resources/js/vendor/popper.min.js"></script>
-   <!--=== Bootstrap Min Js ===-->
-   <script src="~/Resources/js/vendor/bootstrap.min.js"></script>
-   <!--=== Plugins Min Js ===-->
-   <script src="~/Resources/js/plugins.js"></script>
 
-   <!--=== Active Js ===-->
+   <a href="#" class="scrolltotop"><i class="fa fa-angle-up"></i></a>
+
+   <!-- AI Chatbot Float Button & Popup -->
+   <div id="ai-chatbot-container">
+      <!-- Floating Chat Button -->
+      <button id="chat-toggle-btn" class="chat-float-btn" title="Chat with AI Advisor">
+         <i class="fa fa-comments"></i>
+         <span class="chat-badge">AI</span>
+      </button>
+
+      <!-- Chat Popup Window -->
+      <div id="chat-popup" class="chat-popup" style="display: none;">
+         <!-- Header -->
+         <div class="chat-header">
+            <div class="chat-header-info">
+               <i class="fa fa-robot"></i>
+               <div>
+                  <h4>Jewelry AI Advisor</h4>
+                  <span class="chat-status">● Online</span>
+               </div>
+            </div>
+            <div class="chat-header-actions">
+               <button id="chat-minimize-btn" class="chat-btn-icon" title="Minimize">
+                  <i class="fa fa-minus"></i>
+               </button>
+               <button id="chat-close-btn" class="chat-btn-icon" title="Close">
+                  <i class="fa fa-times"></i>
+               </button>
+            </div>
+         </div>
+
+         <!-- Quick Actions -->
+         <div class="chat-quick-actions">
+            <button class="quick-action-btn" data-query="Tôi muốn tìm nhẫn cưới vàng">
+               💍 Nhẫn cưới vàng
+            </button>
+            <button class="quick-action-btn" data-query="Dây chuyền bạc cho nữ">
+               📿 Dây chuyền bạc
+            </button>
+            <button class="quick-action-btn" data-query="Bông tai kim cương dưới 10 triệu">
+               💎 Bông tai kim cương
+            </button>
+         </div>
+
+         <!-- Messages Container -->
+         <div id="chat-messages" class="chat-messages">
+            <!-- Welcome message -->
+            <div class="chat-message bot-message">
+               <div class="message-avatar">
+                  <i class="fa fa-robot"></i>
+               </div>
+               <div class="message-content">
+                  <div class="message-bubble">
+                     Xin chào! 👋 Tôi là AI tư vấn trang sức. Hãy cho tôi biết bạn đang tìm loại sản phẩm nào nhé!
+                  </div>
+                  <div class="message-time">Just now</div>
+               </div>
+            </div>
+         </div>
+
+         <!-- Typing Indicator -->
+         <div id="typing-indicator" class="typing-indicator" style="display: none;">
+            <div class="message-avatar">
+               <i class="fa fa-robot"></i>
+            </div>
+            <div class="typing-dots">
+               <span></span><span></span><span></span>
+            </div>
+         </div>
+
+         <!-- Input Area -->
+         <div class="chat-input-area">
+            <div class="chat-input-wrapper">
+               <input type="text"
+                      id="chat-input"
+                      class="chat-input"
+                      placeholder="Type your message..."
+                      maxlength="500" />
+               <button id="chat-send-btn" class="chat-send-btn" title="Send">
+                  <i class="fa fa-paper-plane"></i>
+               </button>
+            </div>
+            <div class="chat-footer-note">
+               <small>Powered by AI • Press Enter to send</small>
+            </div>
+         </div>
+      </div>
+   </div>
+
+   <script src="~/Resources/js/vendor/jquery-3.3.1.min.js"></script>
+   <script src="~/Resources/js/vendor/jquery-migrate-1.4.1.min.js"></script>
+   <script src="~/Resources/js/vendor/popper.min.js"></script>
+   <script src="~/Resources/js/vendor/bootstrap.min.js"></script>
+   <script src="~/Resources/js/plugins.js"></script>
    <script src="~/Resources/js/active.js"></script>
 
    <script>
@@ -483,12 +563,14 @@
                   }
               });
           }
-
+          
           // Expose functions globally để các page khác có thể gọi
           window.updateCartCount = updateCartCount;
           window.updateWishlistCount = updateWishlistCount;
       });
    </script>
+
+   <script src="~/Resources/js/chatbot.js"></script>
 
    @Scripts.Render("~/bundles/jquery")
    @Scripts.Render("~/bundles/bootstrap")

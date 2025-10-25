@@ -17,7 +17,7 @@ def main():
     """Build initial FAISS index from database"""
     
     # ===== CONFIGURATION =====
-    CONNECTION_STRING = "Driver={SQL Server};Server=DESKTOP-195HJGO\SQLEXPRESS;Database=OnlineJewelryStore;UID=sa;PWD=1;TrustServerCertificate=yes;"
+    CONNECTION_STRING = "Driver={SQL Server};Server=WINDOWS-PC\SQLEXPRESS;Database=OnlineJewelryStore;UID=sa;PWD=1;TrustServerCertificate=yes;"
     
     # Tạo thư mục data nếu chưa có
     os.makedirs("data", exist_ok=True)
