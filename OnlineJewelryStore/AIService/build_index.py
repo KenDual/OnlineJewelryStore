@@ -1,8 +1,3 @@
-"""
-Initial Index Builder Script
-Chạy script này để build FAISS index lần đầu tiên
-"""
-
 import os
 import sys
 from db_connector import DatabaseConnector

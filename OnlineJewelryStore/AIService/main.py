@@ -100,7 +100,7 @@ class AppState:
     initialized: bool = False
     connection_string: str = "Driver={SQL Server};Server=DESKTOP-195HJGO\\SQLEXPRESS;Database=OnlineJewelryStore;UID=sa;PWD=1;TrustServerCertificate=yes;"
     ollama_url: str = "http://localhost:11434"
-    model_name: str = "llama3.1:8b"
+    model_name: str = "llama3.2:3b"
 
 state = AppState()
 

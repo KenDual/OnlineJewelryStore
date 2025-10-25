@@ -7,7 +7,7 @@
         MAX_MESSAGE_LENGTH: 500,
         TYPING_DELAY: 800,
         AUTO_SCROLL_DELAY: 100,
-        REQUEST_TIMEOUT: 60000
+        REQUEST_TIMEOUT: 180000  // ✅ 3 phút (180 giây)
     };
 
     // State Management
@@ -141,6 +141,7 @@
         $chatSendBtn.prop('disabled', true);
         showTypingIndicator();
 
+        // ✅ FIXED - Proper format với Capital letters
         const requestData = {
             Message: message,
             Category: null,
@@ -149,19 +150,27 @@
             ConversationHistory: conversationHistory
         };
 
+        // ✅ LOG REQUEST để debug
+        console.log('🚀 Sending request to:', CONFIG.API_BASE_URL + '/Chat');
+        console.log('📝 Request data:', requestData);
+        console.log('📋 JSON:', JSON.stringify(requestData, null, 2));
+
         $.ajax({
             url: CONFIG.API_BASE_URL + '/Chat',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(requestData),
-            timeout: 60000, // 60 trên lap, trên PC chạy GPU nên chỉnh lại 30s thôi
+            timeout: CONFIG.REQUEST_TIMEOUT,  // ✅ 180 giây
             success: function (response) {
+                console.log('✅ Response received:', response);
                 handleSuccess(response, message);
             },
             error: function (xhr, status, error) {
+                console.error('❌ Error:', { xhr, status, error });
                 handleError(xhr, status, error);
             },
             complete: function () {
+                console.log('🏁 Request complete');
                 isProcessing = false;
                 $chatSendBtn.prop('disabled', false);
                 hideTypingIndicator();
@@ -175,27 +184,31 @@
     function handleSuccess(response, userMessage) {
         console.log('✅ API Response:', response);
 
-        // Update conversation history
+        // ✅ FIXED - Update conversation history với Capital letters
         conversationHistory.push({
-            role: 'user',
-            content: userMessage
+            Role: 'user',           // ✅ Capital R
+            Content: userMessage    // ✅ Capital C
         });
 
-        if (response.success) {
+        if (response.Success || response.success) {  // ✅ Support both formats
             conversationHistory.push({
-                role: 'assistant',
-                content: response.message
+                Role: 'assistant',          // ✅ Capital R
+                Content: response.Message || response.message  // ✅ Capital C
             });
 
             // Add bot message
-            addBotMessage(response.message);
+            addBotMessage(response.Message || response.message);
 
             // Add product cards if available
-            if (response.products && response.products.length > 0) {
-                addProductCards(response.products);
+            const products = response.Products || response.products;
+            if (products && products.length > 0) {
+                addProductCards(products);
             }
         } else {
-            addBotMessage('Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại sau.');
+            // ✅ Show error message from response
+            const errorMsg = response.Message || response.message || 'Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại sau.';
+            addBotMessage(errorMsg);
+            console.error('❌ API returned error:', response);
         }
 
         scrollToBottom();
@@ -208,17 +221,30 @@
         console.error('❌ API Error:', {
             status: status,
             error: error,
+            statusCode: xhr.status,
             response: xhr.responseText
         });
 
         let errorMessage = 'Xin lỗi, hệ thống đang bận. Vui lòng thử lại sau.';
 
         if (status === 'timeout') {
-            errorMessage = 'Yêu cầu hết thời gian chờ. Vui lòng thử lại.';
+            errorMessage = '⏰ Yêu cầu hết thời gian chờ (3 phút). Lần đầu có thể cần 2-3 phút để load model. Vui lòng thử lại.';
         } else if (xhr.status === 500) {
-            errorMessage = 'Lỗi server. Vui lòng liên hệ quản trị viên.';
+            errorMessage = '❌ Lỗi server (500). Vui lòng kiểm tra logs hoặc liên hệ admin.';
         } else if (xhr.status === 0) {
-            errorMessage = 'Không thể kết nối đến server. Kiểm tra kết nối mạng.';
+            errorMessage = '🔌 Không thể kết nối đến server. Kiểm tra xem FastAPI có đang chạy tại http://localhost:8000 không.';
+        } else if (xhr.status === 404) {
+            errorMessage = '🔍 Không tìm thấy endpoint /Chatbot/Chat. Kiểm tra routing.';
+        }
+
+        // Try parse error from response
+        try {
+            const errorResponse = JSON.parse(xhr.responseText);
+            if (errorResponse.Message || errorResponse.message) {
+                errorMessage = errorResponse.Message || errorResponse.message;
+            }
+        } catch (e) {
+            // Use default message
         }
 
         addBotMessage(errorMessage);
@@ -269,26 +295,35 @@
      */
     function addProductCards(products) {
         products.forEach(function (product) {
+            // ✅ Support both capital and lowercase property names
+            const productId = product.Id || product.id;
+            const productName = product.Name || product.name;
+            const productPrice = product.Price || product.price;
+            const productCategory = product.Category || product.category;
+            const productImage = product.Image || product.image;
+            const productScore = product.Score || product.score;
+            const productUrl = product.ProductUrl || product.productUrl || `/Shop/Details/${productId}`;
+
             const cardHtml = `
                 <div class="chat-message bot-message">
                     <div class="message-avatar">
                         <i class="fa fa-gem"></i>
                     </div>
                     <div class="message-content">
-                        <div class="product-card-chat" onclick="window.location.href='/Products/Details/${product.id}'">
+                        <div class="product-card-chat" onclick="window.location.href='${productUrl}'">
                             <div class="product-card-content">
-                                <img src="${product.image || '/Content/images/no-image.png'}" 
-                                     alt="${product.name}" 
+                                <img src="${productImage || '/Content/images/no-image.png'}" 
+                                     alt="${productName}" 
                                      class="product-card-image"
                                      onerror="this.src='/Content/images/no-image.png'">
                                 <div class="product-card-info">
-                                    <div class="product-card-title">${escapeHtml(product.name)}</div>
-                                    <div class="product-card-price">${formatPrice(product.price)}</div>
+                                    <div class="product-card-title">${escapeHtml(productName)}</div>
+                                    <div class="product-card-price">${formatPrice(productPrice)}</div>
                                     <div class="product-card-category">
-                                        <i class="fa fa-tag"></i> ${escapeHtml(product.category)}
+                                        <i class="fa fa-tag"></i> ${escapeHtml(productCategory)}
                                     </div>
                                     <span class="product-card-score">
-                                        Match: ${Math.round(product.score * 100)}%
+                                        Match: ${Math.round(productScore * 100)}%
                                     </span>
                                 </div>
                             </div>

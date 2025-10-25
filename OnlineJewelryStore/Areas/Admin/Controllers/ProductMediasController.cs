@@ -10,7 +10,7 @@ using System.Web.Mvc;
 
 namespace OnlineJewelryStore.Areas.Admin.Controllers
 {
-    [AdminAuthorize]
+    [AdminAuthorize(Roles ="Admin,Staff")]
     public class ProductMediasController : Controller
     {
         private OnlineJewelryStoreEntities db = new OnlineJewelryStoreEntities();

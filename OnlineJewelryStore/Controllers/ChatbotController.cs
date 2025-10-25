@@ -19,7 +19,7 @@ namespace OnlineJewelryStore.Controllers
 
         // AI Service configuration
         private static readonly string AI_SERVICE_URL = System.Configuration.ConfigurationManager.AppSettings["AIServiceUrl"];
-        private const int REQUEST_TIMEOUT_SECONDS = 60;
+        private const int REQUEST_TIMEOUT_SECONDS = 180;  // ✅ 3 phút cho lần đầu load model
 
         // HttpClient singleton với proper configuration
         private static readonly HttpClient httpClient = new HttpClient
@@ -55,33 +55,50 @@ namespace OnlineJewelryStore.Controllers
                     });
                 }
 
-                // Prepare request payload
-                var requestPayload = new
-                {
-                    message = model.Message,
-                    category = model.Category,
-                    min_price = model.MinPrice,
-                    max_price = model.MaxPrice,
-                    conversation_history = model.ConversationHistory?.Select(m => new
+                // ✅ Prepare request payload - FIXED version
+                // Xử lý conversation history trước
+                var conversationHistory = model.ConversationHistory?
+                    .Select(m => new
                     {
                         role = m.Role,
                         content = m.Content
-                    }).ToList()
+                    })
+                    .ToList();
+
+                // Tạo request payload
+                var requestPayload = new
+                {
+                    message = model.Message?.Trim() ?? "",
+                    category = string.IsNullOrWhiteSpace(model.Category) ? (string)null : model.Category,
+                    min_price = model.MinPrice.HasValue ? (object)model.MinPrice.Value : null,
+                    max_price = model.MaxPrice.HasValue ? (object)model.MaxPrice.Value : null,
+                    conversation_history = conversationHistory
                 };
 
                 // Serialize to JSON
-                var jsonContent = JsonConvert.SerializeObject(requestPayload);
+                var jsonContent = JsonConvert.SerializeObject(requestPayload,
+                    new JsonSerializerSettings
+                    {
+                        NullValueHandling = NullValueHandling.Include
+                    });
+
                 var httpContent = new StringContent(
                     jsonContent,
                     Encoding.UTF8,
                     "application/json"
                 );
 
+                // ✅ LOG REQUEST (optional - for debugging)
+                System.Diagnostics.Debug.WriteLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] AI Request: {jsonContent}");
+
                 // Call AI service
                 var response = await httpClient.PostAsync("/chat", httpContent);
 
                 // Read response
                 var responseContent = await response.Content.ReadAsStringAsync();
+
+                // ✅ LOG RESPONSE (optional - for debugging)
+                System.Diagnostics.Debug.WriteLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] AI Response [{response.StatusCode}]: {responseContent.Substring(0, Math.Min(200, responseContent.Length))}...");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -119,49 +136,112 @@ namespace OnlineJewelryStore.Controllers
                 }
                 else
                 {
-                    // AI service error
-                    System.Diagnostics.Debug.WriteLine($"AI Service Error: {response.StatusCode} - {responseContent}");
+                    // ✅ AI service error - LOG CHI TIẾT
+                    var errorDetail = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] AI Service Error: {response.StatusCode}\n" +
+                                     $"Request: {jsonContent}\n" +
+                                     $"Response: {responseContent}\n";
+
+                    System.Diagnostics.Debug.WriteLine(errorDetail);
+
+                    // Log to file
+                    try
+                    {
+                        var logPath = Server.MapPath("~/App_Data/chatbot_errors.log");
+                        System.IO.File.AppendAllText(logPath, errorDetail + "\n");
+                    }
+                    catch { /* Ignore logging errors */ }
+
+                    // Parse error message từ FastAPI nếu có
+                    string userMessage = "Xin lỗi, hệ thống AI đang gặp sự cố. Vui lòng thử lại.";
+                    try
+                    {
+                        var errorJson = JsonConvert.DeserializeObject<dynamic>(responseContent);
+                        if (errorJson?.detail != null)
+                        {
+                            userMessage = $"Lỗi: {errorJson.detail}";
+                        }
+                    }
+                    catch { /* Use default message */ }
 
                     return Json(new ChatResponseViewModel
                     {
                         Success = false,
                         Error = $"AI service error: {response.StatusCode}",
-                        Message = "Sorry, AI ​​system is experiencing problems. Please try again later."
+                        Message = userMessage
                     });
                 }
             }
-            catch (TaskCanceledException)
+            catch (TaskCanceledException ex)
             {
-                // Timeout
+                // ✅ Timeout - LOG CHI TIẾT
+                var timeoutDetail = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] TIMEOUT after {REQUEST_TIMEOUT_SECONDS}s\n" +
+                                   $"Exception: {ex.Message}\n";
+
+                System.Diagnostics.Debug.WriteLine(timeoutDetail);
+
+                // Log to file
+                try
+                {
+                    var logPath = Server.MapPath("~/App_Data/chatbot_errors.log");
+                    System.IO.File.AppendAllText(logPath, timeoutDetail + "\n");
+                }
+                catch { /* Ignore logging errors */ }
+
                 return Json(new ChatResponseViewModel
                 {
                     Success = false,
                     Error = "Request timeout",
-                    Message = "Sorry, request took too long. Please try again."
+                    Message = $"Yêu cầu mất quá nhiều thời gian (>{REQUEST_TIMEOUT_SECONDS}s). " +
+                             "Lần đầu có thể cần 1-2 phút để load model. Vui lòng thử lại."
                 });
             }
             catch (HttpRequestException ex)
             {
-                // Connection error
-                System.Diagnostics.Debug.WriteLine($"Connection Error: {ex.Message}");
+                // ✅ Connection error - LOG CHI TIẾT
+                var connError = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] CONNECTION ERROR\n" +
+                               $"Exception: {ex.Message}\n" +
+                               $"AI Service URL: {AI_SERVICE_URL}\n";
+
+                System.Diagnostics.Debug.WriteLine(connError);
+
+                // Log to file
+                try
+                {
+                    var logPath = Server.MapPath("~/App_Data/chatbot_errors.log");
+                    System.IO.File.AppendAllText(logPath, connError + "\n");
+                }
+                catch { /* Ignore logging errors */ }
 
                 return Json(new ChatResponseViewModel
                 {
                     Success = false,
                     Error = "Cannot connect to AI service",
-                    Message = "Sorry, unable to connect to AI service. Please make sure AI service is running."
+                    Message = $"Không thể kết nối với AI service tại {AI_SERVICE_URL}. " +
+                             "Vui lòng đảm bảo FastAPI đang chạy."
                 });
             }
             catch (Exception ex)
             {
-                // General error
-                System.Diagnostics.Debug.WriteLine($"Chat Error: {ex.Message}");
+                // ✅ General error - LOG CHI TIẾT
+                var generalError = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] GENERAL ERROR\n" +
+                                  $"Exception: {ex.Message}\n" +
+                                  $"StackTrace: {ex.StackTrace}\n";
+
+                System.Diagnostics.Debug.WriteLine(generalError);
+
+                // Log to file
+                try
+                {
+                    var logPath = Server.MapPath("~/App_Data/chatbot_errors.log");
+                    System.IO.File.AppendAllText(logPath, generalError + "\n");
+                }
+                catch { /* Ignore logging errors */ }
 
                 return Json(new ChatResponseViewModel
                 {
                     Success = false,
                     Error = ex.Message,
-                    Message = "Sorry, something went wrong. Please try again later."
+                    Message = "Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại sau."
                 });
             }
         }

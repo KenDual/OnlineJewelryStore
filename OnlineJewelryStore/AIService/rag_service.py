@@ -1,10 +1,11 @@
 """
-RAG Service - Core Pipeline
+RAG Service - Core Pipeline OPTIMIZED
 Kết hợp vector search với Llama LLM để tạo AI advisor
 """
 
 import requests
 import json
+import time
 from typing import List, Dict, Optional, Tuple
 import logging
 
@@ -17,7 +18,7 @@ class RAGService:
         self, 
         embeddings_manager,
         ollama_url: str = "http://localhost:11434",
-        model_name: str = "llama3.1:8b"
+        model_name: str = "llama3.2:3b"
     ):
         """
         Initialize RAG Service
@@ -53,12 +54,16 @@ class RAGService:
         Returns:
             List of (product, score) tuples
         """
-        # Vector search
-        results = self.em.search(query, top_k=top_k * 2)  # Lấy nhiều hơn để filter
+        # Vector search - lấy nhiều để filter
+        results = self.em.search(query, top_k=min(top_k * 3, 15))
         
         # Apply filters
         filtered_results = []
         for product, score in results:
+            # Skip low score results
+            if score < 0.3:
+                continue
+                
             # Filter by category
             if category and product.get('CategoryName', '').lower() != category.lower():
                 continue
@@ -74,73 +79,61 @@ class RAGService:
             
             filtered_results.append((product, score))
             
+            # Break early if enough results
             if len(filtered_results) >= top_k:
                 break
         
-        logger.info(f"Search returned {len(filtered_results)} products after filtering")
-        return filtered_results
+        logger.info(f"Found {len(filtered_results)}/{len(results)} matching products")
+        return filtered_results[:top_k]
     
     def generate_context(self, products: List[Tuple[Dict, float]]) -> str:
         """
-        Tạo context string từ search results
-        
-        Args:
-            products: List of (product, score) tuples
-            
-        Returns:
-            Formatted context string
+        Generate context từ search results - VERSION NGẮN GỌN
         """
         if not products:
-            return "Không tìm thấy sản phẩm phù hợp trong database."
-        
+            return "Không tìm thấy sản phẩm phù hợp."
+    
         context_parts = []
-        context_parts.append("=== SẢN PHẨM CÓ SẴN ===\n")
+        context_parts.append(f"Tìm thấy {len(products)} sản phẩm:")
+        context_parts.append("")
         
         for idx, (product, score) in enumerate(products, 1):
-            product_info = [
-                f"[Sản phẩm {idx}]",
-                f"- Tên: {product['ProductName']}",
-                f"- ID: {product['ProductID']}",
-                f"- Danh mục: {product.get('CategoryName', 'N/A')}",
-            ]
+            product_info = []
             
-            # Giá
+            # Basic info (1 line)
+            name = product['ProductName']
+            product_id = product['ProductID']
+            product_info.append(f"{idx}. {name} (ID: {product_id})")
+            
+            # Price (1 line)
             min_price = product.get('MinPrice', product.get('BasePrice', 0))
-            max_price = product.get('MaxPrice', product.get('BasePrice', 0))
+            product_info.append(f"   Giá: {min_price:,.0f} VND")
             
-            if min_price == max_price:
-                product_info.append(f"- Giá: {min_price:,.0f} VND")
-            else:
-                product_info.append(f"- Giá: {min_price:,.0f} - {max_price:,.0f} VND")
+            # Category (1 line)
+            category = product.get('CategoryName', 'N/A')
+            product_info.append(f"   Danh mục: {category}")
             
-            # Description (truncate nếu quá dài)
+            # Description (1 line - RÚT GỌN 60 chars)
             desc = product.get('Description', '')
             if desc:
-                if len(desc) > 150:
-                    desc = desc[:150] + "..."
-                product_info.append(f"- Mô tả: {desc}")
+                short_desc = desc[:60] + '...' if len(desc) > 60 else desc
+                product_info.append(f"   Mô tả: {short_desc}")
             
-            # Metals
-            if product.get('AvailableMetals'):
-                product_info.append(f"- Chất liệu: {product['AvailableMetals']}")
+            # Materials (1 line)
+            metals = product.get('AvailableMetals', '')
+            if metals:
+                # Rút gọn materials
+                metals_list = metals.split(',')[:2]  # Chỉ lấy 2 loại đầu
+                product_info.append(f"   Chất liệu: {', '.join(metals_list)}")
             
-            # Stock
+            # Stock (inline)
             stock = product.get('TotalStock', 0)
-            stock_status = "Còn hàng" if stock > 0 else "Hết hàng"
-            product_info.append(f"- Trạng thái: {stock_status}")
-            
-            # Reviews
-            if product.get('ReviewCount', 0) > 0:
-                rating = product.get('AvgRating', 0)
-                count = product.get('ReviewCount', 0)
-                product_info.append(f"- Đánh giá: {rating:.1f}⭐ ({count} reviews)")
-            
-            # Relevance score
-            product_info.append(f"- Độ phù hợp: {score:.2f}")
+            stock_text = "Còn hàng" if stock > 0 else "Hết hàng"
+            product_info.append(f"   Tình trạng: {stock_text}")
             
             context_parts.append("\n".join(product_info))
             context_parts.append("")  # Empty line
-        
+    
         return "\n".join(context_parts)
     
     def create_prompt(
@@ -150,87 +143,45 @@ class RAGService:
         conversation_history: Optional[List[Dict]] = None
     ) -> str:
         """
-        Tạo prompt cho Llama model
-        
-        Args:
-            user_query: User's question
-            context: Product context from RAG
-            conversation_history: Optional chat history
-            
-        Returns:
-            Formatted prompt
+        Tạo prompt NGẮN GỌN cho Llama
         """
-        system_prompt = """Bạn là tư vấn viên chuyên nghiệp của cửa hàng trang sức trực tuyến.
-
-NHIỆM VỤ:
-- Tư vấn sản phẩm dựa TRÊN dữ liệu có sẵn
-- Gợi ý 1-3 sản phẩm PHÙ HỢP NHẤT với nhu cầu khách hàng
-- Giải thích TẠI SAO sản phẩm phù hợp
-- Trả lời bằng tiếng Việt, thân thiện và chuyên nghiệp
-
-GIỚI HẠN:
-- CHỈ tư vấn về sản phẩm có trong danh sách được cung cấp
-- KHÔNG bịa đặt thông tin sản phẩm không có trong database
-- KHÔNG tư vấn về đặt hàng, thanh toán, vận chuyển
-- Nếu không tìm thấy sản phẩm phù hợp, lịch sự từ chối và gợi ý tìm kiếm khác
-
-FORMAT TRẢ LỜI:
-1. Chào hỏi ngắn gọn
-2. Phân tích nhu cầu của khách
-3. Gợi ý 1-3 sản phẩm với: Tên, Giá, Lý do phù hợp, ID sản phẩm
-4. Kết thúc với câu hỏi mở (nếu cần làm rõ thêm)
-
-VÍ DỤ OUTPUT:
-"Dạ, em xin chào anh/chị!
-
-Anh/chị đang tìm nhẫn cưới vàng trong khoảng giá 10-20 triệu. Em xin giới thiệu 2 sản phẩm phù hợp:
-
-🔹 **Nhẫn Cưới Vàng 18K Classic** (ID: 123)
-   - Giá: 15,500,000 VND
-   - Thiết kế đơn giản, thanh lịch, phù hợp ngày cưới
-   - Vàng 18K bền đẹp, không bị phai màu
-   - Đang còn hàng, được khách hàng đánh giá 4.8⭐
-
-🔹 **Nhẫn Cưới Vàng Trắng Sang Trọng** (ID: 145)
-   - Giá: 18,200,000 VND  
-   - Kiểu dáng hiện đại, sang trọng
-   - Vàng trắng 18K cao cấp
-   - Còn hàng
-
-Anh/chị thích kiểu thiết kế đơn giản hay có điểm nhấn đá quý ạ?"
-"""
+        # System prompt siêu ngắn
+        system_prompt = """Bạn là tư vấn viên trang sức chuyên nghiệp.
+NHIỆM VỤ: Gợi ý 1-2 sản phẩm PHÙ HỢP từ danh sách.
+QUY TẮC: 
+- CHỈ dùng thông tin có sẵn
+- Trả lời NGẮN GỌN (3-4 câu)
+- Format: Chào → Gợi ý (Tên, ID, Giá, Lý do)"""
         
         prompt_parts = [
             system_prompt,
-            "\n=== DỮ LIỆU SẢN PHẨM ===",
+            "\n--- SẢN PHẨM ---",
             context,
-            "\n=== CÂU HỎI CỦA KHÁCH HÀNG ===",
-            f"User: {user_query}",
-            "\n=== TRẢ LỜI CỦA TƯ VẤN VIÊN ===",
-            "Assistant:"
+            "\n--- KHÁCH HỎI ---",
+            user_query,
+            "\n--- TRẢ LỜI ---"
         ]
-        
-        # Thêm conversation history nếu có
-        if conversation_history:
-            history_text = "\n=== LỊCH SỬ TRÒ CHUYỆN ===\n"
-            for msg in conversation_history[-3:]:  # Chỉ lấy 3 tin nhắn gần nhất
-                role = msg.get('role', 'user')
-                content = msg.get('content', '')
+    
+        # History - CHỈ 2 tin gần nhất, mỗi tin max 80 chars
+        if conversation_history and len(conversation_history) > 0:
+            history_text = "\n--- LỊCH SỬ ---\n"
+            for msg in conversation_history[-2:]:
+                role = "K" if msg.get('role') == 'user' else "B"
+                content = msg.get('content', '')[:80]
                 history_text += f"{role}: {content}\n"
             
-            # Insert history before current query
-            prompt_parts.insert(-3, history_text)
-        
+            prompt_parts.insert(-2, history_text)
+    
         return "\n".join(prompt_parts)
     
     def call_llama(
         self, 
         prompt: str, 
-        max_tokens: int = 800,
-        temperature: float = 0.7
+        max_tokens: int = 120,  # Giảm từ 400 → 200
+        temperature: float = 0.3  # Giảm từ 0.5 → 0.4
     ) -> Optional[str]:
         """
-        Call Ollama API để generate response
+        Call Ollama API để generate response - OPTIMIZED
         
         Args:
             prompt: Full prompt string
@@ -248,31 +199,49 @@ Anh/chị thích kiểu thiết kế đơn giản hay có điểm nhấn đá qu
                 "options": {
                     "num_predict": max_tokens,
                     "temperature": temperature,
-                    "top_p": 0.9,
-                    "top_k": 40
+                    "top_p": 0.75,
+                    "top_k": 15,
+                    "num_ctx": 768,
+                    "repeat_penalty": 1.15,
+                    "num_gpu": 0,
+                    "num_thread": 6
                 }
             }
             
-            logger.info(f"Calling Ollama API: {self.api_endpoint}")
+            logger.info(f"🤖 Calling Ollama (max_tokens={max_tokens}, timeout=120s)")
+            start_time = time.time()
             
             response = requests.post(
                 self.api_endpoint,
                 json=payload,
-                timeout=60  # 60 giây timeout
+                timeout=120  # ✅ TĂNG TỪ 45 → 120 giây
             )
             
             if response.status_code == 200:
                 result = response.json()
                 generated_text = result.get('response', '')
-                logger.info(f"✅ Llama response generated ({len(generated_text)} chars)")
+                
+                # Log performance metrics
+                total_duration = result.get('total_duration', 0) / 1e9
+                eval_count = result.get('eval_count', 0)
+                eval_duration = result.get('eval_duration', 0) / 1e9
+                
+                if eval_duration > 0:
+                    tokens_per_sec = eval_count / eval_duration
+                    logger.info(f"✅ Generated {eval_count} tokens in {eval_duration:.2f}s ({tokens_per_sec:.1f} tok/s)")
+                else:
+                    logger.info(f"✅ Response generated in {total_duration:.2f}s")
+                
                 return generated_text
             else:
-                logger.error(f"❌ Ollama API error: {response.status_code}")
+                logger.error(f"❌ Ollama error: {response.status_code}")
                 logger.error(response.text)
                 return None
                 
         except requests.exceptions.Timeout:
-            logger.error("❌ Ollama API timeout")
+            elapsed = time.time() - start_time
+            logger.error(f"❌ Ollama timeout after {elapsed:.1f}s")
+            logger.error("💡 Tip: First call may take 60-90s to load model. Try again.")
             return None
         except Exception as e:
             logger.error(f"❌ Error calling Ollama: {e}")
@@ -288,7 +257,7 @@ Anh/chị thích kiểu thiết kế đơn giản hay có điểm nhấn đá qu
         top_k: int = 3
     ) -> Dict:
         """
-        Main chat function - RAG pipeline
+        Main chat function - RAG pipeline OPTIMIZED
         
         Args:
             user_query: User question
@@ -299,9 +268,11 @@ Anh/chị thích kiểu thiết kế đơn giản hay có điểm nhấn đá qu
         Returns:
             Dictionary với response và metadata
         """
-        logger.info(f"Processing query: {user_query}")
+        start_time = time.time()
+        logger.info(f"🔍 Query: {user_query}")
         
         # 1. Search relevant products
+        t1 = time.time()
         products = self.search_products(
             query=user_query,
             category=category,
@@ -309,26 +280,39 @@ Anh/chị thích kiểu thiết kế đơn giản hay có điểm nhấn đá qu
             max_price=max_price,
             top_k=top_k
         )
+        logger.info(f"⏱️  Search: {time.time()-t1:.2f}s")
         
         # 2. Generate context
+        t2 = time.time()
         context = self.generate_context(products)
+        logger.info(f"⏱️  Context: {time.time()-t2:.2f}s")
         
         # 3. Create prompt
+        t3 = time.time()
         prompt = self.create_prompt(user_query, context, conversation_history)
+        logger.info(f"⏱️  Prompt: {time.time()-t3:.2f}s | Length: {len(prompt)} chars")
         
-        # 4. Call Llama
-        response = self.call_llama(prompt)
+        # 4. Call Llama (main bottleneck)
+        t4 = time.time()
+        response = self.call_llama(
+            prompt,
+            max_tokens=120,      # Giảm output
+            temperature=0.3      # Faster
+        )
+        llama_time = time.time() - t4
+        logger.info(f"⏱️  Llama: {llama_time:.2f}s")
+        
+        total_time = time.time() - start_time
+        logger.info(f"✅ Total: {total_time:.2f}s")
         
         if not response:
             return {
                 "success": False,
-                "message": "Xin lỗi, hệ thống đang gặp sự cố. Vui lòng thử lại sau.",
+                "message": "Xin lỗi, hệ thống đang bận. Vui lòng thử lại sau ít phút.",
                 "products": []
             }
         
-        # 5. Extract product IDs from response (optional)
-        product_ids = [p[0]['ProductID'] for p in products[:3]]
-        
+        # 5. Return results
         return {
             "success": True,
             "message": response,

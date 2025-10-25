@@ -5,10 +5,21 @@ Nếu lỗi khi cài dependencies:
     https://learn.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server
 
 ollama serve
+    # Kiểm tra process
+    tasklist | findstr ollama
+
+# Kết quả sẽ thấy:
+    ollama.exe                   12345 Console                    1    XXX,XXX K
+
+# Kill process (thay 12345 bằng PID thực tế)
+    taskkill /F /IM ollama.exe
 
 ollama pull llama3.1:8b
+ollama run llama3.2:3b
 
 python build_index.py
+
+python -m uvicorn main:app --reload --port 8000
 
 rebase:
     curl -X POST http://localhost:8000/index-rebuild

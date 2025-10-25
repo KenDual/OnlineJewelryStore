@@ -1,8 +1,3 @@
-"""
-Embeddings Manager - Vector Database Setup
-Tạo embeddings cho product descriptions và build FAISS index
-"""
-
 from sentence_transformers import SentenceTransformer
 import faiss
 import numpy as np

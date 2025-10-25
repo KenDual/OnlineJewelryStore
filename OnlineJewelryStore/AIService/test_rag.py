@@ -36,7 +36,7 @@ def test_rag_service():
     rag = RAGService(
         embeddings_manager=em,
         ollama_url="http://localhost:11434",
-        model_name="llama3.1:8b"
+        model_name="llama3.2:3b"
     )
     
     print("✅ RAG service initialized")
