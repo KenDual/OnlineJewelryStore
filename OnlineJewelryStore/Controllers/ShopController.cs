@@ -10,6 +10,7 @@ using System.Web.Mvc;
 
 namespace OnlineJewelryStore.Controllers
 {
+    [AllowAnonymous]
     public class ShopController : Controller
     {
         private OnlineJewelryStoreEntities db = new OnlineJewelryStoreEntities();
