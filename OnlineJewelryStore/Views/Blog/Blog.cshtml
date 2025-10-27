@@ -1,0 +1,179 @@
+﻿
+@{
+   ViewBag.Title = "Blog";
+}
+
+<!--== Page Title Area Start ==-->
+<div id="page-title-area">
+   <div class="container">
+      <div class="row">
+         <div class="col-12 text-center">
+            <div class="page-title-content">
+               <h1>Blog Details</h1>
+               <ul class="breadcrumb">
+                  <li><a href="@Url.Action("Home","Feature")">Home</a></li>
+                  <li><a href="@Url.Action("Home","Feature")">Blog</a></li>
+               </ul>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+<!--== Page Title Area End ==-->
+<!--== Page Content Wrapper Start ==-->
+<div id="page-content-wrapper" class="p-9">
+   <div class="container">
+      <div class="row">
+         <!-- Single Blog Page Content Start -->
+         <div class="col-lg-8">
+            <article class="single-blog-content-wrap">
+               <div class="post-header">
+                  <figure class="post-thumbnail">
+                     <img src="~/Resources/img/single-blog.jpg" class="img-fluid" alt="Blog" />
+                  </figure>
+
+                  <div class="post-meta">
+                     <h2>Financial Investment: The Right Way</h2>
+                     <div class="post-info">
+                        <a href="#"><i class="fa fa-user"></i> Albert Flores</a>
+                        <a href="#"><i class="fa fa-calendar"></i> 08/20/2018</a>
+                     </div>
+                  </div>
+               </div>
+
+               <div class="post-content">
+                  <p>
+                     Lorem ipsum dolor sit amet, consectetur adipisici elit. Culpa, dolorem earum eius eum,
+                     exercitationem explicabo facilis harum sillo ipsum isted odio placeated quaerated quisquam
+                     ratione suscipit tempora temporibus veniam. Ab ad aliquam amet at blanditiis delectus
+                     distinctio dolorem eaque eum, eveniet id, non nulla obcaecati perferendis ratione repellat
+                     sapiente soluta.
+                  </p>
+
+                  <p>
+                     Lorem ipsum dolor sit amet, consectetur adipisici elit. Culpa, dolorem earum eius eum,
+                     exercitationem explicabo facilis harum sillo ipsum isted odio placeated quaerated quisquam
+                     ratione suscipit tempora temporibus veniam. Ab ad aliquam amet at blanditiis delectus
+                     distinctio dolorem eaque eum, eveniet id, non nulla obcaecati perferendis ratione repellat
+                     sapiente soluta.
+                  </p>
+
+                  <blockquote class="blockquote">
+                     <p>
+                        Placeated quaerated quisquam rationed suscipite tempora temporibus veniam. Ab ad aliquam
+                        amet at blanditiis delectus distinctio dolorem eaque eum, eveniet id, non nulla
+                        obcaecati perferendis ratione repellat sapiente soluta
+                     </p>
+                  </blockquote>
+
+                  <p>
+                     It is a long established fact that a reader will be distracted by the readable content of a
+                     page when looking at its layout. The point of using Lorem Ipsum is that it has a
+                     more-or-less normal distribution of letters, as posed to using Content here, content here',
+                     making it look like readable
+                  </p>
+
+                  <img src="~/Resources/img/home_4_slide_2.jpg" class="img-fluid" alt="Blog" />
+
+                  <p>
+                     It is a long established fact that a reader will be distracted by the readable content of a
+                     page when looking at its layout. The point of using Lorem Ipsum is that it has a
+                     more-or-less normal distribution of letters, as posed to using Content here, content here',
+                     making it look like readable
+                  </p>
+               </div>
+            </article>
+         </div>
+         <!-- Single Blog Page Content End -->
+         <!-- Sidebar Area Start -->
+         <div class="col-lg-4 mt-5 mt-lg-0">
+            <div id="sidebar-area-wrap">
+               <!-- Single Sidebar Item Start -->
+               <div class="single-sidebar-wrap">
+                  <h2 class="sidebar-title">Recent Products</h2>
+                  <div class="sidebar-body">
+                     <div class="small-product-list recent-post">
+                        @if (ViewBag.RecentProducts != null)
+                        {
+                           foreach (var product in ViewBag.RecentProducts)
+                           {
+                              <div class="single-product-item">
+                                 <figure class="product-thumb">
+                                    <a href="@Url.Action("Details", "Shop", new { id = product.ProductID })">
+                                       @{
+                                          string imageUrl = "~/Resources/img/default-product.jpg";
+
+                                          // Tìm ảnh main từ ProductMedias KHÔNG DÙNG LAMBDA
+                                          if (product.ProductMedias != null && product.ProductMedias.Count > 0)
+                                          {
+                                             foreach (var media in product.ProductMedias)
+                                             {
+                                                if (media.IsMain == true)
+                                                {
+                                                   imageUrl = media.URL;
+                                                   break;
+                                                }
+                                             }
+
+                                             // Nếu không có ảnh main, lấy ảnh đầu tiên
+                                             if (imageUrl == "~/Resources/img/default-product.jpg")
+                                             {
+                                                imageUrl = product.ProductMedias[0].URL;
+                                             }
+                                          }
+                                       }
+                                       <img class="img-fluid" src="@imageUrl" alt="@product.ProductName" />
+                                    </a>
+                                 </figure>
+                                 <div class="product-details">
+                                    <h2>
+                                       <a href="@Url.Action("Details", "Shop", new { id = product.ProductID })">
+                                          @product.ProductName
+                                       </a>
+                                    </h2>
+                                    <span class="price">@product.BasePrice.ToString("N0") VND</span>
+                                    <a href="@Url.Action("Details", "Shop", new { id = product.ProductID })" class="btn-add-to-cart">
+                                       View Details <i class="fa fa-long-arrow-right"></i>
+                                    </a>
+                                 </div>
+                              </div>
+                           }
+                        }
+                     </div>
+                  </div>
+               </div>
+               <!-- Single Sidebar Item End -->
+               <!-- Single Sidebar Item Start -->
+               <div class="single-sidebar-wrap">
+                  <h2 class="sidebar-title">Categories</h2>
+                  <div class="sidebar-body">
+                     <ul class="sidebar-list">
+                        @if (ViewBag.Categories != null)
+                        {
+                           foreach (var category in ViewBag.Categories)
+                           {
+                              <li>
+                                 <a href="@Url.Action("Index", "Shop", new { categoryId = category.CategoryID })">
+                                    @category.CategoryName
+                                 </a>
+                              </li>
+                           }
+                        }
+                     </ul>
+                  </div>
+               </div>
+               <!-- Single Sidebar Item End -->
+               <!-- Single Sidebar Item End -->
+            </div>
+         </div>
+         <!-- Sidebar Area End -->
+      </div>
+   </div>
+</div>
+<!--== Page Content Wrapper End ==-->
+<div class="d-flex justify-content-center">
+   <iframe src="https://widgets.sociablekit.com/google-reviews/iframe/25614765"
+           frameborder="0" 
+           width="61%" 
+           height="1000"></iframe>
+</div>

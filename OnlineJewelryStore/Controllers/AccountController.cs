@@ -17,7 +17,6 @@ namespace OnlineJewelryStore.Controllers
         [AllowAnonymous]
         public ActionResult Login(string returnUrl)
         {
-            // Nếu đã đăng nhập rồi thì redirect về trang chủ
             if (Session["UserID"] != null)
             {
                 if (Session["UserRole"]?.ToString() == "Administrator")
@@ -36,7 +35,6 @@ namespace OnlineJewelryStore.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Login(string email, string password, string returnUrl)
         {
-            // Validation
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
             {
                 ViewBag.Error = "Email và Password không được để trống.";
@@ -44,33 +42,26 @@ namespace OnlineJewelryStore.Controllers
                 return View();
             }
 
-            // Tìm user theo email
             var user = db.Users.FirstOrDefault(u => u.Email == email);
 
-            // Kiểm tra user tồn tại và verify password
             if (user != null && user.PasswordHash == password)
             {
-                // Cập nhật LastLogin
                 user.LastLogin = DateTime.Now;
                 db.SaveChanges();
 
-                // Tạo authentication cookie
-                FormsAuthentication.SetAuthCookie(user.Email, false);
+                //FormsAuthentication.SetAuthCookie(user.Email, false);
 
-                // Lưu thông tin user vào Session
                 Session["UserID"] = user.UserID;
                 Session["UserName"] = user.FirstName + " " + user.LastName;
                 Session["UserEmail"] = user.Email;
                 Session["UserRole"] = user.Role;
 
-                // Redirect theo role
                 if (user.Role == "Administrator")
                 {
                     return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
                 }
                 else
                 {
-                    // Nếu có returnUrl thì redirect về đó
                     if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                         return Redirect(returnUrl);
 
@@ -87,7 +78,6 @@ namespace OnlineJewelryStore.Controllers
         [AllowAnonymous]
         public ActionResult Register()
         {
-            // Nếu đã đăng nhập rồi thì redirect về trang chủ
             if (Session["UserID"] != null)
             {
                 return RedirectToAction("Home", "Feature");
@@ -102,14 +92,12 @@ namespace OnlineJewelryStore.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Register(User user, string password, string confirmPassword)
         {
-            // Kiểm tra password match
             if (password != confirmPassword)
             {
                 ViewBag.Error = "Mật khẩu xác nhận không khớp.";
                 return View(user);
             }
 
-            // Kiểm tra độ dài password
             if (string.IsNullOrEmpty(password) || password.Length < 6)
             {
                 ViewBag.Error = "Mật khẩu phải có ít nhất 6 ký tự.";
@@ -118,22 +106,19 @@ namespace OnlineJewelryStore.Controllers
 
             if (ModelState.IsValid)
             {
-                // Kiểm tra email đã tồn tại chưa
                 if (db.Users.Any(u => u.Email == user.Email))
                 {
                     ViewBag.Error = "Email này đã được đăng ký.";
                     return View(user);
                 }
 
-                // Set default phone if empty (vì database NOT NULL)
                 if (string.IsNullOrEmpty(user.Phone))
                 {
-                    user.Phone = "0000000000"; // Default phone
+                    user.Phone = "0000000000";
                 }
 
-                // Hash password
                 user.PasswordHash = password;
-                user.Role = "Customer"; // Mặc định là Customer
+                user.Role = "Customer";
                 user.RegistrationDate = DateTime.Now;
                 user.LastLogin = null;
                 user.SocialLoginProvider = null;
@@ -141,7 +126,6 @@ namespace OnlineJewelryStore.Controllers
                 db.Users.Add(user);
                 db.SaveChanges();
 
-                // Hiển thị thông báo thành công
                 TempData["SuccessMessage"] = "Đăng ký thành công! Vui lòng đăng nhập.";
                 return RedirectToAction("Login");
             }
@@ -152,10 +136,8 @@ namespace OnlineJewelryStore.Controllers
         // GET: Account/Logout
         public ActionResult Logout()
         {
-            // Xóa authentication cookie
-            FormsAuthentication.SignOut();
+            //FormsAuthentication.SignOut();
 
-            // Xóa session
             Session.Clear();
             Session.Abandon();
 
@@ -166,7 +148,6 @@ namespace OnlineJewelryStore.Controllers
         [HttpGet]
         public ActionResult Profile()
         {
-            // Kiểm tra đã đăng nhập chưa
             if (Session["UserID"] == null)
             {
                 return RedirectToAction("Login");
@@ -201,11 +182,9 @@ namespace OnlineJewelryStore.Controllers
                     existingUser.FirstName = user.FirstName;
                     existingUser.LastName = user.LastName;
                     existingUser.Phone = user.Phone;
-                    // Email không cho phép thay đổi
 
                     db.SaveChanges();
 
-                    // Update session
                     Session["UserName"] = existingUser.FirstName + " " + existingUser.LastName;
 
                     TempData["SuccessMessage"] = "Cập nhật thông tin thành công!";
@@ -260,10 +239,8 @@ namespace OnlineJewelryStore.Controllers
 
             if (user != null)
             {
-                // Verify old password
                 if (user.PasswordHash == oldPassword)
                 {
-                    // Update new password
                     user.PasswordHash = newPassword;
                     db.SaveChanges();
 
@@ -306,20 +283,18 @@ namespace OnlineJewelryStore.Controllers
             var user = db.Users.FirstOrDefault(u => u.Email == email);
             if (user == null)
             {
-                // Không lộ thông tin
                 TempData["SuccessMessage"] = "Nếu email tồn tại, mã đã được gửi.";
                 return RedirectToAction("ForgotPassword");
             }
 
-            // Tạo mã 6 số + lưu Session (không dùng DB)
             var code = GenerateSixDigitCode();
             Session[$"ResetCode_{email}"] = code;
             Session[$"ResetCodeExpiry_{email}"] = DateTime.Now.AddHours(1);
-            Session.Remove($"ResetVerified_{email}"); // reset trạng thái
+            Session.Remove($"ResetVerified_{email}");
 
             try
             { 
-                SendResetEmail(email, code); // gửi mail thật
+                SendResetEmail(email, code);
             }
             catch (Exception ex)
             {
@@ -327,7 +302,6 @@ namespace OnlineJewelryStore.Controllers
                 return View();
             }
 
-            // Chuyển sang CheckDigit (nếu email tồn tại)
             return RedirectToAction("CheckDigit", new { email = email });
         }
 
@@ -343,7 +317,6 @@ namespace OnlineJewelryStore.Controllers
 
             ViewBag.Email = email;
 
-            // Hiển thị token nếu vừa được tạo (cho local testing)
             if (TempData["ResetToken"] != null)
             {
                 ViewBag.ShowToken = true;
@@ -362,7 +335,6 @@ namespace OnlineJewelryStore.Controllers
         {
             ViewBag.Email = email;
 
-            // Validate inputs
             if (string.IsNullOrEmpty(token))
             {
                 ViewBag.Error = "Vui lòng nhập mã xác nhận.";
@@ -387,7 +359,6 @@ namespace OnlineJewelryStore.Controllers
                 return View();
             }
 
-            // Verify token
             var sessionToken = Session[$"ResetToken_{email}"] as string;
             var tokenExpiry = Session[$"ResetTokenExpiry_{email}"] as DateTime?;
             var userId = Session[$"ResetTokenUserID_{email}"] as int?;
@@ -401,21 +372,19 @@ namespace OnlineJewelryStore.Controllers
             if (tokenExpiry == null || tokenExpiry < DateTime.Now)
             {
                 ViewBag.Error = "Mã xác nhận đã hết hạn. Vui lòng yêu cầu mã mới.";
-                // Clear expired token
+
                 Session.Remove($"ResetToken_{email}");
                 Session.Remove($"ResetTokenExpiry_{email}");
                 Session.Remove($"ResetTokenUserID_{email}");
                 return View();
             }
 
-            // Update password
             var user = db.Users.Find(userId);
             if (user != null)
             {
                 user.PasswordHash = newPassword;
                 db.SaveChanges();
 
-                // Clear used token
                 Session.Remove($"ResetToken_{email}");
                 Session.Remove($"ResetTokenExpiry_{email}");
                 Session.Remove($"ResetTokenUserID_{email}");
